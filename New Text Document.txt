@@ -1,0 +1,35 @@
+Goals
+Shop size - the player level needed dictates what are locs
+expansion compeletion
+money?
+
+locs
+All shop items under level goal
+All upgrades
+card sanity - expansion choice
+
+items
+all upgrades
+all shop items
+
+if Goal is card expansion, cards in that expansion
+    Trash
+    XP
+    Money
+    Fame
+
+
+traps
+-fame trap
+-cant open packs
+-stink trap
+-market price trap
+
+being sent lisense
+
+Progressives
+packs have 4
+boxes have 2
+Cleanser have 2
+Auto Scent have 3
+Warehouse Shelf	2
