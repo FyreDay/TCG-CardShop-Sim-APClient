@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using ApClient.mapping;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,34 +7,68 @@ using System.Text;
 
 namespace ApClient.patches
 {
-
-    [HarmonyPatch]
     class PlayerDataPatches
     {
-        // Dynamically target the method since 'S' might be a static instance
-        static MethodBase TargetMethod()
-        {
-            var type = typeof(CPlayerData); // Singleton class, CPlayerData
-            var method = type.GetMethod("AddCard", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); // Static method
 
-            if (method == null)
+        [HarmonyPatch]
+        class AddLicense
+        {
+            static MethodBase TargetMethod()
             {
-                Plugin.Log("Static method 'AddCard' not found!");
+                var type = typeof(CPlayerData); // Singleton class, CPlayerData
+                var method = type.GetMethod("SetUnlockItemLicense", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); // Static method
+
+                if (method == null)
+                {
+                    Plugin.Log("Static method 'SetUnlockItemLicense' not found!");
+                }
+
+                return method;
+            }
+            // Prefix: Runs before the method
+            static bool Prefix(int index)
+            {
+                Plugin.Log($"Before adding license: {index}, Type: {InventoryBase.GetRestockData(index).itemType}");
+                Plugin.Log($"id: {LicenseMapping.mapping.GetValueOrDefault(index)}");
+                Plugin.session.Locations.CompleteLocationChecks(LicenseMapping.mapping.GetValueOrDefault(index).locid);
+                return Plugin.hasItem(LicenseMapping.mapping.GetValueOrDefault(index).itemid);
             }
 
-            return method;
+            // Postfix: Runs after the method
+            static void Postfix(int index)
+            {
+                Plugin.Log($"After adding license:" );
+            }
         }
 
-        // Prefix: Runs before the method
-        static void Prefix(CardData cardData, int addAmount)
+        [HarmonyPatch]
+        class AddCard
         {
-            Plugin.Log($"Before adding card: {cardData.isNew}, Amount: {addAmount}");
-        }
+            // Dynamically target the method since 'S' might be a static instance
+            static MethodBase TargetMethod()
+            {
+                var type = typeof(CPlayerData); // Singleton class, CPlayerData
+                var method = type.GetMethod("AddCard", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); // Static method
 
-        // Postfix: Runs after the method
-        static void Postfix(CardData cardData, int addAmount)
-        {
-            Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
+                if (method == null)
+                {
+                    Plugin.Log("Static method 'AddCard' not found!");
+                }
+
+                return method;
+            }
+
+            // Prefix: Runs before the method
+            static void Prefix(CardData cardData, int addAmount)
+            {
+                Plugin.Log($"Before adding card: {cardData.isNew}, Amount: {addAmount}");
+            }
+
+            // Postfix: Runs after the method
+            static void Postfix(CardData cardData, int addAmount)
+            {
+                Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
+            }
         }
     }
 }

@@ -33,3 +33,10 @@ boxes have 2
 Cleanser have 2
 Auto Scent have 3
 Warehouse Shelf	2
+
+
+
+Progression limits
+amount of licenses recieved
+big bundles of xp that unlock levels
+progressive level cap
