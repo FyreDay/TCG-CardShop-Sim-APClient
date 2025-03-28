@@ -6,6 +6,7 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -34,13 +35,14 @@ public class Plugin : BaseUnityPlugin
     private void OnDestroy()
     {
         //CSaveLoad
+        
         this.m_Harmony.UnpatchSelf();
     }
 
     private bool showGUI = true;
-    private string ipporttext = "";
+    private string ipporttext = "localhost:38281";
     private string password = "";
-    private string slot = "";
+    private string slot = "Player1";
 
     private string state = "Not Connected";
 
@@ -77,6 +79,7 @@ public class Plugin : BaseUnityPlugin
         GUI.Label(new Rect(20, 240, 300, 30), state, textStyle);
     }
     public static ArchipelagoSession session;
+    public static int CardSanity = 0;
 
     public static int itemCount(long id)
     {
@@ -93,13 +96,13 @@ public class Plugin : BaseUnityPlugin
     {
         
         state = "Connecting";
-        session = ArchipelagoSessionFactory.CreateSession("localhost:38281");
+        session = ArchipelagoSessionFactory.CreateSession(ipporttext);
 
         LoginResult result;
 
         try
         {
-            result = session.TryConnectAndLogin("TCG Card Shop Simulator", "Player2", ItemsHandlingFlags.AllItems,null, null, null, password);
+            result = session.TryConnectAndLogin("TCG Card Shop Simulator", slot, ItemsHandlingFlags.AllItems,null, null, null, password, true);
         }
         catch (Exception e)
         {
@@ -111,8 +114,24 @@ public class Plugin : BaseUnityPlugin
         if (result.Successful)
         {
             state = "Connected";
+            var loginSuccess = (LoginSuccessful)result;
+            CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
+
+            //callback for item retrieval
+            session.Items.ItemReceived += (receivedItemsHelper) => {
+                ItemInfo itemReceived = receivedItemsHelper.PeekItem();
+                Log(itemReceived.ItemName);
+                if(LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
+                {
+                    //update Restock ui
+                }
+
+                receivedItemsHelper.DequeueItem();
+            };
         }
     }
+
+    
 
     private void Update()
     {

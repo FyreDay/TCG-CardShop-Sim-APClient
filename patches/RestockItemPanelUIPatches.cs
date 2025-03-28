@@ -10,6 +10,61 @@ namespace ApClient.patches
 {
     public class RestockItemPanelUIPatches
     {
+        [HarmonyPatch(typeof(RestockItemPanelUI), "Init")]
+        public class Init
+        {
+            static void Postfix(RestockItemPanelUI __instance, RestockItemScreen restockItemScreen, int index)
+            {
+                FieldInfo? fieldInfo = typeof(RestockItemPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    return;
+                }
+
+                int levelRequirement = (int)fieldInfo.GetValue(__instance);
+
+                var value = LicenseMapping.getValueOrEmpty(index);
+                if (value.locid == -1)
+                {
+                    Plugin.Log($"Failed to find index: {index}");
+                    return;
+                }
+
+                bool hasAPItem = Plugin.itemCount(value.itemid) >= value.count;
+                bool hasCheck = CPlayerData.m_IsItemLicenseUnlocked.Count > index && CPlayerData.GetIsItemLicenseUnlocked(index);
+
+                if (!hasAPItem && hasCheck)
+                {
+                    //disable buying until AP item
+                    __instance.m_UIGrp.SetActive(value: false);
+                    __instance.m_LicenseUIGrp.SetActive(value: true);
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                    __instance.m_LevelRequirementText.text = "License Locked by AP";
+                    __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+                    Plugin.Log($"Doesnt have item. {__instance.m_LevelRequirementText.text}");
+                }
+                else if (hasAPItem && hasCheck)
+                {
+                    //allow ordering the item
+                    __instance.m_UIGrp.SetActive(value: true);
+                    __instance.m_LicenseUIGrp.SetActive(value: false);
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                    //__instance.m_LevelRequirementText.text = "";
+                    //__instance.m_LevelRequirementText.gameObject.SetActive(value: false);
+                    Plugin.Log($"Has item.");
+                }
+                else if (hasAPItem && !hasCheck)
+                {
+                    //remove level requirement
+                    fieldInfo.SetValue(__instance, 1);
+                    __instance.m_LockPurchaseBtn.SetActive(value: false);
+                    __instance.m_LevelRequirementText.text = "AP Removed Level Requirement";
+                    Plugin.Log($"remove level Requirement for {index}");
+                }
+            }
+                
+        }
+
         [HarmonyPatch(typeof(RestockItemPanelUI), "OnPressPurchaseButton")]
         public class OnClick
         {
@@ -42,7 +97,7 @@ namespace ApClient.patches
                 {
                     __instance.m_UIGrp.SetActive(value: false);
                     __instance.m_LicenseUIGrp.SetActive(value: true);
-                    __instance.m_LockPurchaseBtn.SetActive(value: true);
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
                     __instance.m_LevelRequirementText.text = "License Locked by AP";
                     __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
                     Plugin.Log($"Doesnt have item. {__instance.m_LevelRequirementText.text}");
