@@ -6,10 +6,12 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.XR;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace ApClient;
@@ -91,7 +93,7 @@ public class Plugin : BaseUnityPlugin
     {
         return itemCount(id) > 0;
     }
-
+    
     private void connect()
     {
         
@@ -124,6 +126,40 @@ public class Plugin : BaseUnityPlugin
                 if(LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
                 {
                     //update Restock ui
+                }
+                if (CPlayerData.GetPlayerName() != "")
+                {
+                    if((int)itemReceived.ItemId == TrashMapping.smallMoney)
+                    {
+                        CEventManager.QueueEvent(new CEventPlayer_AddCoin(50));
+                    }
+                    if ((int)itemReceived.ItemId == TrashMapping.smallXp)
+                    {
+                        CEventManager.QueueEvent(new CEventPlayer_AddShopExp(100));
+                    }
+                    if ((int)itemReceived.ItemId == TrashMapping.mediumMoney)
+                    {
+                        CEventManager.QueueEvent(new CEventPlayer_AddCoin(150));
+                    }
+                    if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
+                    {
+                        CEventManager.QueueEvent(new CEventPlayer_AddShopExp(200));
+                    }
+                    if ((int)itemReceived.ItemId == TrashMapping.largeMoney)
+                    {
+                        CEventManager.QueueEvent(new CEventPlayer_AddCoin(500));
+                    }
+                    if ((int)itemReceived.ItemId == TrashMapping.largeXp)
+                    {
+                        CEventManager.QueueEvent(new CEventPlayer_AddShopExp(500));
+                    }
+                    if ((int)itemReceived.ItemId == TrashMapping.randomcard)
+                    {
+                        var packlist = Enum.GetValues(typeof(ECollectionPackType));
+                        var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, CardSanity == 0 ? 8 : CardSanity));
+                        cardRoller(packType);
+                    }
+
                 }
 
                 receivedItemsHelper.DequeueItem();
@@ -160,4 +196,82 @@ public class Plugin : BaseUnityPlugin
     //    //    TryFindCardOpeningSequence();
     //    //}
     //}
+
+    private void cardRoller(ECollectionPackType collectionPackType)
+    {
+        List<EMonsterType> commonlist = new List<EMonsterType>();
+        List<EMonsterType> rarelist = new List<EMonsterType>();
+        List<EMonsterType> epiclist = new List<EMonsterType>();
+        List<EMonsterType> legendlist = new List<EMonsterType>();
+        ECardExpansionType cardExpansionType = InventoryBase.GetCardExpansionType(collectionPackType);
+
+        for (int i = 0; i < InventoryBase.GetShownMonsterList(cardExpansionType).Count; i++)
+        {
+            EMonsterType monsterType = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).MonsterType;
+            ERarity rarity = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).Rarity;
+            switch (rarity)
+            {
+                case ERarity.Legendary:
+                    legendlist.Add(monsterType);
+                    break;
+                case ERarity.Epic:
+                    epiclist.Add(monsterType);
+                    break;
+                case ERarity.Rare:
+                    rarelist.Add(monsterType);
+                    break;
+                default:
+                    commonlist.Add(monsterType);
+                    break;
+            }
+        }
+        System.Random randomGenerator = new System.Random();
+
+        var vb = Enum.GetValues(typeof(ECardBorderType));
+        var border = (ECardBorderType)vb.GetValue(randomGenerator.Next(vb.Length));
+
+        var monster = EMonsterType.BatA;
+
+        switch (collectionPackType)
+        {
+            case ECollectionPackType.BasicCardPack:
+                monster = commonlist[UnityEngine.Random.Range(0, commonlist.Count)];
+                break;
+            case ECollectionPackType.DestinyBasicCardPack:
+                monster = commonlist[UnityEngine.Random.Range(0, commonlist.Count)];
+                break;
+            case ECollectionPackType.RareCardPack:
+                monster = rarelist[UnityEngine.Random.Range(0, rarelist.Count)];
+                break;
+            case ECollectionPackType.DestinyRareCardPack:
+                monster = rarelist[UnityEngine.Random.Range(0, rarelist.Count)];
+                break;
+            case ECollectionPackType.EpicCardPack:
+                monster = epiclist[UnityEngine.Random.Range(0, epiclist.Count)];
+                break;
+            case ECollectionPackType.DestinyEpicCardPack:
+                monster = epiclist[UnityEngine.Random.Range(0, epiclist.Count)];
+                break;
+            case ECollectionPackType.LegendaryCardPack:
+                monster = legendlist[UnityEngine.Random.Range(0, legendlist.Count)];
+                break;
+            case ECollectionPackType.DestinyLegendaryCardPack:
+                monster = legendlist[UnityEngine.Random.Range(0, legendlist.Count)];
+                break;
+            default:
+                monster = commonlist[UnityEngine.Random.Range(0, commonlist.Count)];
+                break;
+        }
+
+        CPlayerData.AddCard(new CardData
+        {
+            isFoil = randomGenerator.NextDouble() >= 0.5,
+            isDestiny = randomGenerator.NextDouble() >= 0.5,
+            borderType = border,
+            monsterType = monster,
+            expansionType = cardExpansionType,
+            isChampionCard = false,
+            isNew = true
+        }, 1);
+    }
 }

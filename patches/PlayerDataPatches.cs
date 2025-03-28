@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 
 namespace ApClient.patches
 {
+    //ShopRenamer -> OnPressConfirmShopName() Postfix
     class PlayerDataPatches
     {
         [HarmonyPatch]
@@ -21,6 +22,8 @@ namespace ApClient.patches
             [HarmonyPostfix]
             public static void Postfix()
             {
+                TutorialManager
+                CPlayerData.m_TutorialIndex = 16;
                 //CPlayerData.m_HasFinishedTutorial = true;
                 Plugin.Log("Postfix executed on CreateDefaultData");
             }
@@ -49,7 +52,7 @@ namespace ApClient.patches
                 if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel+1 >= 2)
                 {
                     Plugin.Log($"Level Up: {oldLevel} -> {CPlayerData.m_ShopLevel}");
-                    Plugin.session.Locations.CompleteLocationChecks(0x1F280176 + CPlayerData.m_ShopLevel);
+                    Plugin.session.Locations.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
                 }
             }
         }
