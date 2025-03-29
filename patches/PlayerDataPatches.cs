@@ -22,8 +22,8 @@ namespace ApClient.patches
             [HarmonyPostfix]
             public static void Postfix()
             {
-                TutorialManager
-                CPlayerData.m_TutorialIndex = 16;
+                //TutorialManager
+                //CPlayerData.m_TutorialIndex = 16;
                 //CPlayerData.m_HasFinishedTutorial = true;
                 Plugin.Log("Postfix executed on CreateDefaultData");
             }
@@ -51,7 +51,7 @@ namespace ApClient.patches
 
                 if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel+1 >= 2)
                 {
-                    Plugin.Log($"Level Up: {oldLevel} -> {CPlayerData.m_ShopLevel}");
+                    Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
                     Plugin.session.Locations.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
                 }
             }

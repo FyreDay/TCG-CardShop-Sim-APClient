@@ -16,8 +16,21 @@ namespace ApClient.patches
         {
             static void Postfix(ExpansionShopPanelUI __instance, ExpansionShopUIScreen expansionShopUIScreen, int index, bool isShopB)
             {
+                Plugin.Log($"init expansion Shop {index} is B: {isShopB}");
+                Plugin.Log($"Count of progressive A: {Plugin.itemCount(ExpansionMapping.progressiveA)}");
+                bool hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index+1;
+                if (hasAPItem)
+                {
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+                }
+                else
+                {
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+                }
                 __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} and AP Progressive";
-                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                
             }
         }
 
@@ -26,8 +39,21 @@ namespace ApClient.patches
         {
             static bool Prefix(ExpansionShopPanelUI __instance)
             {
+                FieldInfo? fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    return false;
+                }
+
+                int index = (int)fieldInfo.GetValue(__instance);
+
+                bool hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index + 1;
+                if (hasAPItem)
+                {
+                    return true;
+                }
                 NotEnoughResourceTextPopup.ShowText(ENotEnoughResourceText.UnlockPreviousRoomExpansionFirst);
-                return true;
+                return false;
             }
         }
 

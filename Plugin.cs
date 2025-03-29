@@ -1,4 +1,5 @@
 ﻿using ApClient.mapping;
+using ApClient.patches;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
@@ -9,7 +10,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.Device;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static System.Net.Mime.MediaTypeNames;
@@ -121,11 +124,64 @@ public class Plugin : BaseUnityPlugin
 
             //callback for item retrieval
             session.Items.ItemReceived += (receivedItemsHelper) => {
-                ItemInfo itemReceived = receivedItemsHelper.PeekItem();
+                ItemInfo itemReceived = receivedItemsHelper.DequeueItem();
                 Log(itemReceived.ItemName);
                 if(LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
                 {
                     //update Restock ui
+                    RestockItemScreen screen = UnityEngine.Object.FindObjectOfType<RestockItemScreen>();
+                    RestockItemPanelUI panel = screen.m_RestockItemPanelUIList[LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key];
+                    panel.m_UIGrp.SetActive(value: true);
+                    panel.m_LicenseUIGrp.SetActive(value: false);
+                    panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                    Log($"Recieved Item While panel was open: {(int)itemReceived.ItemId}");
+                }
+                if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)
+                {
+                    ExpansionShopUIScreen screen = UnityEngine.Object.FindObjectOfType<ExpansionShopUIScreen>();
+                    if (screen != null)
+                    {
+                        FieldInfo field = typeof(ExpansionShopUIScreen).GetField("m_IsShopB", BindingFlags.NonPublic | BindingFlags.Instance);
+                        bool isB = (bool)field.GetValue(screen);
+                        if (!isB)
+                        {
+                            ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[itemCount((int)itemReceived.ItemId) - 1];
+                            panel.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                            panel.m_PurchasedBtn.gameObject.SetActive(value: false);
+                            Log($"Recieved Progressive A While panel was open: {(int)itemReceived.ItemId}");
+                        }
+                        
+                    }
+                }
+                if ((int)itemReceived.ItemId == ExpansionMapping.progressiveB)
+                {
+                    ExpansionShopUIScreen screen = UnityEngine.Object.FindObjectOfType<ExpansionShopUIScreen>();
+                    if (screen != null)
+                    {
+                        FieldInfo field = typeof(ExpansionShopUIScreen).GetField("m_IsShopB", BindingFlags.NonPublic | BindingFlags.Instance);
+                        bool isB = (bool)field.GetValue(screen);
+                        if (isB)
+                        {
+                            ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[itemCount((int)itemReceived.ItemId) - 1];
+                            panel.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                            panel.m_PurchasedBtn.gameObject.SetActive(value: false);
+                            Log($"Recieved Progressive A While panel was open: {(int)itemReceived.ItemId}");
+                        }
+                    }
+                }
+                if (EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key != -1 )
+                {
+                    HireWorkerScreen screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
+                    if (screen != null)
+                    {
+                        Log("detected Hire Worker Screen");
+                        HireWorkerPanelUI panel = screen.m_HireWorkerPanelUIList[EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key];
+                        Log("Found Hire Worker Panel");
+                        panel.m_LevelRequirementText.gameObject.SetActive(value: false);
+                        panel.m_HireFeeText.gameObject.SetActive(value: true);
+                        panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                        Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
+                    }
                 }
                 if (CPlayerData.GetPlayerName() != "")
                 {
@@ -162,7 +218,6 @@ public class Plugin : BaseUnityPlugin
 
                 }
 
-                receivedItemsHelper.DequeueItem();
             };
         }
     }
