@@ -18,11 +18,29 @@ namespace ApClient.patches
             {
                 Plugin.Log($"init expansion Shop {index} is B: {isShopB}");
                 Plugin.Log($"Count of progressive A: {Plugin.itemCount(ExpansionMapping.progressiveA)}");
-                bool hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index+1;
-                if (hasAPItem)
+                FieldInfo? fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
                 {
-                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                    __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+                    return;
+                }
+
+                int m_LevelRequired = (int)fieldInfo.GetValue(__instance);
+                bool hasAPItem = false;
+                if (isShopB)
+                {
+                    hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveB) >= index + 1;
+                }
+                else
+                {
+                    hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index + 1;
+                }
+                
+                bool atLevel = CPlayerData.m_ShopLevel + 1 < m_LevelRequired;
+
+                if (hasAPItem && atLevel)
+                {
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: true);
                 }
                 else
                 {
@@ -47,8 +65,17 @@ namespace ApClient.patches
 
                 int index = (int)fieldInfo.GetValue(__instance);
 
+                FieldInfo? fieldInfo2 = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo2 == null)
+                {
+                    return false;
+                }
+
+                int m_LevelRequired = (int)fieldInfo.GetValue(__instance);
                 bool hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index + 1;
-                if (hasAPItem)
+                bool atLevel = CPlayerData.m_ShopLevel + 1 < m_LevelRequired;
+
+                if (hasAPItem && atLevel)
                 {
                     return true;
                 }

@@ -26,9 +26,9 @@ namespace ApClient.mapping
             {14, (0x1F280004, "Progressive Legendary Card Pack",3,0x1F2800FE) },
             {15, (0x1F280004, "Progressive Legendary Card Pack",4,0x1F2800FF) },
             {67, (0x1F280005, "Fire Battle Deck",1,0x1F280100) },
-            {68, (0x1F280006, "Earth Battle Deck",2,0x1F280101) },
-            {69, (0x1F280007, "Water Battle Deck",3,0x1F280102) },
-            {70, (0x1F280008, "Wind Battle Deck",4,0x1F280103) },
+            {68, (0x1F280006, "Earth Battle Deck",1,0x1F280101) },
+            {69, (0x1F280007, "Water Battle Deck",1,0x1F280102) },
+            {70, (0x1F280008, "Wind Battle Deck",1,0x1F280103) },
             {24, (0x1F280009, "Progressive Basic Destiny Pack", 1, 0x1F280104) },
             {25, (0x1F280009, "Progressive Basic Destiny Pack", 2,0x1F280105) },
             {26, (0x1F280009, "Progressive Basic Destiny Pack", 3,0x1F280106) },
@@ -46,9 +46,9 @@ namespace ApClient.mapping
             {38, (0x1F28000C, "Progressive Legendary Destiny Pack",3,0x1F280112) },
             {39, (0x1F28000C, "Progressive Legendary Destiny Pack",4,0x1F280113) },
             {71, (0x1F28000D, "Fire Destiny Deck",1,0x1F280114) },
-            {72, (0x1F28000E, "Earth Destiny Deck",2,0x1F280115) },
-            {73, (0x1F28000F, "Water Destiny Deck",3,0x1F280116) },
-            {74, (0x1F280010, "Wind Destiny Deck",4,0x1F280117) },
+            {72, (0x1F28000E, "Earth Destiny Deck",1,0x1F280115) },
+            {73, (0x1F28000F, "Water Destiny Deck",1,0x1F280116) },
+            {74, (0x1F280010, "Wind Destiny Deck",1,0x1F280117) },
 
             {40, (0x1F280011, "Progressive Cleanser",1,0x1F280118) },
             {41, (0x1F280011, "Progressive Cleanser",2,0x1F280119) },
@@ -145,10 +145,10 @@ namespace ApClient.mapping
             {129, (0x1F2800B5, "Collectors Album", 1, 0x1F280176) },
         };
 
-        public static KeyValuePair<int, (int itemid, string name, int count, int locid)> getKeyValue(int itemid)
+        public static KeyValuePair<int, (int itemid, string name, int count, int locid)> getKeyValue(int itemid, int count = 1)
         {
             Plugin.Log($"id: {itemid}");
-            var result = mapping.FirstOrDefault(pair => pair.Value.itemid == itemid);
+            var result = mapping.FirstOrDefault(pair => pair.Value.itemid == itemid && count == pair.Value.count);
 
             var defaultPair = new KeyValuePair<int, (int, string, int, int)>(-1, (-1, "Unknown", 0, -1));
 

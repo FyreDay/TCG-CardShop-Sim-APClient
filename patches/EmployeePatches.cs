@@ -15,19 +15,19 @@ namespace ApClient.patches
             static void Postfix(HireWorkerPanelUI __instance, HireWorkerScreen hireWorkerScreen, int index)
             {
                 var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
-                __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} and AP Progressive";
-                if (val.locid == -1 || !Plugin.hasItem(val.itemid))
-                {
-                    __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-                    __instance.m_HireFeeText.gameObject.SetActive(value: false);
-                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                }
-                else
+                __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} Or AP Progressive";
+                if (val.locid != -1 && Plugin.hasItem(val.itemid))
                 {
                     __instance.m_LevelRequirementText.gameObject.SetActive(value: false);
                     __instance.m_HireFeeText.gameObject.SetActive(value: true);
                     __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                 }
+                else {
+                    __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+                    __instance.m_HireFeeText.gameObject.SetActive(value: false);
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                }
+                
             }
         }
 
