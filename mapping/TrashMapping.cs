@@ -13,7 +13,9 @@ namespace ApClient.mapping
         public static int largeXp = 0x1F2800D2;
         public static int largeMoney = 0x1F2800D3;
         public static int randomcard = 0x1F2800D4;
+        public static int randomNewCard = 0x1F2800D5;
 
         public static int stinkTrap = 0x1F2800B4;
+        public static int lightTrap = 0x1F2800D5;
     }
 }

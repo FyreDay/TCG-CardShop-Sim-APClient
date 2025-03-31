@@ -40,3 +40,6 @@ Progression limits
 amount of licenses recieved
 big bundles of xp that unlock levels
 progressive level cap
+
+
+deathlink ends day, "dying" is not paying bills

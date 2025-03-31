@@ -328,6 +328,33 @@ public class Plugin : BaseUnityPlugin
             var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, CardSanity == 0 ? 8 : CardSanity));
             cardRoller(packType);
         }
+        if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
+        {
+            //CPlayerData.GetCardCollectedList()
+            var packlist = Enum.GetValues(typeof(ECollectionPackType));
+            var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, CardSanity == 0 ? 8 : CardSanity));
+            cardRoller(packType);
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.stinkTrap)
+        {
+
+            FieldInfo cfieldInfo = typeof(CustomerManager).GetField("m_CustomerList", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (cfieldInfo == null)
+            {
+                return;
+            }
+            List<Customer> list = (List<Customer>)cfieldInfo.GetValue(CSingleton<CustomerManager>.Instance);
+            foreach(Customer c in list)
+            {
+                c.SetSmelly();
+            }
+        }
+        //if (int) itemReceived.ItemId == TrashMapping.lightTrap)
+        //{
+        //    SoundManager.PlayAudio("SFX_ButtonLightTap", 0.6f, 0.5f);
+        //    CSingleton<LightManager>.Instance.m_ShoplightGrp.SetActive(false);
+        //    CSingleton<LightManager>.Instance.EvaluateWorldUIBrightness();
+        //}
     }
 
     private static bool SceneLoaded = false;

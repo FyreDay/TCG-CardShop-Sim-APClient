@@ -15,6 +15,7 @@ public class CGameManagerPatches
     {
         
         Plugin.Log("Processing cache Items");
+        CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
         Plugin.ProcessCachedItems();
         
     }
