@@ -16,6 +16,7 @@ using UnityEngine.Device;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -136,17 +137,18 @@ public class Plugin : BaseUnityPlugin
             //callback for item retrieval
             session.Items.ItemReceived += (receivedItemsHelper) => {
 
-                
+                if (m_SaveManager.getProcessedItems() > processed)
+                {
+                    ItemInfo oldItem = receivedItemsHelper.DequeueItem();
+                    Log($"Already Processed {oldItem.ItemName}");
+
+                    processed++;
+                    return;
+                }
+
                 if (!SceneLoaded)
                 {
-                    if (m_SaveManager.getProcessedItems() > processed)
-                    {
-                        ItemInfo oldItem = receivedItemsHelper.DequeueItem();
-                        Log($"Already Processed {oldItem.ItemName}");
-                        
-                        processed++;
-                        return;
-                    }
+                    Log($"Not In Scene");
                     cachedItems.Add(receivedItemsHelper.DequeueItem());
                     processed++;
                     return;
@@ -158,7 +160,6 @@ public class Plugin : BaseUnityPlugin
 
                 processNewItem(itemReceived);
                 processed++;
-                m_SaveManager.increaseProcessedItems();
             };
         }
     }
@@ -233,6 +234,10 @@ public class Plugin : BaseUnityPlugin
         }
         if (EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
+            Log($"worker recieved id: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
+            //cannot run uless level fully loaded
+            //CPlayerData.SetIsWorkerHired(EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key, isHired: true);
+            //CSingleton<WorkerManager>.Instance.ActivateWorker(EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key, resetTask: true);
             HireWorkerScreen screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
             if (screen != null)
             {
@@ -243,9 +248,6 @@ public class Plugin : BaseUnityPlugin
                 panel.m_HireFeeText.gameObject.SetActive(value: true);
                 panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                 Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
-
-                CPlayerData.SetIsWorkerHired(EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key, isHired: true);
-                CSingleton<WorkerManager>.Instance.ActivateWorker(EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key, resetTask: true);
 
                 SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
             }
@@ -290,22 +292,25 @@ public class Plugin : BaseUnityPlugin
         {
             Log("Has result");
             //set buttons correctly
+            TitleScreen titleScreen = GameObject.FindFirstObjectByType<TitleScreen>();
+            GameObject parentObject = GameObject.Find("NewGameBtn");
+            UnityEngine.UI.Button newGame = null;
+            if (parentObject != null)
+            {
+                // Look for the Button component in this object or its children
+                newGame = parentObject.GetComponentInChildren<UnityEngine.UI.Button>();
+
+            }
             if (m_SaveManager.doesSaveExist())
             {
-                TitleScreen titleScreen = GameObject.FindFirstObjectByType<TitleScreen>();
                 titleScreen.m_LoadGameButton.interactable = true;
+                newGame.interactable = false;
             }
             else
             {
-                GameObject parentObject = GameObject.Find("NewGameBtn");
+                titleScreen.m_LoadGameButton.interactable = false;
+                newGame.interactable = true;
 
-                if (parentObject != null)
-                {
-                    // Look for the Button component in this object or its children
-                    Button myButton = parentObject.GetComponentInChildren<Button>();
-                    myButton.interactable = true;
-
-                }
             }
         }
         else
@@ -319,12 +324,12 @@ public class Plugin : BaseUnityPlugin
             if (parentObject != null)
             {
                 // Look for the Button component in this object or its children
-                Button myButton = parentObject.GetComponentInChildren<Button>();
+                UnityEngine.UI.Button myButton = parentObject.GetComponentInChildren<UnityEngine.UI.Button>();
                 myButton.interactable = interactable;
 
             }
         }
-    }
+    }w
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         Log($" Scene Load: {scene.name}");
@@ -342,6 +347,7 @@ public class Plugin : BaseUnityPlugin
         }
         if (scene.name == "Start")
         {
+            
             showGUI = false;
             
         }
@@ -351,11 +357,11 @@ public class Plugin : BaseUnityPlugin
     {
 
         SceneLoaded = true;
+
         foreach (ItemInfo item in cachedItems)
         {
             Log($"Item on load {item.ItemName}");
             processNewItem(item);
-            m_SaveManager.increaseProcessedItems();
             processed++;
         }
         cachedItems.Clear();
@@ -367,27 +373,12 @@ public class Plugin : BaseUnityPlugin
         {
             showGUI = !showGUI;
         }
-            //UnityEngine
-            //CPlayerData
-            //BuyProductPanelUI
-            //Resto
-            //RestockItemScreen
-            //EItemType
      }
 
     public static void Log(string s)
     {
         Logger.LogInfo(s);
     }
-    //private void OnSceneChanged(UnityEngine.SceneManagement.Scene oldScene, UnityEngine.SceneManagement.Scene newScene)
-    //{
-    //    //    if (enableDebugLogging.Value)
-    //    //        logger.LogDebug($"Scene changed to {newScene.name}. Resetting state.");
-
-    //    //    ResetState();
-    //    //    TryFindCardOpeningSequence();
-    //    //}
-    //}
 
     private static void cardRoller(ECollectionPackType collectionPackType)
     {

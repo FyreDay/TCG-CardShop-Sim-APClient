@@ -14,8 +14,9 @@ namespace ApClient.patches
         {
             static void Postfix(HireWorkerPanelUI __instance, HireWorkerScreen hireWorkerScreen, int index)
             {
+                Plugin.Log($"Employee Index: {index}");
                 var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
-                __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} Or AP Progressive";
+                __instance.m_LevelRequirementText.text = $"Requires AP Worker Unlock";
                 if (val.locid != -1 && Plugin.hasItem(val.itemid))
                 {
                     __instance.m_LevelRequirementText.gameObject.SetActive(value: false);
@@ -46,9 +47,9 @@ namespace ApClient.patches
                 var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
                 if (val.locid != -1 && Plugin.hasItem(val.itemid))
                 {
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         }
     }

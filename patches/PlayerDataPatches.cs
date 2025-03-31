@@ -42,7 +42,7 @@ namespace ApClient.patches
             [HarmonyPrefix]
             static void Prefix(CEventPlayer_AddShopExp evt)
             {
-                Plugin.Log($"Before Level Up");
+                //Plugin.Log($"Before Level Up");
                 oldLevel = CPlayerData.m_ShopLevel;
             }
 
@@ -78,7 +78,7 @@ namespace ApClient.patches
             {
                 
                 Plugin.Log($"Before adding license: {index}, Type: {InventoryBase.GetRestockData(index).itemType}");
-                Plugin.Log($"id: {LicenseMapping.mapping.GetValueOrDefault(index)}");
+                //Plugin.Log($"id: {LicenseMapping.mapping.GetValueOrDefault(index)}");
                 Plugin.session.Locations.CompleteLocationChecks(LicenseMapping.mapping.GetValueOrDefault(index).locid);
                 //return Plugin.hasItem(LicenseMapping.mapping.GetValueOrDefault(index).itemid);
             }

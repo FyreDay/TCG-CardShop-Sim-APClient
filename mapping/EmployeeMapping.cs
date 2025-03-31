@@ -32,5 +32,11 @@ namespace ApClient.mapping
             }
             return result;
         }
+
+        public static (int itemid, string name, int locid) getValueOrEmpty(int key)
+        {
+
+            return mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(key, (-1, "", -1));
+        }
     }
 }

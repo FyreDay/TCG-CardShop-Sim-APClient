@@ -16,7 +16,6 @@ namespace ApClient.patches
             static void Postfix(RestockItemPanelUI __instance, RestockItemScreen restockItemScreen, int index)
             {
 
-                Plugin.Log($"Real restock screen size: {restockItemScreen.m_RestockItemPanelUIList.Count}");
                 var value = LicenseMapping.getValueOrEmpty(index);
                 if (value.locid == -1)
                 {
@@ -53,7 +52,7 @@ namespace ApClient.patches
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
                 __instance.m_LevelRequirementText.text = "License Locked by AP";
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-                Plugin.Log($"Doesnt have item. {__instance.m_LevelRequirementText.text}");
+                //Plugin.Log($"Doesnt have item. {__instance.m_LevelRequirementText.text}");
             }
             else if (hasItem && hasCheck)
             {
@@ -63,7 +62,7 @@ namespace ApClient.patches
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                 //__instance.m_LevelRequirementText.text = "";
                 //__instance.m_LevelRequirementText.gameObject.SetActive(value: false);
-                Plugin.Log($"Has item.");
+                //Plugin.Log($"Has item.");
             }
             else if (hasItem && !hasCheck)
             {
@@ -71,7 +70,7 @@ namespace ApClient.patches
                 fieldInfo.SetValue(__instance, 1);
                 __instance.m_LockPurchaseBtn.SetActive(value: false);
                 __instance.m_LevelRequirementText.text = "AP Removed Level Requirement";
-                Plugin.Log($"remove level Requirement for {index}");
+                //Plugin.Log($"remove level Requirement for {index}");
             }
         }
 

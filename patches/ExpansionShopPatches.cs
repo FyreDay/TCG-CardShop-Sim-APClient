@@ -16,8 +16,8 @@ namespace ApClient.patches
         {
             static void Postfix(ExpansionShopPanelUI __instance, ExpansionShopUIScreen expansionShopUIScreen, int index, bool isShopB)
             {
-                Plugin.Log($"init expansion Shop {index} is B: {isShopB}");
-                Plugin.Log($"Count of progressive A: {Plugin.itemCount(ExpansionMapping.progressiveA)}");
+                //Plugin.Log($"init expansion Shop {index} is B: {isShopB}");
+                //Plugin.Log($"Count of progressive A: {Plugin.itemCount(ExpansionMapping.progressiveA)}");
                 FieldInfo? fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
                 if (fieldInfo == null)
                 {

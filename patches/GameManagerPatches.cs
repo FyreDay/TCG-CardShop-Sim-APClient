@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine.SceneManagement;
 
 namespace ApClient.patches;
 
@@ -10,8 +11,11 @@ public class CGameManagerPatches
 {
     [HarmonyPatch("LoadData")]
     [HarmonyPostfix]
-    static void LoadDataPostFix(int ___m_CurrentSaveLoadSlotSelectedIndex)
+    static void PostFix()
     {
+        
+        Plugin.Log("Processing cache Items");
         Plugin.ProcessCachedItems();
+        
     }
 }

@@ -17,8 +17,8 @@ namespace ApClient
             aPSaveData = new APSaveData();
             aPSaveData.ProcessedItems = 0;
         }
-
-        public void increaseProcessedItems()
+        //unused
+        private void increaseProcessedItems()
         {
             aPSaveData.ProcessedItems = aPSaveData.ProcessedItems +1;
         }
@@ -65,7 +65,7 @@ namespace ApClient
             {
 
                 string contents = JsonUtility.ToJson(CSaveLoad.m_SavedGame);
-                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedItems}\" }}";
+                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{Plugin.session.Items.AllItemsReceived.Count}\" }}";
                 File.WriteAllText(getJsonSavePath(Plugin.session.RoomState.Seed), modified);
             }
             catch
