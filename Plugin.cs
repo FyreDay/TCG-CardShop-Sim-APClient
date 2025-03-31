@@ -2,6 +2,7 @@
 using ApClient.patches;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using BepInEx;
 using BepInEx.Logging;
@@ -106,8 +107,8 @@ public class Plugin : BaseUnityPlugin
     }
 
 
-    public static int processed = 0;
-    private static List<ItemInfo> cachedItems = new List<ItemInfo>();
+    
+    private static Queue<ItemInfo> cachedItems = new Queue<ItemInfo>();
     private LoginResult result = null;
     private void connect()
     {
@@ -131,41 +132,37 @@ public class Plugin : BaseUnityPlugin
             state = "Connected";
             var loginSuccess = (LoginSuccessful)result;
             CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
+            //on a new connection we will need to rester processing
+            processed = 0;
 
             setTitleInteractable(true);
-            
+            int num = 0;
             //callback for item retrieval
             session.Items.ItemReceived += (receivedItemsHelper) => {
-
-                if (m_SaveManager.getProcessedItems() > processed)
-                {
-                    ItemInfo oldItem = receivedItemsHelper.DequeueItem();
-                    Log($"Already Processed {oldItem.ItemName}");
-
-                    processed++;
-                    return;
-                }
-
+                ItemInfo item = receivedItemsHelper.PeekItem();
                 if (!SceneLoaded)
                 {
-                    Log($"Not In Scene");
-                    cachedItems.Add(receivedItemsHelper.DequeueItem());
+                    num++;
+                    Log($"Not In Scene {num}");
+                    
                     processed++;
+                    cachedItems.Enqueue(item);
+                    receivedItemsHelper.DequeueItem();
                     return;
                 }
 
-                ItemInfo itemReceived = receivedItemsHelper.DequeueItem();
-
+                ItemInfo itemReceived = receivedItemsHelper.PeekItem();
                 Log(itemReceived.ItemName);
 
                 processNewItem(itemReceived);
-                processed++;
+                receivedItemsHelper.DequeueItem();
             };
         }
     }
 
     public static void processNewItem(ItemInfo itemReceived)
     {
+        Log(itemReceived.ItemName);
         if (LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
             var itemMapping = LicenseMapping.getKeyValue((int)itemReceived.ItemId, itemCount((int)itemReceived.ItemId));
@@ -199,8 +196,8 @@ public class Plugin : BaseUnityPlugin
                 {
                     ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[itemCount((int)itemReceived.ItemId) - 1];
                     panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
-                    panel.m_PurchasedBtn.gameObject.SetActive(value: true);
-                    Log($"Recieved Progressive A While panel was open: {(int)itemReceived.ItemId}");
+                    panel.m_PurchasedBtn.gameObject.SetActive(value: false);
+                    //Log($"Recieved Progressive A While panel was open: {(int)itemReceived.ItemId}");
                 }
 
             }
@@ -226,31 +223,80 @@ public class Plugin : BaseUnityPlugin
                     if (atLevel)
                     {
                         panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
-                        panel.m_PurchasedBtn.gameObject.SetActive(value: true);
+                        panel.m_PurchasedBtn.gameObject.SetActive(value: false);
                     }
-                    Log($"Recieved Progressive B While panel was open: {(int)itemReceived.ItemId}");
+                    //Log($"Recieved Progressive B While panel was open: {(int)itemReceived.ItemId}");
                 }
             }
         }
+        //Log($"Before Employee check: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
         if (EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
+            var itemMapping = EmployeeMapping.getKeyValue((int)itemReceived.ItemId);
             Log($"worker recieved id: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
             //cannot run uless level fully loaded
-            //CPlayerData.SetIsWorkerHired(EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key, isHired: true);
-            //CSingleton<WorkerManager>.Instance.ActivateWorker(EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key, resetTask: true);
-            HireWorkerScreen screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
-            if (screen != null)
-            {
-                Log("detected Hire Worker Screen");
-                HireWorkerPanelUI panel = screen.m_HireWorkerPanelUIList[EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key];
-                Log("Found Hire Worker Panel");
-                panel.m_LevelRequirementText.gameObject.SetActive(value: false);
-                panel.m_HireFeeText.gameObject.SetActive(value: true);
-                panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
-                Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
+            var screen = FindObjectOfType<HireWorkerScreen>();
 
-                SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
+            HireWorkerPanelUI[] allpanels = FindObjectsOfType<HireWorkerPanelUI>();
+            HireWorkerPanelUI panel = null;
+            foreach (HireWorkerPanelUI screenItem in allpanels)
+            {
+                FieldInfo fieldInfo = typeof(HireWorkerPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    return;
+                }
+
+                int m_Index = (int)fieldInfo.GetValue(screenItem);
+                if (m_Index == itemMapping.Key)
+                {
+                    panel = screenItem;
+                    break;
+                }
             }
+            if (panel == null)
+            {
+                return;
+            }
+            Log("detected Hire Worker Screen");
+            
+            Log("Found Hire Worker Panel");
+            panel.m_HiredText.SetActive(value: false);
+            panel.m_PurchaseBtn.SetActive(value: true);
+            //panel.Init(screen, itemMapping.Key);
+            //EmployeePatches.HireEmployee(panel, itemMapping.Key);
+            Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
+
+            //SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
+            
+        }
+
+        if(FurnatureMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
+        {
+            var itemMapping = FurnatureMapping.getKeyValue((int)itemReceived.ItemId, itemCount((int)itemReceived.ItemId));
+            FurnitureShopPanelUI panel = null;
+            //update Restock ui
+            FurnitureShopPanelUI[] screen = FindObjectsOfType<FurnitureShopPanelUI>();
+            foreach (FurnitureShopPanelUI screenItem in screen)
+            {
+                FieldInfo fieldInfo = typeof(FurnitureShopPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo == null)
+                {
+                    return;
+                }
+
+                int m_Index = (int)fieldInfo.GetValue(screenItem);
+                if (m_Index == itemMapping.Key)
+                {
+                    panel = screenItem;
+                    break;
+                }
+            }
+            if (panel == null)
+            {
+                return;
+            }
+            FurnaturePatches.EnableFurnature(panel, itemMapping.Key);
         }
         if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
         {
@@ -290,7 +336,6 @@ public class Plugin : BaseUnityPlugin
     {
         if (result != null && result.Successful)
         {
-            Log("Has result");
             //set buttons correctly
             TitleScreen titleScreen = GameObject.FindFirstObjectByType<TitleScreen>();
             GameObject parentObject = GameObject.Find("NewGameBtn");
@@ -329,7 +374,7 @@ public class Plugin : BaseUnityPlugin
 
             }
         }
-    }w
+    }
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         Log($" Scene Load: {scene.name}");
@@ -352,19 +397,38 @@ public class Plugin : BaseUnityPlugin
             
         }
     }
-
+    public static int processed = 0;
     public static void ProcessCachedItems()
     {
 
         SceneLoaded = true;
-
-        foreach (ItemInfo item in cachedItems)
+        Log($"saved: {m_SaveManager.getProcessedItems()} processed : {processed}");
+        //if (m_SaveManager.getProcessedItems() > processed)
+        //{
+        //    for (int i = 0; i < m_SaveManager.getProcessedItems() - processed; i++)
+        //    {
+        //        session.Items.DequeueItem();
+        //        processed++;
+        //    }
+        //}
+        //while (session.Items.Any())
+        //{
+        //    processNewItem(session.Items.DequeueItem());
+        //}
+        int counter = 0;
+        while (cachedItems.Any())
         {
+            ItemInfo item = cachedItems.Dequeue();
+            if(m_SaveManager.getProcessedItems() > counter)
+            {
+                counter++;
+                continue;
+            }
             Log($"Item on load {item.ItemName}");
             processNewItem(item);
-            processed++;
         }
         cachedItems.Clear();
+
     }
     
     private void Update()

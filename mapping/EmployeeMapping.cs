@@ -21,10 +21,10 @@ namespace ApClient.mapping
 
         public static KeyValuePair<int, (int itemid, string name, int locid)> getKeyValue(int itemid)
         {
-            Plugin.Log($"id: {itemid}");
+            //Plugin.Log($"Employee id: {itemid}");
             var result = mapping.FirstOrDefault(pair => pair.Value.itemid == itemid);
 
-            var defaultPair = new KeyValuePair<int, (int, string, int)>(-1, (-1, "Unknown", -1));
+            var defaultPair = new KeyValuePair<int, (int, string, int)>(-1, (-1, "", -1));
 
             if (result.Equals(default(KeyValuePair<int, (int, string, int)>)))
             {

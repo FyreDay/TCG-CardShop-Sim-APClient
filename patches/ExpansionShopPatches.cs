@@ -28,19 +28,30 @@ namespace ApClient.patches
                 bool hasAPItem = false;
                 if (isShopB)
                 {
-                    hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveB) >= index + 1;
+                    hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveB) > index;
                 }
                 else
                 {
-                    hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index + 1;
+                    hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) > index;
                 }
                 
-                bool atLevel = CPlayerData.m_ShopLevel + 1 < m_LevelRequired;
+                bool atLevel = CPlayerData.m_ShopLevel + 1 > m_LevelRequired;
 
-                if (hasAPItem && atLevel)
+                
+                if (isShopB && CPlayerData.m_UnlockWarehouseRoomCount > index)
                 {
                     __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                     __instance.m_PurchasedBtn.gameObject.SetActive(value: true);
+                }
+                else if (!isShopB && CPlayerData.m_UnlockRoomCount > index)
+                {
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: true);
+                }
+                else if (hasAPItem && atLevel)
+                {
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
                 }
                 else
                 {
@@ -71,9 +82,9 @@ namespace ApClient.patches
                     return false;
                 }
 
-                int m_LevelRequired = (int)fieldInfo.GetValue(__instance);
-                bool hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) >= index + 1;
-                bool atLevel = CPlayerData.m_ShopLevel + 1 < m_LevelRequired;
+                int m_LevelRequired = (int)fieldInfo2.GetValue(__instance);
+                bool hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) > index;
+                bool atLevel = CPlayerData.m_ShopLevel + 1 > m_LevelRequired;
 
                 if (hasAPItem && atLevel)
                 {
@@ -90,7 +101,7 @@ namespace ApClient.patches
             static MethodBase TargetMethod()
             {
                 return AccessTools.Method(typeof(ExpansionShopUIScreen), "EvaluateCartCheckout", null, null);
-            }
+            }   
 
             [HarmonyPrefix]
             public static void Prefix(float totalCost, int index, bool isShopB)

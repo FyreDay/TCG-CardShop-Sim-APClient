@@ -10,6 +10,7 @@ namespace ApClient.mapping
     {
         public static Dictionary<int, (int itemid, string name, int count, int locid)> mapping = new Dictionary<int, (int itemid, string name, int count, int locid)>
         {
+            {0, (-1, "Basic Card Pack", -1, -1) },
             {1, (0x1F280001, "Progressive Basic Card Pack", 1, 0x1F2800F1) },
             {2, (0x1F280001, "Progressive Basic Card Pack", 2,0x1F2800F2) },
             {3, (0x1F280001, "Progressive Basic Card Pack", 3,0x1F2800F3) },
@@ -147,7 +148,7 @@ namespace ApClient.mapping
 
         public static KeyValuePair<int, (int itemid, string name, int count, int locid)> getKeyValue(int itemid, int count = 1)
         {
-            Plugin.Log($"id: {itemid}");
+            //Plugin.Log($"id: {itemid}");
             var result = mapping.FirstOrDefault(pair => pair.Value.itemid == itemid && count == pair.Value.count);
 
             var defaultPair = new KeyValuePair<int, (int, string, int, int)>(-1, (-1, "Unknown", 0, -1));
