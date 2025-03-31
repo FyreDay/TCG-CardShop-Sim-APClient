@@ -227,7 +227,7 @@ public class Plugin : BaseUnityPlugin
                         panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                         panel.m_PurchasedBtn.gameObject.SetActive(value: true);
                     }
-                    Log($"Recieved Progressive A While panel was open: {(int)itemReceived.ItemId}");
+                    Log($"Recieved Progressive B While panel was open: {(int)itemReceived.ItemId}");
                 }
             }
         }
