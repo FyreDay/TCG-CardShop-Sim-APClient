@@ -54,6 +54,7 @@ public class FurnaturePatches
         {
             //remove level requirement
             EnableFurnature(__instance, index);
+            __instance.m_LevelRequirementText.text = "";
             Plugin.Log($"remove level Requirement for furnature {index}");
         }
     }

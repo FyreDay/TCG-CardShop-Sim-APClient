@@ -72,7 +72,7 @@ public class RestockItemPanelUIPatches
             __instance.m_LevelRequirementText.text = "AP Removed Level Requirement";
             //Plugin.Log($"remove level Requirement for {index}");
         }
-        else
+        else if(CPlayerData.m_ShopLevel +1 >= levelRequirement)
         {
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
             __instance.m_LevelRequirementText.text = "Level Reached, License Locked by AP";

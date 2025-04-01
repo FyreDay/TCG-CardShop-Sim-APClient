@@ -95,7 +95,7 @@ public class Plugin : BaseUnityPlugin
     }
     public static ArchipelagoSession session;
     public static int CardSanity = 0;
-    public static bool TradesAreNew = true;
+    public static bool TradesAreNew = false;
     public static bool ControlTrades()
     {
         return TradesAreNew;
@@ -121,7 +121,6 @@ public class Plugin : BaseUnityPlugin
         
         state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ipporttext);
-
         try
         {
             result = session.TryConnectAndLogin("TCG Card Shop Simulator", slot, ItemsHandlingFlags.AllItems,null, null, null, password, true);
@@ -138,7 +137,8 @@ public class Plugin : BaseUnityPlugin
             state = "Connected";
             var loginSuccess = (LoginSuccessful)result;
             CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
-            
+            TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
+
             //on a new connection we will need to rester processing
             processed = 0;
 
@@ -159,7 +159,7 @@ public class Plugin : BaseUnityPlugin
                 }
 
                 ItemInfo itemReceived = receivedItemsHelper.PeekItem();
-                Log(itemReceived.ItemName);
+                Log($"I have {receivedItemsHelper.Index} total items. do I have any left? {receivedItemsHelper.Any()}");
 
                 processNewItem(itemReceived);
                 receivedItemsHelper.DequeueItem();
@@ -435,6 +435,18 @@ public class Plugin : BaseUnityPlugin
         SceneLoaded = true;
         Log($"saved: {m_SaveManager.getProcessedItems()} processed : {processed}");
         int counter = 0;
+        while (m_SaveManager.getProcessedItems() > processed)
+        {
+            Log($"what the fuck is happening queue has something {session.Items.Any()} and I have {session.Items.AllItemsReceived.Count}");
+            
+            var item = session.Items.PeekItem();
+            processed++;
+            counter++;
+            if (item != null) {
+                cachedItems.Enqueue(item);
+                session.Items.DequeueItem();
+            }
+        }
         while (cachedItems.Any())
         {
             ItemInfo item = cachedItems.Dequeue();

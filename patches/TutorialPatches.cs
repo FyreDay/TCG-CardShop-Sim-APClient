@@ -20,6 +20,8 @@ namespace ApClient.patches
                 
                 CSingleton<TutorialManager>.Instance.m_TutorialTargetIndicator.SetActive(value: false);
                 CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
+                CPlayerData.m_TutorialIndex = 16;
+                CPlayerData.m_HasFinishedTutorial = true;
                 Plugin.ProcessCachedItems();
 
             }
