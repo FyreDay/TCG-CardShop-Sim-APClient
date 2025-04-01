@@ -97,7 +97,7 @@ namespace ApClient.patches
                     hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) > index;
                 }
                 bool atLevel = (CPlayerData.m_ShopLevel + 1) >= m_LevelRequired;
-                Plugin.Log($"is B? {m_IsShopB} has progressive {hasAPItem} with count {Plugin.itemCount(ExpansionMapping.progressiveA)} at level {atLevel} required {m_LevelRequired}" );
+                //Plugin.Log($"is B? {m_IsShopB} has progressive {hasAPItem} with count {Plugin.itemCount(ExpansionMapping.progressiveA)} at level {atLevel} required {m_LevelRequired}" );
                 if (hasAPItem && atLevel)
                 {
                     
@@ -120,6 +120,10 @@ namespace ApClient.patches
             public static void Prefix(float totalCost, int index, bool isShopB)
             {
                 Plugin.session.Locations.CompleteLocationChecks(ExpansionMapping.locstartval + index + (isShopB ? 30 : 0));
+                if (!isShopB && Plugin.Goal == 0 && index + 1 >= Plugin.ShopExpansionGoal)
+                {
+                    Plugin.session.SetGoalAchieved();
+                }
                 Plugin.Log("Prefix executed on EvaluateCartCheckout for Expansion");
             }
         }

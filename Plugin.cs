@@ -94,8 +94,7 @@ public class Plugin : BaseUnityPlugin
         GUI.Label(new Rect(20, 240, 300, 30), state, textStyle);
     }
     public static ArchipelagoSession session;
-    public static int CardSanity = 0;
-    public static bool TradesAreNew = false;
+    
     public static bool ControlTrades()
     {
         return TradesAreNew;
@@ -116,6 +115,12 @@ public class Plugin : BaseUnityPlugin
     
     private static Queue<ItemInfo> cachedItems = new Queue<ItemInfo>();
     private LoginResult result = null;
+    public static int CardSanity = 0;
+    public static bool TradesAreNew = false;
+    public static int Goal = 0;
+    public static int ShopExpansionGoal = 0;
+    public static int LevelGoal = 0;
+    public static int GhostGoalAmount = 0;
     private void connect()
     {
         
@@ -137,6 +142,10 @@ public class Plugin : BaseUnityPlugin
             state = "Connected";
             var loginSuccess = (LoginSuccessful)result;
             CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
+            Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
+            ShopExpansionGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ShopExpansionGoal").ToString());
+            LevelGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("LevelGoal").ToString());
+            GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
             TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
 
             //on a new connection we will need to rester processing
@@ -305,6 +314,62 @@ public class Plugin : BaseUnityPlugin
             }
             FurnaturePatches.EnableFurnature(panel, itemMapping.Key);
         }
+        if((int)itemReceived.ItemId == CardMapping.ghostProgressive)
+        {
+            bool isDestiny = false;
+            int total = 0;
+            List<bool> collectedlist = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Ghost, isDestiny);
+            total = collectedlist.FindAll(i => i == true).Count;
+            if (total >=36)
+            {
+                isDestiny = true;
+                collectedlist = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Ghost, isDestiny);
+                total += collectedlist.FindAll(i => i == true).Count;
+            }
+
+            
+            if(Goal == 2 && GhostGoalAmount <= total)
+            {
+                session.SetGoalAchieved();
+            }
+            var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
+            
+            bool isFoil = false;
+            int index = 0;
+            for(int i = 0; i < list.Count; i++)
+            {
+                int dataindex = (int)(i * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Ghost) + ECardBorderType.FullArt);
+                if (collectedlist[dataindex])
+                {
+                    dataindex += CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Ghost, includeFoilCount: false);
+                    if (!collectedlist[dataindex])
+                    {
+                        isFoil = true;
+                        index = i;
+                        break;
+                    }
+                }
+                else
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+
+            CPlayerData.AddCard(new CardData
+            {
+                isFoil = isFoil,
+                isDestiny = isDestiny,
+                borderType = ECardBorderType.FullArt,
+                monsterType = list[index],
+                expansionType = ECardExpansionType.Ghost,
+                isChampionCard = false,
+                isNew = true
+            },1);
+            
+        }
+
         if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
         {
             CEventManager.QueueEvent(new CEventPlayer_AddCoin(50));

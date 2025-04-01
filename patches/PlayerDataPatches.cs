@@ -54,6 +54,10 @@ namespace ApClient.patches
                 {
                     Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
                     Plugin.session.Locations.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
+                    if(Plugin.Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.LevelGoal)
+                    {
+                        Plugin.session.SetGoalAchieved();
+                    }
                 }
             }
         }
