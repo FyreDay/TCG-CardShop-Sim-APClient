@@ -330,10 +330,13 @@ public class Plugin : BaseUnityPlugin
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
         {
-            //CPlayerData.GetCardCollectedList()
-            var packlist = Enum.GetValues(typeof(ECollectionPackType));
-            var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, CardSanity == 0 ? 8 : CardSanity));
-            cardRoller(packType);
+            List<bool> has = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false);
+
+            Log($"Collected: {has.Count}");
+
+            //var packlist = Enum.GetValues(typeof(ECollectionPackType));
+            //var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, CardSanity == 0 ? 8 : CardSanity));
+            //cardRoller(packType);
         }
         if ((int)itemReceived.ItemId == TrashMapping.stinkTrap)
         {
@@ -349,12 +352,12 @@ public class Plugin : BaseUnityPlugin
                 c.SetSmelly();
             }
         }
-        //if (int) itemReceived.ItemId == TrashMapping.lightTrap)
-        //{
-        //    SoundManager.PlayAudio("SFX_ButtonLightTap", 0.6f, 0.5f);
-        //    CSingleton<LightManager>.Instance.m_ShoplightGrp.SetActive(false);
-        //    CSingleton<LightManager>.Instance.EvaluateWorldUIBrightness();
-        //}
+        if ((int) itemReceived.ItemId == TrashMapping.lightTrap)
+        {
+            SoundManager.PlayAudio("SFX_ButtonLightTap", 0.6f, 0.5f);
+            CSingleton<LightManager>.Instance.m_ShoplightGrp.SetActive(true);
+            CSingleton<LightManager>.Instance.ToggleShopLight();
+        }
     }
 
     private static bool SceneLoaded = false;
@@ -430,18 +433,6 @@ public class Plugin : BaseUnityPlugin
 
         SceneLoaded = true;
         Log($"saved: {m_SaveManager.getProcessedItems()} processed : {processed}");
-        //if (m_SaveManager.getProcessedItems() > processed)
-        //{
-        //    for (int i = 0; i < m_SaveManager.getProcessedItems() - processed; i++)
-        //    {
-        //        session.Items.DequeueItem();
-        //        processed++;
-        //    }
-        //}
-        //while (session.Items.Any())
-        //{
-        //    processNewItem(session.Items.DequeueItem());
-        //}
         int counter = 0;
         while (cachedItems.Any())
         {
