@@ -72,7 +72,7 @@ public class Plugin : BaseUnityPlugin
         GUIStyle textStyle = new GUIStyle();
         textStyle.fontSize = 12;
         textStyle.normal.textColor = UnityEngine.Color.white;
-
+        
         // Display text at position (10,10)
         GUI.Label(new Rect(20, 40, 300, 30), "Address:port", textStyle);
         ipporttext = GUI.TextField(new Rect(20, 60, 180, 25), ipporttext, 25);
@@ -86,7 +86,6 @@ public class Plugin : BaseUnityPlugin
         if (GUI.Button(new Rect(20, 210, 180, 30), "Connect"))
         {
             Debug.Log("Button Pressed!");
-            state = "pressed";
             connect();
         }
 
