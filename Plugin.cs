@@ -628,7 +628,7 @@ public class Plugin : BaseUnityPlugin
         Log("Random New Card Generating");
         System.Random rand = new System.Random();
 
-        ECardExpansionType expansion = CardSanity < 4 || rand.NextDouble() >= 0.5 ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
+        ECardExpansionType expansion = (CardSanity < 4 || rand.NextDouble() >= 0.5) ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
         List<bool> boolList = CPlayerData.GetIsCardCollectedList(expansion, false);
 
         // Allowed types as an enum list

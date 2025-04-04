@@ -80,7 +80,7 @@ public class RestockItemPanelUIPatches
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index)
     {
 
-        if (hasItem && CPlayerData.m_ShopLevel +1 > __instance.m_LevelRequired || firstIndex == index)
+        if ((hasItem && CPlayerData.m_ShopLevel +1 > __instance.m_LevelRequired) || firstIndex == index)
         {
             __instance.m_UIGrp.SetActive(value: true);
             __instance.m_LicenseUIGrp.SetActive(value: false);
@@ -127,12 +127,20 @@ public class RestockItemPanelUIPatches
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
             __instance.m_LevelRequirementText.text = "Level Reached, License Locked by AP";
         }
+        else if (hasItem)
+        {
+            __instance.m_UIGrp.SetActive(value: false);
+            __instance.m_LicenseUIGrp.SetActive(value: true);
+            __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required. License Found";
+            __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+        }
         else
         {
             __instance.m_UIGrp.SetActive(value: false);
             __instance.m_LicenseUIGrp.SetActive(value: true);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-            __instance.m_LevelRequirementText.text = $"Shop Level {__instance.m_LevelRequired} Required and License Locked by AP";
+            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required. License Locked by AP";
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
         }
     }
