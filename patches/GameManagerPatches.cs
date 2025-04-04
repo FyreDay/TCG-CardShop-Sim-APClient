@@ -13,7 +13,7 @@ public class CGameManagerPatches
     [HarmonyPostfix]
     static void PostFix()
     {
-        if (CPlayerData.PlayerName != "My Card Shop")
+        if (CPlayerData.PlayerName != "My Card Shop" || CPlayerData.m_TutorialIndex >= 1)
         {
             
             CSingleton<TutorialManager>.Instance.m_TutorialTargetIndicator.SetActive(value: false);
