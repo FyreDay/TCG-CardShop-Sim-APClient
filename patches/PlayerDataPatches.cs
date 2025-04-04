@@ -20,13 +20,14 @@ namespace ApClient.patches
             }
 
             [HarmonyPostfix]
-            public static void Postfix()
+            public static void Postfix(CPlayerData __instance)
             {
                 //TutorialManager
                 //UnityEngine
                 //CPlayerData.m_TutorialIndex = 16;
                 //CPlayerData.m_HasFinishedTutorial = true;
                 Plugin.Log("Postfix executed on CreateDefaultData");
+                CPlayerData.m_IsItemLicenseUnlocked[0] = false;
             }
         }
 

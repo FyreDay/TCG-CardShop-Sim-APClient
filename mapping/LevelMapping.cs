@@ -6,6 +6,6 @@ namespace ApClient.mapping
 {
     public class LevelMapping
     {
-        public static int startValue = 0x1F280179 - 1;
+        public static int startValue = 0x1F2801A5 - 1;
     }
 }

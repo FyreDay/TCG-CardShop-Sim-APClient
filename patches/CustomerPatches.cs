@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using ApClient.mapping;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,6 +10,26 @@ namespace ApClient.patches;
 
 public class CustomerPatches
 {
+
+    [HarmonyPatch(typeof(Customer), "OnItemScanned")]
+    public static class OnScan
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Item item)
+        {
+            CPlayerData.m_StockSoldList[(int)item.GetItemType()]++;
+            Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
+            foreach(var Loc in LicenseMapping.GetKeyValueFromType(item.GetItemType()))
+            {
+                //Plugin.Log(Loc.Value.count)
+                if (CPlayerData.m_StockSoldList[(int)item.GetItemType()] >= Loc.Value.count)
+                {
+                    Plugin.session.Locations.CompleteLocationChecks(Loc.Value.locid);
+                }
+            }
+            
+        }
+    }
 
     [HarmonyPatch(typeof(CustomerTradeCardScreen), "SetCustomer")]
     public static class CustomerTradeScreen_SetCustomer_Transpiler

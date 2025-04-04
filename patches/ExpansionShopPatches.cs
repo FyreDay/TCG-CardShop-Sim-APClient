@@ -14,6 +14,8 @@ namespace ApClient.patches
         [HarmonyPatch(typeof(ExpansionShopPanelUI), "Init")]
         public class Init
         {
+
+            [HarmonyPostfix]
             static void Postfix(ExpansionShopPanelUI __instance, ExpansionShopUIScreen expansionShopUIScreen, int index, bool isShopB)
             {
                 //Plugin.Log($"init expansion Shop {index} is B: {isShopB}");

@@ -120,6 +120,22 @@ public class Plugin : BaseUnityPlugin
     public static int ShopExpansionGoal = 0;
     public static int LevelGoal = 0;
     public static int GhostGoalAmount = 0;
+
+    public static List<int> pg1IndexMapping = new List<int>();
+    public static List<int> pg2IndexMapping = new List<int>();
+    public static List<int> pg3IndexMapping = new List<int>();
+    public static List<int> ttIndexMapping = new List<int>();
+
+    private static List<int> StrToList(string str)
+    {
+        return str.Trim('[', ']')                 // Remove square brackets
+               .Split(',')                      // Split by commas
+               .Select(s => s.Trim())           // Trim whitespace and special characters
+               .Where(s => int.TryParse(s, out _)) // Ensure valid integers
+               .Select(int.Parse)               // Convert to integers
+               .ToList();
+    }
+
     private void connect()
     {
         
@@ -138,6 +154,7 @@ public class Plugin : BaseUnityPlugin
 
         if (result.Successful)
         {
+            
             state = "Connected";
             var loginSuccess = (LoginSuccessful)result;
             CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
@@ -146,6 +163,15 @@ public class Plugin : BaseUnityPlugin
             LevelGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("LevelGoal").ToString());
             GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
             TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
+            pg1IndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
+            Plugin.Log(string.Join(", ", pg1IndexMapping));
+            pg2IndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
+            Plugin.Log(string.Join(", ", pg2IndexMapping));
+            pg3IndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
+            Plugin.Log(string.Join(", ", pg3IndexMapping));
+            ttIndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
+            Plugin.Log(string.Join(", ", ttIndexMapping));
+
 
             //on a new connection we will need to rester processing
             processed = 0;
@@ -371,27 +397,27 @@ public class Plugin : BaseUnityPlugin
 
         if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(50));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.smallXp)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(100));
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(10*(CPlayerData.m_ShopLevel+1)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.mediumMoney)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(150));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(200));
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(30 * (CPlayerData.m_ShopLevel + 1)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeMoney)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(500));
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(50 * (CPlayerData.m_ShopLevel + 1)));
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.smallXp)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1)));
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.2)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(500));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.5)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomcard)
         {
@@ -402,7 +428,8 @@ public class Plugin : BaseUnityPlugin
         if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
         {
             CPlayerData.AddCard(RandomNewCard(),1);
-            //CustomerTradeCardScreen
+            //InteractableCashierCounter
+            
         }
         if ((int)itemReceived.ItemId == TrashMapping.stinkTrap)
         {

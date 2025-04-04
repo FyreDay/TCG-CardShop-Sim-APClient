@@ -71,7 +71,7 @@ public class EmployeePatches
         CEventManager.QueueEvent(new CEventPlayer_ReduceCoin(m_TotalHireFee));
         CPlayerData.SetIsWorkerHired(index, isHired: true);
         //send to AP
-        Plugin.session.Locations.CompleteLocationChecks(EmployeeMapping.mapping.GetValueOrDefault(index).locid);
+        //Plugin.session.Locations.CompleteLocationChecks(EmployeeMapping.mapping.GetValueOrDefault(index).locid);
 
         CSingleton<WorkerManager>.Instance.ActivateWorker(index, resetTask: true);
         CPlayerData.m_GameReportDataCollect.employeeCost -= m_TotalHireFee;
