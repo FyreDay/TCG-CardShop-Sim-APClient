@@ -87,7 +87,7 @@ public class RestockItemPanelUIPatches
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
 
             EItemType type = InventoryBase.GetRestockData(index).itemType;
-            var goals = LicenseMapping.GetKeyValueFromType(type).Where(i => i.Value.count < CPlayerData.m_StockSoldList[(int)type]); ;
+            var goals = LicenseMapping.GetKeyValueFromType(type).Where(i => i.Value.count > CPlayerData.m_StockSoldList[(int)type]); ;
             if (goals.Any()) {
                 //Set Text
                 var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
