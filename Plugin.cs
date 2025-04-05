@@ -165,10 +165,12 @@ public class Plugin : BaseUnityPlugin
 
         if (result.Successful)
         {
+            m_SaveManager.setSeed(session.RoomState.Seed);
             APGui.state = "Connected";
             var loginSuccess = (LoginSuccessful)result;
             CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
             Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
+            ShopExpansionGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ShopExpansionGoal").ToString());
             ShopExpansionGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ShopExpansionGoal").ToString());
             LevelGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("LevelGoal").ToString());
             GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
