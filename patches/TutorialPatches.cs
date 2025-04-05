@@ -17,7 +17,6 @@ namespace ApClient.patches
             static void PostFix(ShopRenamer __instance)
             {
 
-                InteractablePriceTag
                 CSingleton<TutorialManager>.Instance.m_TutorialTargetIndicator.SetActive(value: false);
                 CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
                

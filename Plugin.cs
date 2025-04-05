@@ -131,7 +131,7 @@ public class Plugin : BaseUnityPlugin
         //session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
         session.Items.ItemReceived += (receivedItemsHelper) => {
 
-          
+            
             if (!SceneLoaded)
             {
                 Log($"Not In Scene");
@@ -154,7 +154,7 @@ public class Plugin : BaseUnityPlugin
         };
         try
         {
-            result = session.TryConnectAndLogin("TCG Card Shop Simulator", slot, ItemsHandlingFlags.IncludeOwnItems | ItemsHandlingFlags.IncludeStartingInventory,null, null, null, password, true);
+            result = session.TryConnectAndLogin("TCG Card Shop Simulator", slot, ItemsHandlingFlags.AllItems,null, null, null, password, true);
         }
         catch (Exception e)
         {
@@ -520,6 +520,7 @@ public class Plugin : BaseUnityPlugin
         while (cachedItems.Any())
         {
             var item = cachedItems.Dequeue();
+            Log($"{m_SaveManager.getProcessedIndex()} : {item.index}");
             if (m_SaveManager.getProcessedIndex() > item.index)
             {
                 return;
