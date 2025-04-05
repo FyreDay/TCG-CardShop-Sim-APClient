@@ -17,12 +17,13 @@ namespace ApClient.patches
             static void PostFix(ShopRenamer __instance)
             {
 
-                CPlayerData.m_TutorialIndex = 1;
-                
+                InteractablePriceTag
                 CSingleton<TutorialManager>.Instance.m_TutorialTargetIndicator.SetActive(value: false);
                 CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
+               
                 CPlayerData.m_TutorialIndex = 16;
                 CPlayerData.m_HasFinishedTutorial = true;
+                CPlayerData.m_TutorialDataList.Clear();
                 Plugin.ProcessCachedItems();
 
             }

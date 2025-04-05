@@ -80,9 +80,14 @@ public class Plugin : BaseUnityPlugin
         return itemCount(id) > 0;
     }
 
+    private class ItemCache
+    {
 
+        public ItemInfo info {  get; set; }
+        public int index { get; set; }
+    }
     
-    private static Queue<ItemInfo> cachedItems = new Queue<ItemInfo>();
+    private static Queue<ItemCache> cachedItems = new Queue<ItemCache>();
     private static LoginResult result = null;
     public static int CardSanity = 0;
     public static bool TradesAreNew = false;
@@ -112,7 +117,7 @@ public class Plugin : BaseUnityPlugin
         for (int i = 0; i < 8; i++)
         {
             var minAmount = LicenseMapping.GetKeyValueFromType(item.type).Min(kvp => kvp.Value.count);
-            LicenseMapping.mapping.Add(-(i + 1), (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
+            LicenseMapping.mapping.Add(startingId + i, (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
         }
     }
        
@@ -123,26 +128,29 @@ public class Plugin : BaseUnityPlugin
         APGui.state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ip);
         //callback for item retrieval
-        int num = 0;
-        session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
+        //session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
         session.Items.ItemReceived += (receivedItemsHelper) => {
-            ItemInfo item = receivedItemsHelper.PeekItem();
+
+          
             if (!SceneLoaded)
             {
-                num++;
-                Log($"Not In Scene {num}");
-
-                processed++;
-                cachedItems.Enqueue(item);
-                receivedItemsHelper.DequeueItem();
+                Log($"Not In Scene");
+                cachedItems.Enqueue(new ItemCache() { info =  receivedItemsHelper.DequeueItem(),index = receivedItemsHelper.Index });
+                
                 return;
             }
+            Log($"{receivedItemsHelper.Index} : {m_SaveManager.getProcessedIndex()}");
+            if (m_SaveManager.getProcessedIndex() > receivedItemsHelper.Index)
+            {
+                return;
+            }
+            m_SaveManager.increaseProcessedIndex();
 
-            ItemInfo itemReceived = receivedItemsHelper.PeekItem();
-            Log($"I have {receivedItemsHelper.Index} total items. do I have any left? {receivedItemsHelper.Any()}");
+            
+            ItemInfo itemReceived = receivedItemsHelper.DequeueItem();
 
             processNewItem(itemReceived);
-            receivedItemsHelper.DequeueItem();
+            
         };
         try
         {
@@ -178,13 +186,7 @@ public class Plugin : BaseUnityPlugin
             addStartingChecks(pg2IndexMapping, LicenseMapping.locs2Starting);
             addStartingChecks(pg3IndexMapping, LicenseMapping.locs3Starting);
 
-            //on a new connection we will need to rester processing
-            processed = 0;
-
             setTitleInteractable(true);
-            
-
-            
         }
     }
 
@@ -506,36 +508,25 @@ public class Plugin : BaseUnityPlugin
             
         }
     }
-    public static int processed = 0;
     public static void ProcessCachedItems()
     {
-
         CPlayerData.SetUnlockItemLicense(pg1IndexMapping[0]);
         CPlayerData.SetUnlockItemLicense(pg2IndexMapping[0]);
         CPlayerData.SetUnlockItemLicense(pg3IndexMapping[0]);
 
-
         setRandomTypesForSanity();
         SceneLoaded = true;
-        Log($"saved: {m_SaveManager.getProcessedItems()} processed : {processed}");
-        //int counter = 0;
-        //while (m_SaveManager.getProcessedItems() > processed)
-        //{
-        //    Log($"what the fuck is happening queue has something {session.Items.Any()} and I have {session.Items.AllItemsReceived.Count}");
-            
-        //    var item = session.Items.PeekItem();
-        //    processed++;
-        //    counter++;
-        //    if (item != null) {
-        //        cachedItems.Enqueue(item);
-        //        session.Items.DequeueItem();
-        //    }
-        //}
+
         while (cachedItems.Any())
         {
-            ItemInfo item = cachedItems.Dequeue();
-            Log($"Item on load {item.ItemName}");
-            processNewItem(item);
+            var item = cachedItems.Dequeue();
+            if (m_SaveManager.getProcessedIndex() > item.index)
+            {
+                return;
+            }
+            m_SaveManager.increaseProcessedIndex();
+            Log($"Item on load {item.info.ItemName}");
+            processNewItem(item.info);
         }
         cachedItems.Clear();
 
@@ -563,29 +554,29 @@ public class Plugin : BaseUnityPlugin
                 switch (rarity)
                 {
                     case ERarity.Legendary:
-                        if ((CardSanity >= 7 && cardExpansionType == ECardExpansionType.Destiny)
-                            || (CardSanity >= 3 && cardExpansionType == ECardExpansionType.Tetramon) )
+                        if ((CardSanity >= 8 && cardExpansionType == ECardExpansionType.Destiny)
+                            || (CardSanity >= 4 && cardExpansionType == ECardExpansionType.Tetramon) )
                         {
                             typeList.Add(mType);
                         }
                         break;
                     case ERarity.Epic:
+                        if ((CardSanity >= 7 && cardExpansionType == ECardExpansionType.Destiny)
+                            || (CardSanity >= 3 && cardExpansionType == ECardExpansionType.Tetramon))
+                        {
+                            typeList.Add(mType);
+                        }
+                        break;
+                    case ERarity.Rare:
                         if ((CardSanity >= 6 && cardExpansionType == ECardExpansionType.Destiny)
                             || (CardSanity >= 2 && cardExpansionType == ECardExpansionType.Tetramon))
                         {
                             typeList.Add(mType);
                         }
                         break;
-                    case ERarity.Rare:
+                    default:
                         if ((CardSanity >= 5 && cardExpansionType == ECardExpansionType.Destiny)
                             || (CardSanity >= 1 && cardExpansionType == ECardExpansionType.Tetramon))
-                        {
-                            typeList.Add(mType);
-                        }
-                        break;
-                    default:
-                        if ((CardSanity >= 4 && cardExpansionType == ECardExpansionType.Destiny)
-                            || (CardSanity >= 0 && cardExpansionType == ECardExpansionType.Tetramon))
                         {
                             typeList.Add(mType);
                         }
@@ -608,7 +599,7 @@ public class Plugin : BaseUnityPlugin
         Log("Random New Card Generating");
         System.Random rand = new System.Random();
 
-        ECardExpansionType expansion = (CardSanity < 4 || rand.NextDouble() >= 0.5) ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
+        ECardExpansionType expansion = (CardSanity < 5 || rand.NextDouble() >= 0.5) ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
         List<bool> boolList = CPlayerData.GetIsCardCollectedList(expansion, false);
 
         // Allowed types as an enum list

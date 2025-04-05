@@ -4,9 +4,10 @@ using System.Text;
 
 namespace ApClient
 {
-    public struct APSaveData
+    public class APSaveData
     {
-        public int ProcessedItems { get; set; }
+        public int ProcessedIndex { get; set; }
+        public string seed {  get; set; }
     }
 
 }

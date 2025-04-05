@@ -125,7 +125,9 @@ namespace ApClient.patches
                 Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
                 if((int)expansionType < Plugin.CardSanity && CPlayerData.GetCardAmount(cardData) == 0)
                 {
+                    Plugin.Log("sending packet!!");
                     Plugin.session.Locations.CompleteLocationChecks(CardMapping.getId(cardData));
+                    Plugin.Log($"Sent packet!! + {CardMapping.getId(cardData)}");
                 }
                 //Plugin.Log($"Before adding card: {newList[counter]}, Amount: {addAmount}");
             }

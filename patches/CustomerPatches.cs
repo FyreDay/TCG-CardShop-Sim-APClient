@@ -20,52 +20,12 @@ public class CustomerPatches
         {
             CPlayerData.m_StockSoldList[(int)item.GetItemType()]++;
             Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
-            var locations = LicenseMapping.GetKeyValueFromType(item.GetItemType()).Select(l => new {Key = l.Key, locid = l.Value.locid, count = l.Value.count });
-            var startingArray = -1;
-
-            if (locations.FirstOrDefault().Key == Plugin.pg1IndexMapping[0])
-            {
-                startingArray = 1;
-            }
-            if (locations.FirstOrDefault().Key == Plugin.pg2IndexMapping[0])
-            {
-                startingArray = 2;
-            }
-            if (locations.FirstOrDefault().Key == Plugin.pg3IndexMapping[0])
-            {
-                startingArray = 3;
-            }
-            
-            if (startingArray != -1)
-            {
-                int minCount = locations.Min(kvp => kvp.count);
-                
-                for (int i = 3; i < 11; i++)
-                {
-                    int locationId = 0;
-                    switch (startingArray)
-                    {
-                        case 1:
-                            locationId = LicenseMapping.locs1Starting;
-                            break;
-                        case 2:
-                            locationId = LicenseMapping.locs2Starting;
-                            break;
-                        case 3:
-                            locationId = LicenseMapping.locs3Starting;
-                            break;
-                    }
-                    locations.Append(new { locations.First().Key, locid = locationId+i-3, count = minCount * i });
-                }
-            }
-            Plugin.Log($"{startingArray} id with {locations.Count()} goals");
+            var locations = LicenseMapping.GetKeyValueFromType(item.GetItemType()).Where(i => i.Value.count <= CPlayerData.m_StockSoldList[(int)item.GetItemType()]);
             foreach (var Loc in locations)
             {
-                //Plugin.Log(Loc.Value.count)
-                if (CPlayerData.m_StockSoldList[(int)item.GetItemType()] >= Loc.count)
-                {
-                    Plugin.session.Locations.CompleteLocationChecks(Loc.locid);
-                }
+                Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
+                Plugin.session.Locations.CompleteLocationChecks(Loc.Value.locid);
+
             }
         }
     }

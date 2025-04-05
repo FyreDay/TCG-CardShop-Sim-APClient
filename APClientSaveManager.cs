@@ -15,33 +15,42 @@ namespace ApClient
 
         public APClientSaveManager() { 
             aPSaveData = new APSaveData();
-            aPSaveData.ProcessedItems = 0;
+            aPSaveData.ProcessedIndex = 0;
         }
-        //unused
-        private void increaseProcessedItems()
+        public void setSeed(string seed)
         {
-            aPSaveData.ProcessedItems = aPSaveData.ProcessedItems +1;
+            aPSaveData.seed = seed;
         }
-        public int getProcessedItems()
+
+        public void setProcessedIndex(int index)
         {
-            return aPSaveData.ProcessedItems;
+            aPSaveData.ProcessedIndex = index;
+        }
+
+        public void increaseProcessedIndex()
+        {
+            aPSaveData.ProcessedIndex++;
+        }
+        public int getProcessedIndex()
+        {
+            return aPSaveData.ProcessedIndex;
         }
 
         private string GetBaseDirectory()
         {
             return Path.GetDirectoryName(this.GetType().Assembly.Location);
         }
-        private string getGdSavePath(string seed)
+        private string getGdSavePath()
         {
-            return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{seed}.gd";
+            return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.seed}.gd";
         }
 
-        private string getJsonSavePath(string seed)
+        private string getJsonSavePath()
         {
-            return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{seed}.json";
+            return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.seed}.json";
         }
 
-        public bool doesSaveExist() { return File.Exists(getJsonSavePath(Plugin.session.RoomState.Seed)) || File.Exists(getGdSavePath(Plugin.session.RoomState.Seed)); }
+        public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getGdSavePath()); }
         public void Save(int saveSlotIndex)
         {
             System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/Saves/");
@@ -65,8 +74,8 @@ namespace ApClient
             {
 
                 string contents = JsonUtility.ToJson(CSaveLoad.m_SavedGame);
-                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{Plugin.session.Items.AllItemsReceived.Count}\" }}";
-                File.WriteAllText(getJsonSavePath(Plugin.session.RoomState.Seed), modified);
+                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\" }}";
+                File.WriteAllText(getJsonSavePath(), modified);
             }
             catch
             {
@@ -77,8 +86,8 @@ namespace ApClient
 
         public bool Load()
         {
-            var path = getGdSavePath(Plugin.session.RoomState.Seed);
-            var jsonpath = getJsonSavePath(Plugin.session.RoomState.Seed);
+            var path = getGdSavePath();
+            var jsonpath = getJsonSavePath();
 
             bool flag = false;
             if (File.Exists(jsonpath))
@@ -94,7 +103,7 @@ namespace ApClient
                         {
                             string LastExtraDataValue = match.Groups[1].Value;
                             int.TryParse(LastExtraDataValue, out int data);
-                            aPSaveData.ProcessedItems = data;
+                            aPSaveData.ProcessedIndex = data;
                             Debug.Log($"Extracted processedItems: {data}");
                         }
                         
