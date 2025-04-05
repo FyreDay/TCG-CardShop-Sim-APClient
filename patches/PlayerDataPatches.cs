@@ -84,7 +84,7 @@ namespace ApClient.patches
                 
                 Plugin.Log($"Before adding license: {index}, Type: {InventoryBase.GetRestockData(index).itemType}");
                 //Plugin.Log($"id: {LicenseMapping.mapping.GetValueOrDefault(index)}");
-                Plugin.session.Locations.CompleteLocationChecks(LicenseMapping.mapping.GetValueOrDefault(index).locid);
+                //Plugin.session.Locations.CompleteLocationChecks(LicenseMapping.mapping.GetValueOrDefault(index).locid);
                 //return Plugin.hasItem(LicenseMapping.mapping.GetValueOrDefault(index).itemid);
             }
 
@@ -122,7 +122,7 @@ namespace ApClient.patches
 
                 ECollectionPackType expansionType = (ECollectionPackType)AccessTools.Field(typeof(CardOpeningSequence), "m_CollectionPackType").GetValue(CSingleton<CardOpeningSequence>.Instance);
 
-                //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
+                Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
                 if((int)expansionType < Plugin.CardSanity && CPlayerData.GetCardAmount(cardData) == 0)
                 {
                     Plugin.session.Locations.CompleteLocationChecks(CardMapping.getId(cardData));
@@ -133,7 +133,7 @@ namespace ApClient.patches
             // Postfix: Runs after the method
             static void Postfix(CardData cardData, int addAmount)
             {
-                //Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
+                Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
             }
         }
     }

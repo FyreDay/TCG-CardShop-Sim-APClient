@@ -15,7 +15,6 @@ namespace ApClient.patches;
 
 public class RestockItemPanelUIPatches
 {
-    public static int firstIndex = -1;
     [HarmonyPatch(typeof(RestockItemPanelUI), "Init")]
     public class Init
     {
@@ -35,11 +34,6 @@ public class RestockItemPanelUIPatches
                     list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownItemType;
                     index_to_id = Plugin.pg1IndexMapping;
                     origionalItems = LicenseMapping.pg1_ids;
-                    if (firstIndex == -1)
-                    {
-                        firstIndex = index;
-                        CPlayerData.SetUnlockItemLicense(index);
-                    }
                     break;
                 case 1:
                     list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownAccessoryItemType;
@@ -63,6 +57,20 @@ public class RestockItemPanelUIPatches
             __instance.m_LevelRequired = restockData.licenseShopLevelRequired;
             __instance.m_LicensePriceText.text = GameInstance.GetPriceString(0);
 
+            if (index == Plugin.pg1IndexMapping[0])
+            {
+                __instance.m_LevelRequired = 0;
+            }
+            if (index == Plugin.pg2IndexMapping[0])
+            {
+                __instance.m_LevelRequired = 0;
+            }
+            if (index == Plugin.pg3IndexMapping[0])
+            {
+                __instance.m_LevelRequired = 0;
+            }
+
+
             var value = LicenseMapping.getValueOrEmpty(index);
             if (value.locid == -1)
             {
@@ -80,14 +88,50 @@ public class RestockItemPanelUIPatches
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index)
     {
 
-        if ((hasItem && CPlayerData.m_ShopLevel +1 > __instance.m_LevelRequired) || firstIndex == index)
+        if (hasItem && CPlayerData.m_ShopLevel +1 >= __instance.m_LevelRequired)
         {
             __instance.m_UIGrp.SetActive(value: true);
             __instance.m_LicenseUIGrp.SetActive(value: false);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
 
             EItemType type = InventoryBase.GetRestockData(index).itemType;
-            var goals = LicenseMapping.GetKeyValueFromType(type).Where(i => i.Value.count > CPlayerData.m_StockSoldList[(int)type]); ;
+            var goals = LicenseMapping.GetKeyValueFromType(type).Select(l => new { Key = l.Key, locid = l.Value.locid, count = l.Value.count });
+            var startingArray = -1;
+            if (goals.FirstOrDefault().Key == Plugin.pg1IndexMapping[0])
+            {
+                startingArray = 1;
+            }
+            if (goals.FirstOrDefault().Key == Plugin.pg2IndexMapping[0])
+            {
+                startingArray = 2;
+            }
+            if (goals.FirstOrDefault().Key == Plugin.pg3IndexMapping[0])
+            {
+                startingArray = 3;
+            }
+            if (startingArray != -1)
+            {
+                int minCount = goals.Min(kvp => kvp.count);
+
+                for (int i = 3; i < 11; i++)
+                {
+                    int locationId = 0;
+                    switch (startingArray)
+                    {
+                        case 1:
+                            locationId = LicenseMapping.locs1Starting;
+                            break;
+                        case 2:
+                            locationId = LicenseMapping.locs2Starting;
+                            break;
+                        case 3:
+                            locationId = LicenseMapping.locs3Starting;
+                            break;
+                    }
+                    goals.Append(new { goals.First().Key, locid = locationId + i - 3, count = minCount * i });
+                }
+            }
+            goals = goals.Where(i => i.count > CPlayerData.m_StockSoldList[(int)type]);
             if (goals.Any()) {
                 //Set Text
                 var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
@@ -100,7 +144,7 @@ public class RestockItemPanelUIPatches
                     }
                 }
 
-                __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}/{goals.OrderBy(x => x.Value.count).FirstOrDefault().Value.count}";
+                __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}/{goals.OrderBy(x => x.count).FirstOrDefault().count}";
                 __instance.m_UnitPriceText.color = Color.blue;
             }
             else
@@ -119,14 +163,6 @@ public class RestockItemPanelUIPatches
                 __instance.m_UnitPriceText.color = Color.green;
             }
         }
-        else if (CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired)
-        {
-            __instance.m_UIGrp.SetActive(value: false);
-            __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-            __instance.m_LicenseUIGrp.SetActive(value: true);
-            __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-            __instance.m_LevelRequirementText.text = "Level Reached, License Locked by AP";
-        }
         else if (hasItem)
         {
             __instance.m_UIGrp.SetActive(value: false);
@@ -134,6 +170,14 @@ public class RestockItemPanelUIPatches
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
             __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required. License Found";
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+        }
+        else if (CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired)
+        {
+            __instance.m_UIGrp.SetActive(value: false);
+            __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+            __instance.m_LicenseUIGrp.SetActive(value: true);
+            __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+            __instance.m_LevelRequirementText.text = "Level Reached, License Locked by AP";
         }
         else
         {

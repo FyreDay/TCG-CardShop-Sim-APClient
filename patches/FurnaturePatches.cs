@@ -48,14 +48,14 @@ public class FurnaturePatches
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
             __instance.m_CompanyTitle.gameObject.SetActive(value: false);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-            Plugin.Log($"Doesnt have item furnature. {__instance.m_LevelRequirementText.text}");
+            //Plugin.Log($"Doesnt have item furnature. {__instance.m_LevelRequirementText.text}");
         }
         else
         {
             //remove level requirement
             EnableFurnature(__instance, index);
             __instance.m_LevelRequirementText.text = "";
-            Plugin.Log($"remove level Requirement for furnature {index}");
+            //Plugin.Log($"remove level Requirement for furnature {index}");
         }
     }
 
@@ -94,7 +94,7 @@ public class FurnaturePatches
                 return false;
             }
 
-            Plugin.Log($"Click Furnature Button: index {index}, Type: {InventoryBase.GetFurniturePurchaseData(index).GetName()}");
+            //Plugin.Log($"Click Furnature Button: index {index}, Type: {InventoryBase.GetFurniturePurchaseData(index).GetName()}");
             return true;
         }
     }

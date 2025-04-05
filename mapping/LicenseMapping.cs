@@ -139,8 +139,6 @@ public class LicenseMapping
         {121, (0x1F280060, "Pocket Pages", 32, 0x1F28015E,EItemType.UP_PlatinumSeriesPocketPages ) },
         {122, (0x1F280061, "Card Holder", 32, 0x1F28015F,EItemType.UP_SemiRigidCardHolder ) },
         {129, (0x1F2800B5, "Collectors Album", 8, 0x1F280160,EItemType.UP_Album) },
-
-        
     };
 
     public static KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType type)> getKeyValue(int itemid, int count = 1)
@@ -167,6 +165,10 @@ public class LicenseMapping
     {
         return mapping.Where(pair => pair.Value.type == type).ToList();
     }
+
+    public static int locs1Starting = 0x1F280217;
+    public static int locs2Starting = 0x1F28021F;
+    public static int locs3Starting = 0x1F280228;
 
 
     public static int[] pg1_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 67, 68, 69, 70, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 71, 72, 73, 74];

@@ -1,5 +1,6 @@
 ﻿using ApClient.mapping;
 using ApClient.patches;
+using ApClientl;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
@@ -45,53 +46,22 @@ public class Plugin : BaseUnityPlugin
         Logger = base.Logger;
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.sceneLoaded += this.OnSceneLoad;
+        
+    }
+    void Start()
+    {
+        var go = new GameObject("MyGUI");
+        go.AddComponent<APGui>();
+        DontDestroyOnLoad(go);
     }
 
-    private void OnDestroy()
+        private void OnDestroy()
     {
-        //CSaveLoad
-        
         this.m_Harmony.UnpatchSelf();
     }
 
-    private bool showGUI = true;
-    private string ipporttext = "localhost:38281";
-    private string password = "";
-    private string slot = "Player1";
+    
 
-    private string state = "Not Connected";
-
-    void OnGUI()
-    {
-        if (!showGUI) return;
-
-        // Create a GUI window
-        GUI.Box(new Rect(10, 10, 200, 300), "AP Client");
-
-        // Set font size and color
-        GUIStyle textStyle = new GUIStyle();
-        textStyle.fontSize = 12;
-        textStyle.normal.textColor = UnityEngine.Color.white;
-        
-        // Display text at position (10,10)
-        GUI.Label(new Rect(20, 40, 300, 30), "Address:port", textStyle);
-        ipporttext = GUI.TextField(new Rect(20, 60, 180, 25), ipporttext, 25);
-
-        GUI.Label(new Rect(20, 90, 300, 30), "Password", textStyle);
-        password = GUI.TextField(new Rect(20, 110, 180, 25), password, 25);
-
-        GUI.Label(new Rect(20, 140, 300, 30), "Slot", textStyle);
-        slot = GUI.TextField(new Rect(20, 160, 180, 25), slot, 25);
-
-        if (GUI.Button(new Rect(20, 210, 180, 30), "Connect"))
-        {
-            Debug.Log("Button Pressed!");
-            connect();
-        }
-
-
-        GUI.Label(new Rect(20, 240, 300, 30), state, textStyle);
-    }
     public static ArchipelagoSession session;
     
     public static bool ControlTrades()
@@ -113,7 +83,7 @@ public class Plugin : BaseUnityPlugin
 
     
     private static Queue<ItemInfo> cachedItems = new Queue<ItemInfo>();
-    private LoginResult result = null;
+    private static LoginResult result = null;
     public static int CardSanity = 0;
     public static bool TradesAreNew = false;
     public static int Goal = 0;
@@ -136,26 +106,58 @@ public class Plugin : BaseUnityPlugin
                .ToList();
     }
 
-    private void connect()
+    private static void addStartingChecks(List<int> mapping, int startingId)
+    {
+        var item = LicenseMapping.getValueOrEmpty(mapping[0]);
+        for (int i = 0; i < 8; i++)
+        {
+            var minAmount = LicenseMapping.GetKeyValueFromType(item.type).Min(kvp => kvp.Value.count);
+            LicenseMapping.mapping.Add(-(i + 1), (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
+        }
+    }
+       
+
+    public static void connect(string ip, string password, string slot)
     {
         
-        state = "Connecting";
-        session = ArchipelagoSessionFactory.CreateSession(ipporttext);
+        APGui.state = "Connecting";
+        session = ArchipelagoSessionFactory.CreateSession(ip);
+        //callback for item retrieval
+        int num = 0;
+        session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
+        session.Items.ItemReceived += (receivedItemsHelper) => {
+            ItemInfo item = receivedItemsHelper.PeekItem();
+            if (!SceneLoaded)
+            {
+                num++;
+                Log($"Not In Scene {num}");
+
+                processed++;
+                cachedItems.Enqueue(item);
+                receivedItemsHelper.DequeueItem();
+                return;
+            }
+
+            ItemInfo itemReceived = receivedItemsHelper.PeekItem();
+            Log($"I have {receivedItemsHelper.Index} total items. do I have any left? {receivedItemsHelper.Any()}");
+
+            processNewItem(itemReceived);
+            receivedItemsHelper.DequeueItem();
+        };
         try
         {
-            result = session.TryConnectAndLogin("TCG Card Shop Simulator", slot, ItemsHandlingFlags.AllItems,null, null, null, password, true);
+            result = session.TryConnectAndLogin("TCG Card Shop Simulator", slot, ItemsHandlingFlags.IncludeOwnItems | ItemsHandlingFlags.IncludeStartingInventory,null, null, null, password, true);
         }
         catch (Exception e)
         {
-            state = "Connection Failed";
+            APGui.state = "Connection Failed";
             result = new LoginFailure(e.GetBaseException().Message);
             Debug.Log(e.GetBaseException().Message);
         }
 
         if (result.Successful)
         {
-            
-            state = "Connected";
+            APGui.state = "Connected";
             var loginSuccess = (LoginSuccessful)result;
             CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
             Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
@@ -163,41 +165,26 @@ public class Plugin : BaseUnityPlugin
             LevelGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("LevelGoal").ToString());
             GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
             TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
-            pg1IndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
+            pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             Plugin.Log(string.Join(", ", pg1IndexMapping));
-            pg2IndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
+            pg2IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
             Plugin.Log(string.Join(", ", pg2IndexMapping));
-            pg3IndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
+            pg3IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
             Plugin.Log(string.Join(", ", pg3IndexMapping));
-            ttIndexMapping  = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
+            ttIndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
             Plugin.Log(string.Join(", ", ttIndexMapping));
 
+            addStartingChecks(pg1IndexMapping, LicenseMapping.locs1Starting);
+            addStartingChecks(pg2IndexMapping, LicenseMapping.locs2Starting);
+            addStartingChecks(pg3IndexMapping, LicenseMapping.locs3Starting);
 
             //on a new connection we will need to rester processing
             processed = 0;
 
             setTitleInteractable(true);
-            int num = 0;
-            //callback for item retrieval
-            session.Items.ItemReceived += (receivedItemsHelper) => {
-                ItemInfo item = receivedItemsHelper.PeekItem();
-                if (!SceneLoaded)
-                {
-                    num++;
-                    Log($"Not In Scene {num}");
-                    
-                    processed++;
-                    cachedItems.Enqueue(item);
-                    receivedItemsHelper.DequeueItem();
-                    return;
-                }
+            
 
-                ItemInfo itemReceived = receivedItemsHelper.PeekItem();
-                Log($"I have {receivedItemsHelper.Index} total items. do I have any left? {receivedItemsHelper.Any()}");
-
-                processNewItem(itemReceived);
-                receivedItemsHelper.DequeueItem();
-            };
+            
         }
     }
 
@@ -454,7 +441,7 @@ public class Plugin : BaseUnityPlugin
 
     private static bool SceneLoaded = false;
 
-    private void setTitleInteractable(bool interactable)
+    private static void setTitleInteractable(bool interactable)
     {
         if (result != null && result.Successful)
         {
@@ -515,51 +502,44 @@ public class Plugin : BaseUnityPlugin
         if (scene.name == "Start")
         {
             
-            showGUI = false;
+            APGui.showGUI = false;
             
         }
     }
     public static int processed = 0;
     public static void ProcessCachedItems()
     {
+
+        CPlayerData.SetUnlockItemLicense(pg1IndexMapping[0]);
+        CPlayerData.SetUnlockItemLicense(pg2IndexMapping[0]);
+        CPlayerData.SetUnlockItemLicense(pg3IndexMapping[0]);
+
+
         setRandomTypesForSanity();
         SceneLoaded = true;
         Log($"saved: {m_SaveManager.getProcessedItems()} processed : {processed}");
-        int counter = 0;
-        while (m_SaveManager.getProcessedItems() > processed)
-        {
-            Log($"what the fuck is happening queue has something {session.Items.Any()} and I have {session.Items.AllItemsReceived.Count}");
+        //int counter = 0;
+        //while (m_SaveManager.getProcessedItems() > processed)
+        //{
+        //    Log($"what the fuck is happening queue has something {session.Items.Any()} and I have {session.Items.AllItemsReceived.Count}");
             
-            var item = session.Items.PeekItem();
-            processed++;
-            counter++;
-            if (item != null) {
-                cachedItems.Enqueue(item);
-                session.Items.DequeueItem();
-            }
-        }
+        //    var item = session.Items.PeekItem();
+        //    processed++;
+        //    counter++;
+        //    if (item != null) {
+        //        cachedItems.Enqueue(item);
+        //        session.Items.DequeueItem();
+        //    }
+        //}
         while (cachedItems.Any())
         {
             ItemInfo item = cachedItems.Dequeue();
-            if(m_SaveManager.getProcessedItems() > counter)
-            {
-                counter++;
-                continue;
-            }
             Log($"Item on load {item.ItemName}");
             processNewItem(item);
         }
         cachedItems.Clear();
 
     }
-    
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F9)) // Press F1 to log scenes
-        {
-            showGUI = !showGUI;
-        }
-     }
 
     public static void Log(string s)
     {

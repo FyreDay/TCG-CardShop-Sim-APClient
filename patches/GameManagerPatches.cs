@@ -13,14 +13,13 @@ public class CGameManagerPatches
     [HarmonyPostfix]
     static void PostFix()
     {
-        if (CPlayerData.PlayerName != "My Card Shop" || CPlayerData.m_TutorialIndex >= 1)
+        CPlayerData.m_TutorialIndex = 16;
+        if (CPlayerData.PlayerName != "My Card Shop" || CPlayerData.m_TutorialIndex > 0)
         {
             
             CSingleton<TutorialManager>.Instance.m_TutorialTargetIndicator.SetActive(value: false);
             CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
             CPlayerData.m_HasFinishedTutorial = true;
-            CPlayerData.m_TutorialIndex = 16;
-            
         }
         Plugin.Log("Processing cache Items");
         Plugin.ProcessCachedItems();
