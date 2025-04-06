@@ -74,7 +74,21 @@ These are the currently implemented Items
 
 -DIY Items unlocks
 
-#### 
+#### Traps
+
+- Stink Trap
+
+- Poltergeist Trap
+
+#### Junk
+
+- Small, Medium, and Large XP
+
+- Small, Medium, and Large Money
+
+-Random Card
+
+-Random New Card Within Card Sanity 
 
 ### Goals
 
