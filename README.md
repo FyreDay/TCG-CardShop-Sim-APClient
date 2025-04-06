@@ -34,6 +34,8 @@ If installed correctly you should see a window in the top left with fields to en
 
 To Connect, Enter the data and hit the connect button. If the `Not Connected` Text changes to `Connected` You have succesfully connected. You May now click New Game if starting, or Load game if you have previously played on this seed.
 
+This plugin creates a save folder where ever the plugin is installed to. For each seed you run, it will create a save file there leaving your save slots alone.
+
 ## How This Rando Works
 
 ### Licenses
