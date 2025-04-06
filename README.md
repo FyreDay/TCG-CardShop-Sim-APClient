@@ -16,7 +16,7 @@ If you currently do not have TCG Card Shop Simulator modded, You have two option
 
 OR
 
-2.Install BepinEX from [https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2]
+2.Install BepinEX from https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2
 
 ### BepinEx Configuration
 
