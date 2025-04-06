@@ -110,21 +110,22 @@ public class Plugin : BaseUnityPlugin
                .Select(int.Parse)               // Convert to integers
                .ToList();
     }
-
+    private static int startingCounter = 200;
     private static void addStartingChecks(List<int> mapping, int startingId)
     {
         var item = LicenseMapping.getValueOrEmpty(mapping[0]);
         for (int i = 0; i < 8; i++)
         {
             var minAmount = LicenseMapping.GetKeyValueFromType(item.type).Min(kvp => kvp.Value.count);
-            LicenseMapping.mapping.Add(startingId + i, (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
+            LicenseMapping.mapping.Add(startingCounter + i, (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
         }
+        startingCounter += 8;
+        Plugin.Log($"Goal Amount for {item.name} is {LicenseMapping.GetKeyValueFromType(item.type).Count()}");
     }
        
 
     public static void connect(string ip, string password, string slot)
     {
-        
         APGui.state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ip);
         //callback for item retrieval
@@ -185,6 +186,7 @@ public class Plugin : BaseUnityPlugin
             Plugin.Log(string.Join(", ", ttIndexMapping));
 
             addStartingChecks(pg1IndexMapping, LicenseMapping.locs1Starting);
+            Plugin.Log($"Mapping is {pg2IndexMapping.Count}");
             addStartingChecks(pg2IndexMapping, LicenseMapping.locs2Starting);
             addStartingChecks(pg3IndexMapping, LicenseMapping.locs3Starting);
 
