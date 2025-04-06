@@ -28,6 +28,7 @@ public class RestockItemPanelUIPatches
             List<EItemType> list = new List<EItemType>();
             List<int> index_to_id = new List<int>();
             int[] origionalItems = LicenseMapping.pg1_ids;
+
             switch (restockItemScreen.m_PageIndex)
             {
                 case 0:
@@ -45,6 +46,12 @@ public class RestockItemPanelUIPatches
                     index_to_id = Plugin.pg3IndexMapping;
                     origionalItems = LicenseMapping.pg3_ids;
                     break;
+            }
+            if(restockItemScreen is RestockItemBoardGameScreen)
+            {
+                list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownBoardGameItemType;
+                index_to_id = Plugin.ttIndexMapping;
+                origionalItems = LicenseMapping.tt_ids;
             }
 
             if (restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index) == -1)
@@ -79,7 +86,6 @@ public class RestockItemPanelUIPatches
             }
 
             runLicenseBtnLogic(__instance, Plugin.hasItem(value.itemid), index);
-
 
         }
 
@@ -161,7 +167,16 @@ public class RestockItemPanelUIPatches
         // Prefix: Runs before the method
         static bool Prefix(RestockItemPanelUI __instance)
         {
-            return false;
+            if (Plugin.hasItem(LicenseMapping.getValueOrEmpty(__instance.m_Index).itemid))
+            {
+                return true;
+            }
+            else
+            {
+                PopupTextPatches.ShowCustomText("License Unowned");
+                return false;
+            }
+            
         }
     }
     [HarmonyPatch(typeof(RestockItemScreen), "Init")]

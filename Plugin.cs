@@ -405,11 +405,11 @@ public class Plugin : BaseUnityPlugin
         }
         if ((int)itemReceived.ItemId == TrashMapping.mediumMoney)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(30 * (CPlayerData.m_ShopLevel + 1)));
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(20 * (CPlayerData.m_ShopLevel + 1)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeMoney)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(50 * (CPlayerData.m_ShopLevel + 1)));
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * (CPlayerData.m_ShopLevel + 1)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.smallXp)
         {
@@ -421,7 +421,7 @@ public class Plugin : BaseUnityPlugin
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.5)));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.4)));
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomcard)
         {
