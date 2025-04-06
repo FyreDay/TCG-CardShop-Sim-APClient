@@ -4,7 +4,7 @@ THIS IS IN EARLY ALPHA. THERE ARE MISSING FEATURES AND THERE WILL BE BUGS. PLEAS
 
 This Plugin is the TCG Card Shop Simulator implementation of a client to connect to an archipelago randomiser server and handle items and checks.
 
-For the AP world see [https://github.com/FyreDay/Archipelago-TCGCardShopSimulator/releases]
+For the AP world see https://github.com/FyreDay/Archipelago-TCGCardShopSimulator/releases
 
 ## Setup
 
