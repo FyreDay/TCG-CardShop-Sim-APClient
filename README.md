@@ -4,7 +4,7 @@ THIS IS IN EARLY ALPHA. THERE ARE MISSING FEATURES AND THERE WILL BE BUGS. PLEAS
 
 This Plugin is the TCG Card Shop Simulator implementation of a client to connect to an archipelago randomiser server and handle items and checks.
 
-For the AP world see [https://github.com/FyreDay/Archipelago-TCGCardShopSimulator/releases]
+For the AP world see https://github.com/FyreDay/Archipelago-TCGCardShopSimulator/releases
 
 ## Setup
 
@@ -16,7 +16,7 @@ If you currently do not have TCG Card Shop Simulator modded, You have two option
 
 OR
 
-2.Install BepinEX from [https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2]
+2.Install BepinEX from https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2
 
 ### BepinEx Configuration
 
@@ -33,6 +33,8 @@ Extract the latest release into `TCG Card Shop Simulator\BepInEx\plugins`
 If installed correctly you should see a window in the top left with fields to enter the IP:Port, password, and Slot. New Game and load game should be disabled. If you are ever able to see your save slots your installation has been done incorrectly.
 
 To Connect, Enter the data and hit the connect button. If the `Not Connected` Text changes to `Connected` You have succesfully connected. You May now click New Game if starting, or Load game if you have previously played on this seed.
+
+This plugin creates a save folder where ever the plugin is installed to. For each seed you run, it will create a save file there leaving your save slots alone.
 
 ## How This Rando Works
 
@@ -74,7 +76,21 @@ These are the currently implemented Items
 
 -DIY Items unlocks
 
-#### 
+#### Traps
+
+- Stink Trap
+
+- Poltergeist Trap
+
+#### Junk
+
+- Small, Medium, and Large XP
+
+- Small, Medium, and Large Money
+
+-Random Card
+
+-Random New Card Within Card Sanity 
 
 ### Goals
 
