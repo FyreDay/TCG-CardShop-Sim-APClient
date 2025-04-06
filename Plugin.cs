@@ -197,7 +197,7 @@ public class Plugin : BaseUnityPlugin
         Log(itemReceived.ItemName);
         if (LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
-            PopupTextPatches.ShowCustomText()
+            PopupTextPatches.ShowCustomText("New License Unlocked");
             var itemMapping = LicenseMapping.getKeyValue((int)itemReceived.ItemId, itemCount((int)itemReceived.ItemId));
             RestockItemPanelUI panel = null;
             //update Restock ui
