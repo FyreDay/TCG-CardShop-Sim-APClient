@@ -1,4 +1,5 @@
 ﻿using ApClient;
+using ApClient.patches;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -52,5 +53,11 @@ public class APGui : MonoBehaviour
         {
             showGUI = !showGUI;
         }
+        if (Input.GetKeyDown(KeyCode.H)) // Press F1 to log scenes
+        {
+            PopupTextPatches.ShowCustomText("Warehouse Key Found");
+        }
+
+
     }
 }

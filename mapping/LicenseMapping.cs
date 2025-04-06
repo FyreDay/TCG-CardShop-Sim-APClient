@@ -10,8 +10,8 @@ public class LicenseMapping
 {
     public static SortedDictionary<int, (int itemid, string name, int count, int locid, EItemType type)> mapping = new SortedDictionary<int, (int itemid, string name, int count, int locid, EItemType type)>
     {
-        {0, (0x1F280001, "Basic Card Pack", 32, 0x1F2800F0, EItemType.BasicCardPack) },
-        {1, (0x1F2800D8, "Progressive Basic Card Pack", 64, 0x1F2800F1, EItemType.BasicCardPack) },
+        {0, (0x1F280001, "Basic Card Pack (32)", 32, 0x1F2800F0, EItemType.BasicCardPack) },
+        {1, (0x1F2800D8, "Basic Card Pack (64)", 64, 0x1F2800F1, EItemType.BasicCardPack) },
         {2, (0x1F2800D9, "Progressive Basic Card Pack", 4,0x1F2800F2, EItemType.BasicCardBox) },
         {3, (0x1F2800DA, "Progressive Basic Card Pack", 8,0x1F2800F3, EItemType.BasicCardBox) },
         {4, (0x1F280002, "Progressive Rare Card Pack",32,0x1F2800F4, EItemType.RareCardPack) },

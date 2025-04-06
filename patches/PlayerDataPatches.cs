@@ -58,6 +58,7 @@ namespace ApClient.patches
                     if(Plugin.Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.LevelGoal)
                     {
                         Plugin.session.SetGoalAchieved();
+                        PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Leveled To Your Goal!");
                     }
                 }
             }
@@ -82,7 +83,7 @@ namespace ApClient.patches
             static void Prefix(int index)
             {
                 
-                Plugin.Log($"Before adding license: {index}, Type: {InventoryBase.GetRestockData(index).itemType}");
+                //Plugin.Log($"Before adding license: {index}, Type: {InventoryBase.GetRestockData(index).itemType}");
                 //Plugin.Log($"id: {LicenseMapping.mapping.GetValueOrDefault(index)}");
                 //Plugin.session.Locations.CompleteLocationChecks(LicenseMapping.mapping.GetValueOrDefault(index).locid);
                 //return Plugin.hasItem(LicenseMapping.mapping.GetValueOrDefault(index).itemid);
@@ -91,7 +92,7 @@ namespace ApClient.patches
             // Postfix: Runs after the method
             static void Postfix(int index)
             {
-                Plugin.Log($"After adding license:" );
+                //Plugin.Log($"After adding license:" );
             }
         }
 
@@ -122,22 +123,17 @@ namespace ApClient.patches
 
                 ECollectionPackType expansionType = (ECollectionPackType)AccessTools.Field(typeof(CardOpeningSequence), "m_CollectionPackType").GetValue(CSingleton<CardOpeningSequence>.Instance);
 
-                Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
+                //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
                 if((int)expansionType < Plugin.CardSanity && CPlayerData.GetCardAmount(cardData) == 0)
                 {
-                    Plugin.Log("sending packet!!");
-                    Plugin.session.Say("New Card");
-                    Plugin.Log(Plugin.session.Locations.GetLocationNameFromId(CardMapping.getId(cardData)));
                     Plugin.session.Locations.CompleteLocationChecks(CardMapping.getId(cardData));
-                    Plugin.Log($"Sent packet!! + {CardMapping.getId(cardData)}");
                 }
-                //Plugin.Log($"Before adding card: {newList[counter]}, Amount: {addAmount}");
             }
 
             // Postfix: Runs after the method
             static void Postfix(CardData cardData, int addAmount)
             {
-                Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
+                //Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
             }
         }
     }

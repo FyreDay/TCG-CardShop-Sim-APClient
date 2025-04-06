@@ -197,6 +197,7 @@ public class Plugin : BaseUnityPlugin
         Log(itemReceived.ItemName);
         if (LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
+            PopupTextPatches.ShowCustomText()
             var itemMapping = LicenseMapping.getKeyValue((int)itemReceived.ItemId, itemCount((int)itemReceived.ItemId));
             RestockItemPanelUI panel = null;
             //update Restock ui
@@ -347,6 +348,7 @@ public class Plugin : BaseUnityPlugin
             if(Goal == 2 && GhostGoalAmount <= total)
             {
                 session.SetGoalAchieved();
+                PopupTextPatches.ShowCustomText($"Congrats! You Collected {total} Ghost Cards and Completed Your Goal!");
             }
             var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
             
@@ -386,6 +388,17 @@ public class Plugin : BaseUnityPlugin
             
         }
 
+
+
+        if ((int)itemReceived.ItemId == ExpansionMapping.warehouseKey)
+        {
+            CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(isUnlocked: true);
+            AchievementManager.OnShopLotBUnlocked();
+            CPlayerData.m_GameReportDataCollect.upgradeCost -= 5000;
+            CPlayerData.m_GameReportDataCollectPermanent.upgradeCost -= 5000;
+            SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
+            PopupTextPatches.ShowCustomText("Warehouse Key Found");
+        }
         if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
         {
             CEventManager.QueueEvent(new CEventPlayer_AddCoin(10*(CPlayerData.m_ShopLevel+1)));
