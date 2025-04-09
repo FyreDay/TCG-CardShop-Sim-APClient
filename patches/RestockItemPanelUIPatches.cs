@@ -47,11 +47,14 @@ public class RestockItemPanelUIPatches
                     origionalItems = LicenseMapping.pg3_ids;
                     break;
             }
+
             if(restockItemScreen is RestockItemBoardGameScreen)
             {
                 list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownBoardGameItemType;
                 index_to_id = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
                 origionalItems = LicenseMapping.tt_ids;
+                Plugin.Log($"Id in board game {index}");
+
             }
 
             if (restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index) == -1)
@@ -60,6 +63,7 @@ public class RestockItemPanelUIPatches
             }
 
             RestockData restockData = InventoryBase.GetRestockData(origionalItems[index_to_id.IndexOf(index)]);
+            Plugin.Log($"Restock Data: {restockData.name}");
             //Plugin.Log($"index {index} is at {restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index)} which was {origionalItems[restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index)]}");
             __instance.m_LevelRequired = restockData.licenseShopLevelRequired;
             __instance.m_LicensePriceText.text = GameInstance.GetPriceString(0);
@@ -224,6 +228,7 @@ public class RestockItemPanelUIPatches
                     __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping);
                     break;
             }
+
             Plugin.Log("new");
             Plugin.Log(string.Join(", ", __instance.m_CurrentRestockDataIndexList));
         }
