@@ -54,10 +54,12 @@ public class RestockItemPanelUIPatches
                 index_to_id = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
                 origionalItems = LicenseMapping.tt_ids;
                 Plugin.Log($"Id in board game {index}");
-
+                if(index == -1)
+                {
+                    return;
+                }
             }
-
-            if (restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index) == -1)
+            else if (restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index) == -1)
             {
                 return;
             }
@@ -97,7 +99,7 @@ public class RestockItemPanelUIPatches
 
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index)
     {
-
+        Plugin.Log($"Item Data: {index} : {__instance.m_LevelRequired}");
         if (hasItem && CPlayerData.m_ShopLevel +1 >= __instance.m_LevelRequired)
         {
             __instance.m_UIGrp.SetActive(value: true);
