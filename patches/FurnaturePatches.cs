@@ -28,7 +28,7 @@ public class FurnaturePatches
                 return;
             }
 
-            bool hasAPItem = Plugin.itemCount(value.itemid) >= value.count;
+            bool hasAPItem = Plugin.m_SessionHandler.itemCount(value.itemid) >= value.count;
 
             runFurnatureBtnLogic(__instance, hasAPItem, index);
 

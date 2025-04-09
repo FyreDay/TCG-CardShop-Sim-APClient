@@ -22,7 +22,7 @@ public class CGameManagerPatches
             CPlayerData.m_HasFinishedTutorial = true;
         }
         Plugin.Log("Processing cache Items");
-        Plugin.ProcessCachedItems();
+        Plugin.onSceneLoadLogic();
 
     }
 }

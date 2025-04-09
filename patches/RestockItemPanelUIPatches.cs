@@ -33,24 +33,24 @@ public class RestockItemPanelUIPatches
             {
                 case 0:
                     list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownItemType;
-                    index_to_id = Plugin.pg1IndexMapping;
+                    index_to_id = Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping;
                     origionalItems = LicenseMapping.pg1_ids;
                     break;
                 case 1:
                     list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownAccessoryItemType;
-                    index_to_id = Plugin.pg2IndexMapping;
+                    index_to_id = Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping;
                     origionalItems = LicenseMapping.pg2_ids;
                     break;
                 case 2:
                     list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownFigurineItemType;
-                    index_to_id = Plugin.pg3IndexMapping;
+                    index_to_id = Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping;
                     origionalItems = LicenseMapping.pg3_ids;
                     break;
             }
             if(restockItemScreen is RestockItemBoardGameScreen)
             {
                 list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownBoardGameItemType;
-                index_to_id = Plugin.ttIndexMapping;
+                index_to_id = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
                 origionalItems = LicenseMapping.tt_ids;
             }
 
@@ -64,15 +64,15 @@ public class RestockItemPanelUIPatches
             __instance.m_LevelRequired = restockData.licenseShopLevelRequired;
             __instance.m_LicensePriceText.text = GameInstance.GetPriceString(0);
 
-            if (index == Plugin.pg1IndexMapping[0])
+            if (index == Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping[0])
             {
                 __instance.m_LevelRequired = 0;
             }
-            if (index == Plugin.pg2IndexMapping[0])
+            if (index == Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping[0])
             {
                 __instance.m_LevelRequired = 0;
             }
-            if (index == Plugin.pg3IndexMapping[0])
+            if (index == Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping[0])
             {
                 __instance.m_LevelRequired = 0;
             }
@@ -85,7 +85,7 @@ public class RestockItemPanelUIPatches
                 return;
             }
 
-            runLicenseBtnLogic(__instance, Plugin.hasItem(value.itemid), index);
+            runLicenseBtnLogic(__instance, Plugin.m_SessionHandler.hasItem(value.itemid), index);
 
         }
 
@@ -101,7 +101,7 @@ public class RestockItemPanelUIPatches
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
 
             EItemType type = InventoryBase.GetRestockData(index).itemType;
-            var goals = LicenseMapping.GetKeyValueFromType(type).Where(i => i.Value.count >= CPlayerData.m_StockSoldList[(int)type]);
+            var goals = LicenseMapping.GetKeyValueFromType(type).Where(i => i.Value.count > CPlayerData.m_StockSoldList[(int)type]);
 
             if (goals.Any()) {
                 //Set Text
@@ -167,7 +167,7 @@ public class RestockItemPanelUIPatches
         // Prefix: Runs before the method
         static bool Prefix(RestockItemPanelUI __instance)
         {
-            if (Plugin.hasItem(LicenseMapping.getValueOrEmpty(__instance.m_Index).itemid))
+            if (Plugin.m_SessionHandler.hasItem(LicenseMapping.getValueOrEmpty(__instance.m_Index).itemid))
             {
                 return true;
             }
@@ -213,15 +213,15 @@ public class RestockItemPanelUIPatches
             {
                 case 0:
                     __instance.m_CurrentRestockDataIndexList.Clear();
-                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.pg1IndexMapping);
+                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping);
                     break;
                 case 1:
                     __instance.m_CurrentRestockDataIndexList.Clear();
-                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.pg2IndexMapping);
+                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping);
                     break;
                 case 2:
                     __instance.m_CurrentRestockDataIndexList.Clear();
-                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.pg3IndexMapping);
+                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping);
                     break;
             }
             Plugin.Log("new");

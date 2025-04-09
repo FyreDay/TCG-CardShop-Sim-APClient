@@ -18,7 +18,7 @@ public class EmployeePatches
             var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
             __instance.m_LevelRequirementText.text = $"Requires AP Worker Unlock";
 
-            if (val.locid != -1 && Plugin.hasItem(val.itemid))
+            if (val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid))
             {
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: false);
                 __instance.m_HireFeeText.gameObject.SetActive(value: true);
@@ -46,8 +46,8 @@ public class EmployeePatches
 
             int index = (int)fieldInfo.GetValue(__instance);
             var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
-            Plugin.Log($"at employee hire {val.name} {val.itemid} {val.locid != -1 && Plugin.hasItem(val.itemid)}");
-            if (val.locid != -1 && Plugin.hasItem(val.itemid))
+            Plugin.Log($"at employee hire {val.name} {val.itemid} {val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid)}");
+            if (val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid))
             {
                 HireEmployee(__instance, index);
             }

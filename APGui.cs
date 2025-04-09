@@ -10,9 +10,9 @@ namespace ApClientl;
 public class APGui : MonoBehaviour
 {
     public static bool showGUI = true;
-    public static string ipporttext = "localhost:38281";
-    public static string password = "";
-    public static string slot = "Player1";
+    public static string ipporttext = Settings.Instance.LastUsedIP.Value;
+    public static string password = Settings.Instance.LastUsedPassword.Value;
+    public static string slot = Settings.Instance.LastUsedSlot.Value;
 
     public static string state = "Not Connected";
     void OnGUI()
@@ -40,7 +40,7 @@ public class APGui : MonoBehaviour
         if (GUI.Button(new Rect(20, 210, 180, 30), "Connect"))
         {
             Debug.Log("Button Pressed!");
-            Plugin.connect(ipporttext, password, slot);
+            Plugin.m_SessionHandler.connect(ipporttext, password, slot);
         }
 
 

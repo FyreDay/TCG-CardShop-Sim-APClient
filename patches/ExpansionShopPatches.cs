@@ -30,17 +30,23 @@ public class ExpansionShopPatches
             bool hasAPItem = false;
             if (isShopB)
             {
-                hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveB) > index;
+                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveB) > index;
             }
             else
             {
-                hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) > index;
+                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveA) > index;
             }
             
             bool atLevel = CPlayerData.m_ShopLevel + 1 >= m_LevelRequired;
-            if (!hasAPItem)
+
+            if (!hasAPItem && atLevel)
             {
-                __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} and AP Progressive";
+                __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+                __instance.m_LevelRequirementText.text = $"Needs Progressive Shop Expansion {(isShopB ? "B" : "A")}";
+            }
+            else if (!hasAPItem)
+            {
+                __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} and AP Progressive {(isShopB ? "B" : "A")}";
             }
             if (isShopB && CPlayerData.m_UnlockWarehouseRoomCount > index)
             {
@@ -61,10 +67,6 @@ public class ExpansionShopPatches
             {
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
                 __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
-                if (!hasAPItem && atLevel)
-                {
-                    __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text}";
-                }
             }
             
             
@@ -92,11 +94,11 @@ public class ExpansionShopPatches
             bool hasAPItem = false;
             if (m_IsShopB)
             {
-                hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveB) > index;
+                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveB) > index;
             }
             else
             {
-                hasAPItem = Plugin.itemCount(ExpansionMapping.progressiveA) > index;
+                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveA) > index;
             }
             bool atLevel = (CPlayerData.m_ShopLevel + 1) >= m_LevelRequired;
             //Plugin.Log($"is B? {m_IsShopB} has progressive {hasAPItem} with count {Plugin.itemCount(ExpansionMapping.progressiveA)} at level {atLevel} required {m_LevelRequired}" );
@@ -121,10 +123,10 @@ public class ExpansionShopPatches
         [HarmonyPrefix]
         public static void Prefix(float totalCost, int index, bool isShopB)
         {
-            Plugin.session.Locations.CompleteLocationChecks(ExpansionMapping.locstartval + index + (isShopB ? 30 : 0));
-            if (!isShopB && Plugin.Goal == 0 && index + 1 >= Plugin.ShopExpansionGoal)
+            Plugin.m_SessionHandler.CompleteLocationChecks(ExpansionMapping.locstartval + index + (isShopB ? 30 : 0));
+            if (!isShopB && Plugin.m_SessionHandler.GetSlotData().Goal == 0 && index + 1 >= Plugin.m_SessionHandler.GetSlotData().ShopExpansionGoal)
             {
-                Plugin.session.SetGoalAchieved();
+                Plugin.m_SessionHandler.SendGoalCompletion();
                 PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Expanded To Your Goal!");
             }
             Plugin.Log("Prefix executed on EvaluateCartCheckout for Expansion");

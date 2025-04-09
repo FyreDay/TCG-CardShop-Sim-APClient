@@ -23,7 +23,8 @@ namespace ApClient.patches
                 CPlayerData.m_TutorialIndex = 16;
                 CPlayerData.m_HasFinishedTutorial = true;
                 CPlayerData.m_TutorialDataList.Clear();
-                Plugin.ProcessCachedItems();
+                Plugin.m_SessionHandler.ProcessCachedItems();
+                CEventManager.QueueEvent(new CEventPlayer_SetCoin(Settings.Instance.StartingMoney.Value));
 
             }
         }

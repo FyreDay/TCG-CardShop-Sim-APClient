@@ -54,10 +54,10 @@ namespace ApClient.patches
                 if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel+1 >= 2)
                 {
                     Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
-                    Plugin.session.Locations.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
-                    if(Plugin.Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.LevelGoal)
+                    Plugin.m_SessionHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
+                    if(Plugin.m_SessionHandler.GetSlotData().Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.m_SessionHandler.GetSlotData().LevelGoal)
                     {
-                        Plugin.session.SetGoalAchieved();
+                        Plugin.m_SessionHandler.SendGoalCompletion();
                         PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Leveled To Your Goal!");
                     }
                 }
@@ -116,7 +116,7 @@ namespace ApClient.patches
             // Prefix: Runs before the method
             static void Prefix(CardData cardData, int addAmount)
             {
-                if(Plugin.CardSanity == 0)
+                if(Plugin.m_SessionHandler.GetSlotData().CardSanity == 0)
                 {
                     return;
                 }
@@ -124,9 +124,9 @@ namespace ApClient.patches
                 ECollectionPackType expansionType = (ECollectionPackType)AccessTools.Field(typeof(CardOpeningSequence), "m_CollectionPackType").GetValue(CSingleton<CardOpeningSequence>.Instance);
 
                 //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
-                if((int)expansionType < Plugin.CardSanity && CPlayerData.GetCardAmount(cardData) == 0)
+                if((int)expansionType < Plugin.m_SessionHandler.GetSlotData().CardSanity && CPlayerData.GetCardAmount(cardData) == 0)
                 {
-                    Plugin.session.Locations.CompleteLocationChecks(CardMapping.getId(cardData));
+                    Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
                 }
             }
 

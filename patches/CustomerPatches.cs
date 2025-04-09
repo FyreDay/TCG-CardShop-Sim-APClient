@@ -24,7 +24,7 @@ public class CustomerPatches
             foreach (var Loc in locations)
             {
                 Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
-                Plugin.session.Locations.CompleteLocationChecks(Loc.Value.locid);
+                Plugin.m_SessionHandler.CompleteLocationChecks(Loc.Value.locid);
 
             }
         }
@@ -41,9 +41,9 @@ public class CustomerPatches
             // Get the original method that creates random card data.
             MethodInfo originalGetCardData = AccessTools.Method(typeof(CPlayerData), "GetCardData", new[] { typeof(int), typeof(ECardExpansionType), typeof(bool) });
             // Get our custom builder method.
-            MethodInfo myCustomMethod = AccessTools.Method(typeof(Plugin), nameof(Plugin.RandomNewCard));
+            MethodInfo myCustomMethod = AccessTools.Method(typeof(Plugin), nameof(Plugin.getNewCard));
             // Get the Plugin.ControlTrades() method.
-            MethodInfo controlTradesMethod = AccessTools.Method(typeof(Plugin), nameof(Plugin.ControlTrades));
+            MethodInfo controlTradesMethod = AccessTools.Method(typeof(Plugin), nameof(Plugin.OverrideTrades));
 
             List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
             Label skipCustom = il.DefineLabel();
