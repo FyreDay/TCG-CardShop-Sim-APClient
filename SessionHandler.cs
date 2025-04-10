@@ -95,12 +95,12 @@ public class SessionHandler
 
                 return;
             }
-            Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.getProcessedIndex()}");
-            if (Plugin.m_SaveManager.getProcessedIndex() > receivedItemsHelper.Index)
+            Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
+            if (Plugin.m_SaveManager.GetProcessedIndex() > receivedItemsHelper.Index)
             {
                 return;
             }
-            Plugin.m_SaveManager.increaseProcessedIndex();
+            Plugin.m_SaveManager.IncreaseProcessedIndex();
 
 
             ItemInfo itemReceived = receivedItemsHelper.DequeueItem();
@@ -156,17 +156,15 @@ public class SessionHandler
         CPlayerData.SetUnlockItemLicense(slotData.pg2IndexMapping[0]);
         CPlayerData.SetUnlockItemLicense(slotData.pg3IndexMapping[0]);
 
-        Plugin.m_ItemHandler.setRandomTypesForSanity();
-
         while (cachedItems.Any())
         {
             var item = cachedItems.Dequeue();
-            Plugin.Log($"{Plugin.m_SaveManager.getProcessedIndex()} : {item.index}");
-            if (Plugin.m_SaveManager.getProcessedIndex() > item.index)
+            Plugin.Log($"{Plugin.m_SaveManager.GetProcessedIndex()} : {item.index}");
+            if (Plugin.m_SaveManager.GetProcessedIndex() > item.index)
             {
                 return;
             }
-            Plugin.m_SaveManager.increaseProcessedIndex();
+            Plugin.m_SaveManager.IncreaseProcessedIndex();
             Plugin.Log($"Item on load {item.info.ItemName}");
             Plugin.m_ItemHandler.processNewItem(item.info);
         }

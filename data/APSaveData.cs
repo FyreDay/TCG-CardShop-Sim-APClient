@@ -9,7 +9,6 @@ namespace ApClient.data
         public int ProcessedIndex { get; set; }
         public string seed { get; set; }
 
-        public Dictionary<int, bool[]> newCardDict {  get; set; }
+        public List<int> newCards {  get; set; }
     }
-
 }

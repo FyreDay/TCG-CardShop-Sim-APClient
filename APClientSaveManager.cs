@@ -16,10 +16,10 @@ namespace ApClient
         public APClientSaveManager() { 
             aPSaveData = new APSaveData();
             aPSaveData.ProcessedIndex = 0;
-            aPSaveData.newCardDict = new Dictionary<int, bool[]>();
+            aPSaveData.newCards = new List<int> { };
             for (int i = 1; i < (int)EMonsterType.MAX; i++)
             {
-                aPSaveData.newCardDict.Add(i, new bool[24]);
+                aPSaveData.newCards.Add(i);
             }
         }
         public void setSeed(string seed)
@@ -32,13 +32,28 @@ namespace ApClient
             aPSaveData.ProcessedIndex = index;
         }
 
-        public void increaseProcessedIndex()
+        public void IncreaseProcessedIndex()
         {
             aPSaveData.ProcessedIndex++;
         }
-        public int getProcessedIndex()
+        public int GetProcessedIndex()
         {
             return aPSaveData.ProcessedIndex;
+        }
+
+        public List<int> GetIncompleteCards()
+        {
+            return aPSaveData.newCards;
+        }
+
+        public void CompleteCardId(int id)
+        {
+            aPSaveData.newCards.Remove(id);
+        }
+
+        public void setIncompleteCards(List<int> list)
+        {
+            aPSaveData.newCards = list;
         }
 
         private string GetBaseDirectory()
@@ -79,8 +94,8 @@ namespace ApClient
             {
 
                 string contents = JsonUtility.ToJson(CSaveLoad.m_SavedGame);
-                string dictJson = JsonConvert.SerializeObject(aPSaveData.newCardDict);
-                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\", \"newCardDict\": {dictJson} }}";
+                string dictJson = JsonConvert.SerializeObject(aPSaveData.newCards);
+                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\", \"newCardIds\": {dictJson} }}";
                 File.WriteAllText(getJsonSavePath(), modified);
             }
             catch
@@ -104,14 +119,14 @@ namespace ApClient
 
                     if (!(text == "") && text != null)
                     {
-                        Match dictmatch = Regex.Match(text, "\"newCardDict\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", RegexOptions.Singleline);
+                        Match dictmatch = Regex.Match(text, "\"newCardIds\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", RegexOptions.Singleline);
 
                         if (dictmatch.Success)
                         {
                             string dictJson = "{" + dictmatch.Groups[1].Value + "}";
-                            aPSaveData.newCardDict = JsonConvert.DeserializeObject<Dictionary<int, bool[]>>(dictJson);
+                            aPSaveData.newCards = JsonConvert.DeserializeObject<List<int>>(dictJson);
                         }
-                        string jsonWithoutDict = Regex.Replace(text, "\"myBoolDict\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", "", RegexOptions.Singleline);
+                        string jsonWithoutDict = Regex.Replace(text, "\"newCardIds\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", "", RegexOptions.Singleline);
 
                         Match match = Regex.Match(text, @"""processedItems"":\s*""([^""]*)""");
                         if (match.Success)

@@ -1,11 +1,14 @@
-﻿using ApClient.mapping;
+﻿using ApClient.data;
+using ApClient.mapping;
 using ApClient.patches;
 using Archipelago.MultiClient.Net.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine.UIElements;
 using static System.Collections.Specialized.BitVector32;
 
 namespace ApClient;
@@ -256,7 +259,9 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
         {
-            CPlayerData.AddCard(RandomNewCard(), 1);
+            CardData d = RandomNewCard();
+            Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
+            CPlayerData.AddCard(d, 1);
             //InteractableCashierCounter
 
         }
@@ -281,211 +286,75 @@ public class ItemHandler
         }
     }
 
-    private List<EMonsterType> m_MonsterTypes = new List<EMonsterType>();
-    private List<EMonsterType> m_DestinyMonsterTypes = new List<EMonsterType>();
-
-    public void setRandomTypesForSanity()
-    {
-        List<EMonsterType> typeList = new List<EMonsterType>();
-        ECardExpansionType[] cardExpansionTypes = [ECardExpansionType.Tetramon, ECardExpansionType.Destiny];
-
-        foreach (ECardExpansionType cardExpansionType in cardExpansionTypes)
-        {
-            for (int i = 0; i < InventoryBase.GetShownMonsterList(cardExpansionType).Count; i++)
-            {
-                EMonsterType mType = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).MonsterType;
-                ERarity rarity = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).Rarity;
-                switch (rarity)
-                {
-                    case ERarity.Legendary:
-                        if ((Plugin.m_SessionHandler.GetSlotData().CardSanity >= 8 && cardExpansionType == ECardExpansionType.Destiny)
-                            || (Plugin.m_SessionHandler.GetSlotData().CardSanity >= 4 && cardExpansionType == ECardExpansionType.Tetramon))
-                        {
-                            typeList.Add(mType);
-                        }
-                        break;
-                    case ERarity.Epic:
-                        if ((Plugin.m_SessionHandler.GetSlotData().CardSanity >= 7 && cardExpansionType == ECardExpansionType.Destiny)
-                            || (Plugin.m_SessionHandler.GetSlotData().CardSanity >= 3 && cardExpansionType == ECardExpansionType.Tetramon))
-                        {
-                            typeList.Add(mType);
-                        }
-                        break;
-                    case ERarity.Rare:
-                        if ((Plugin.m_SessionHandler.GetSlotData().CardSanity >= 6 && cardExpansionType == ECardExpansionType.Destiny)
-                            || (Plugin.m_SessionHandler.GetSlotData().CardSanity >= 2 && cardExpansionType == ECardExpansionType.Tetramon))
-                        {
-                            typeList.Add(mType);
-                        }
-                        break;
-                    default:
-                        if ((Plugin.m_SessionHandler.GetSlotData().CardSanity >= 5 && cardExpansionType == ECardExpansionType.Destiny)
-                            || (Plugin.m_SessionHandler.GetSlotData().CardSanity >= 1 && cardExpansionType == ECardExpansionType.Tetramon))
-                        {
-                            typeList.Add(mType);
-                        }
-                        break;
-                }
-            }
-            if (cardExpansionType == ECardExpansionType.Tetramon)
-            {
-                m_MonsterTypes = typeList;
-            }
-            else
-            {
-                m_DestinyMonsterTypes = typeList;
-            }
-
-        }
-    }
     public CardData RandomNewCard()
     {
-        Plugin.Log("Random New Card Generating");
-        System.Random rand = new System.Random();
 
-        ECardExpansionType expansion = (Plugin.m_SessionHandler.GetSlotData().CardSanity < 5 || rand.NextDouble() >= 0.5) ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
-        List<bool> boolList = CPlayerData.GetIsCardCollectedList(expansion, false);
-
-        // Allowed types as an enum list
-        List<EMonsterType> allowedTypes = expansion == ECardExpansionType.Tetramon ? m_MonsterTypes : m_DestinyMonsterTypes;
-        // Convert enum list to integer indices
-        List<int> allowedIndices = allowedTypes.Select(type => (int)type).ToList();
-
-        // Collect valid False indices within allowed type ranges
-        List<int> falseIndices = new List<int>();
-        foreach (int typeIndex in allowedIndices)
+        List<int> incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
+        //Check for old saves
+        if(incompletecards.Count == 0)
         {
-            int start = typeIndex * 12;
-            int end = start + 12;
-
-            for (int i = start; i < end && i < 1452; i++)
-            {
-                if (!boolList[i])
-                    falseIndices.Add(i);
-            }
+            Plugin.m_SaveManager.setIncompleteCards(PlayerDataPatches.GetValidTypeIdsForSanity());
+            incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
         }
 
-        if (falseIndices.Count == 0)
+
+        int cardId = incompletecards[UnityEngine.Random.Range(0, incompletecards.Count)];
+
+        int index = (cardId-1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Tetramon);
+        List<int> t_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false).GetRange(index, 12).Select((val, idx) => new { val, idx })
+            .Where(x => !x.val)
+            .Select(x => x.idx)
+            .ToList();
+
+        index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
+        List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, 12)
+            .Select((val, idx) => new { val, idx })
+            .Where(x => !x.val)
+            .Select(x => x.idx)
+            .ToList();
+
+        int borderId = 0;
+        bool isDestiny = false;
+        if (t_falseIndexes.Count > 0)
         {
-            expansion = ECardExpansionType.Tetramon == expansion ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
-            boolList = CPlayerData.GetIsCardCollectedList(expansion, false);
-
-            // Allowed types as an enum list
-            allowedTypes = expansion == ECardExpansionType.Tetramon ? m_MonsterTypes : m_DestinyMonsterTypes;
-            // Convert enum list to integer indices
-            allowedIndices = allowedTypes.Select(type => (int)type).ToList();
-
-            // Collect valid False indices within allowed type ranges
-            falseIndices = new List<int>();
-            foreach (int typeIndex in allowedIndices)
+            borderId = t_falseIndexes[UnityEngine.Random.Range(0, t_falseIndexes.Count)];
+        }
+        else if (d_falseIndexes.Count > 0)
+        {
+            borderId = d_falseIndexes[UnityEngine.Random.Range(0, d_falseIndexes.Count)];
+            isDestiny = true;
+            if(d_falseIndexes.Count == 1)
             {
-                int start = typeIndex * 12;
-                int end = start + 12;
-
-                for (int i = start; i < end && i < 1452; i++)
-                {
-                    if (!boolList[i])
-                        falseIndices.Add(i);
-                }
-            }
-            if (falseIndices.Count == 0)
-            {
-                Plugin.Log("You have collected all Cards");
-                return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
+                Plugin.m_SaveManager.CompleteCardId(cardId);
             }
         }
-
-        // Randomly pick an index
-
-        int selectedIndex = falseIndices[rand.Next(falseIndices.Count)];
-        int type = selectedIndex % 12;
-        var monsterType = CPlayerData.GetMonsterTypeFromCardSaveIndex(selectedIndex, expansion);
-        Plugin.Log($"Randomly selected False index: {selectedIndex} which is a {monsterType}");
-
+        else
+        {
+            Plugin.Log($"You have collected all Cards for {(EMonsterType)cardId}");
+            return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
+        }
+        ECardExpansionType cardExpansionType = isDestiny ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
         return new CardData
         {
-            isFoil = type > 5,
-            isDestiny = expansion == ECardExpansionType.Destiny,
-            borderType = CPlayerData.GetCardBorderType(type % 6, expansion),
-            monsterType = monsterType,
-            expansionType = expansion,
+            isFoil = borderId > 5,
+            isDestiny = isDestiny,
+            borderType = CPlayerData.GetCardBorderType(borderId % 6, cardExpansionType),
+            monsterType = (EMonsterType)cardId,
+            expansionType = cardExpansionType,
             isChampionCard = false,
             isNew = true
         };
     }
     private static CardData cardRoller(ECollectionPackType collectionPackType)
     {
-        List<EMonsterType> commonlist = new List<EMonsterType>();
-        List<EMonsterType> rarelist = new List<EMonsterType>();
-        List<EMonsterType> epiclist = new List<EMonsterType>();
-        List<EMonsterType> legendlist = new List<EMonsterType>();
-        ECardExpansionType cardExpansionType = InventoryBase.GetCardExpansionType(collectionPackType);
-
-        for (int i = 0; i < InventoryBase.GetShownMonsterList(cardExpansionType).Count; i++)
-        {
-            EMonsterType monsterType = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).MonsterType;
-            ERarity rarity = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).Rarity;
-            switch (rarity)
-            {
-                case ERarity.Legendary:
-                    legendlist.Add(monsterType);
-                    break;
-                case ERarity.Epic:
-                    epiclist.Add(monsterType);
-                    break;
-                case ERarity.Rare:
-                    rarelist.Add(monsterType);
-                    break;
-                default:
-                    commonlist.Add(monsterType);
-                    break;
-            }
-        }
-        System.Random randomGenerator = new System.Random();
-
-        var vb = Enum.GetValues(typeof(ECardBorderType));
-        var border = (ECardBorderType)vb.GetValue(randomGenerator.Next(vb.Length));
-
-        var monster = EMonsterType.BatA;
-
-        switch (collectionPackType)
-        {
-            case ECollectionPackType.BasicCardPack:
-                monster = commonlist[UnityEngine.Random.Range(0, commonlist.Count)];
-                break;
-            case ECollectionPackType.DestinyBasicCardPack:
-                monster = commonlist[UnityEngine.Random.Range(0, commonlist.Count)];
-                break;
-            case ECollectionPackType.RareCardPack:
-                monster = rarelist[UnityEngine.Random.Range(0, rarelist.Count)];
-                break;
-            case ECollectionPackType.DestinyRareCardPack:
-                monster = rarelist[UnityEngine.Random.Range(0, rarelist.Count)];
-                break;
-            case ECollectionPackType.EpicCardPack:
-                monster = epiclist[UnityEngine.Random.Range(0, epiclist.Count)];
-                break;
-            case ECollectionPackType.DestinyEpicCardPack:
-                monster = epiclist[UnityEngine.Random.Range(0, epiclist.Count)];
-                break;
-            case ECollectionPackType.LegendaryCardPack:
-                monster = legendlist[UnityEngine.Random.Range(0, legendlist.Count)];
-                break;
-            case ECollectionPackType.DestinyLegendaryCardPack:
-                monster = legendlist[UnityEngine.Random.Range(0, legendlist.Count)];
-                break;
-            default:
-                monster = commonlist[UnityEngine.Random.Range(0, commonlist.Count)];
-                break;
-        }
-
+        ECardExpansionType expansionType = UnityEngine.Random.Range(0F, 1F) > 0.5 ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
         return new CardData
         {
-            isFoil = randomGenerator.NextDouble() >= 0.5,
-            isDestiny = randomGenerator.NextDouble() >= 0.5,
-            borderType = border,
-            monsterType = monster,
-            expansionType = cardExpansionType,
+            isFoil = UnityEngine.Random.Range(0F,1F) > 0.5,
+            isDestiny = expansionType == ECardExpansionType.Destiny,
+            borderType = (ECardBorderType)UnityEngine.Random.Range(0, 7),
+            monsterType = (EMonsterType)UnityEngine.Random.Range(0, (int)EMonsterType.MAX),
+            expansionType = expansionType,
             isChampionCard = false,
             isNew = true
         };

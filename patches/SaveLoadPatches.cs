@@ -17,7 +17,6 @@ public class SaveLoadPatches
 
         static MethodBase TargetMethod()
         {
-            EndOfDayReportScreen
             var type = typeof(CSaveLoad); // Singleton class, CPlayerData
             var method = type.GetMethod("Save", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); // Static method
 
