@@ -288,7 +288,14 @@ public class ItemHandler
 
     public CardData RandomNewCard()
     {
-
+        Plugin.Log("random new card");
+        int border_sanity = 5;
+        bool foil_sanity = true;
+        if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0){
+            border_sanity = Plugin.m_SessionHandler.GetSlotData().BorderInSanity;
+            foil_sanity = Plugin.m_SessionHandler.GetSlotData().FoilInSanity;
+        }
+        
         List<int> incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
         //Check for old saves
         if(incompletecards.Count == 0)
@@ -297,19 +304,18 @@ public class ItemHandler
             incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
         }
 
-
         int cardId = incompletecards[UnityEngine.Random.Range(0, incompletecards.Count)];
 
         int index = (cardId-1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Tetramon);
-        List<int> t_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false).GetRange(index, 12).Select((val, idx) => new { val, idx })
-            .Where(x => !x.val)
+        List<int> t_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false).GetRange(index, foil_sanity ? 12 : 6).Select((val, idx) => new { val, idx })
+            .Where(x => !x.val && x.idx % 6 <= border_sanity)
             .Select(x => x.idx)
             .ToList();
 
         index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
-        List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, 12)
+        List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, foil_sanity ? 12 : 6)
             .Select((val, idx) => new { val, idx })
-            .Where(x => !x.val)
+            .Where(x => !x.val && x.idx % 6 <= border_sanity)
             .Select(x => x.idx)
             .ToList();
 
@@ -331,6 +337,7 @@ public class ItemHandler
         else
         {
             Plugin.Log($"You have collected all Cards for {(EMonsterType)cardId}");
+            Plugin.m_SaveManager.CompleteCardId(cardId);
             return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
         }
         ECardExpansionType cardExpansionType = isDestiny ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;

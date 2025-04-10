@@ -177,7 +177,10 @@ class PlayerDataPatches
             ECollectionPackType expansionType = (ECollectionPackType)AccessTools.Field(typeof(CardOpeningSequence), "m_CollectionPackType").GetValue(CSingleton<CardOpeningSequence>.Instance);
 
             //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
-            if((int)expansionType < Plugin.m_SessionHandler.GetSlotData().CardSanity && CPlayerData.GetCardAmount(cardData) == 0)
+            if((int)expansionType < Plugin.m_SessionHandler.GetSlotData().CardSanity 
+                && CPlayerData.GetCardAmount(cardData) == 0 
+                && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity
+                && (!cardData.isFoil || Plugin.m_SessionHandler.GetSlotData().FoilInSanity))
             {
                 Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
             }

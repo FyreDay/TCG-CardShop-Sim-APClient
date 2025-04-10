@@ -12,7 +12,8 @@ public class SlotData
     public int ShopExpansionGoal { get; set; }
     public int LevelGoal { get; set; }
     public int GhostGoalAmount { get; set; }
-
+    public bool FoilInSanity { get; set; }
+    public int BorderInSanity { get; set; }
     public List<int> pg1IndexMapping { get; set; }
     public List<int> pg2IndexMapping { get; set; }
     public List<int> pg3IndexMapping { get; set; }

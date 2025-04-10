@@ -131,6 +131,10 @@ public class SessionHandler
             slotData.LevelGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("LevelGoal").ToString());
             slotData.GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
             slotData.TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
+            slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
+            slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString());
+
+
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));
             slotData.pg2IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
