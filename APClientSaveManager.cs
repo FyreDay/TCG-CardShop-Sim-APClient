@@ -1,9 +1,9 @@
-﻿using I2.Loc.SimpleJSON;
+﻿using ApClient.data;
+using I2.Loc.SimpleJSON;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -16,6 +16,11 @@ namespace ApClient
         public APClientSaveManager() { 
             aPSaveData = new APSaveData();
             aPSaveData.ProcessedIndex = 0;
+            aPSaveData.newCardDict = new Dictionary<int, bool[]>();
+            for (int i = 1; i < (int)EMonsterType.MAX; i++)
+            {
+                aPSaveData.newCardDict.Add(i, new bool[24]);
+            }
         }
         public void setSeed(string seed)
         {
@@ -74,7 +79,8 @@ namespace ApClient
             {
 
                 string contents = JsonUtility.ToJson(CSaveLoad.m_SavedGame);
-                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\" }}";
+                string dictJson = JsonConvert.SerializeObject(aPSaveData.newCardDict);
+                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\", \"newCardDict\": {dictJson} }}";
                 File.WriteAllText(getJsonSavePath(), modified);
             }
             catch
@@ -98,6 +104,15 @@ namespace ApClient
 
                     if (!(text == "") && text != null)
                     {
+                        Match dictmatch = Regex.Match(text, "\"newCardDict\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", RegexOptions.Singleline);
+
+                        if (dictmatch.Success)
+                        {
+                            string dictJson = "{" + dictmatch.Groups[1].Value + "}";
+                            aPSaveData.newCardDict = JsonConvert.DeserializeObject<Dictionary<int, bool[]>>(dictJson);
+                        }
+                        string jsonWithoutDict = Regex.Replace(text, "\"myBoolDict\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", "", RegexOptions.Singleline);
+
                         Match match = Regex.Match(text, @"""processedItems"":\s*""([^""]*)""");
                         if (match.Success)
                         {
@@ -109,6 +124,7 @@ namespace ApClient
                         
                         text = Regex.Replace(text, @",\s*""processedItems"":\s*""[^""]*""", "");
 
+                        
                         Debug.Log("Modified JSON before deserialization");
                         CSaveLoad.m_SavedGame = JsonUtility.FromJson<CGameData>(text);
                         return true;

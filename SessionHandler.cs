@@ -1,4 +1,5 @@
-﻿using ApClient.mapping;
+﻿using ApClient.data;
+using ApClient.mapping;
 using ApClientl;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;

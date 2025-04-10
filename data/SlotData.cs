@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApClient;
+namespace ApClient.data;
 
 public class SlotData
 {

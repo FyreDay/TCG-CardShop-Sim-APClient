@@ -17,6 +17,7 @@ public class SaveLoadPatches
 
         static MethodBase TargetMethod()
         {
+            EndOfDayReportScreen
             var type = typeof(CSaveLoad); // Singleton class, CPlayerData
             var method = type.GetMethod("Save", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); // Static method
 
@@ -32,13 +33,13 @@ public class SaveLoadPatches
         static bool SavePrefix(int saveSlotIndex, bool skipJSONSave = false)
         {
             Plugin.m_SaveManager.Save(saveSlotIndex);
+            CEventManager.QueueEvent(new CEventPlayer_OnSaveStatusUpdated(isSuccess: true, isAutosaving: false));
             return false;
         }
     }
     [HarmonyPatch]
     public class LoadPatch
     {
-
         static MethodBase TargetMethod()
         {
             var type = typeof(CSaveLoad); // Singleton class, CPlayerData
