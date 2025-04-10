@@ -53,7 +53,6 @@ public class RestockItemPanelUIPatches
                 list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownBoardGameItemType;
                 index_to_id = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
                 origionalItems = LicenseMapping.tt_ids;
-                Plugin.Log($"Id in board game {index}");
                 if(index == -1)
                 {
                     return;
@@ -65,7 +64,6 @@ public class RestockItemPanelUIPatches
             }
 
             RestockData restockData = InventoryBase.GetRestockData(origionalItems[index_to_id.IndexOf(index)]);
-            Plugin.Log($"Restock Data: {restockData.name}");
             //Plugin.Log($"index {index} is at {restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index)} which was {origionalItems[restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index)]}");
             __instance.m_LevelRequired = restockData.licenseShopLevelRequired;
             __instance.m_LicensePriceText.text = GameInstance.GetPriceString(0);

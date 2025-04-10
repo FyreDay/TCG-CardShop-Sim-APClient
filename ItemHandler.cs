@@ -311,7 +311,8 @@ public class ItemHandler
             .Where(x => !x.val && x.idx % 6 <= border_sanity)
             .Select(x => x.idx)
             .ToList();
-
+        Plugin.Log($"border <= {border_sanity}");
+        Plugin.Log(string.Join(", ", t_falseIndexes));
         index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
         List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, foil_sanity ? 12 : 6)
             .Select((val, idx) => new { val, idx })
