@@ -48,17 +48,17 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.smallXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(250 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 250))));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 250))));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.18), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(500 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 500))));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 500))));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.3), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000*(CPlayerData.m_ShopLevel + 1) * 0.1) : 1000) )));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000*(CPlayerData.m_ShopLevel + 1) * 0.1) : 1000) )));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomcard)
@@ -107,6 +107,24 @@ public class ItemHandler
         {
 
             CoroutineRunner.Instance.StartCoroutine(ToggleLightMultipleTimes());
+            return;
+        }
+
+        if ((int)itemReceived.ItemId == TrashMapping.CreditCardFailure)
+        {
+
+            remainingTime += 60f;
+
+            if (!timerRunning)
+            {
+                cashOnlyCoroutine = CoroutineRunner.Instance.StartCoroutine(CashOnlyTimerCoroutine());
+            }
+            return;
+        }
+
+        if ((int)itemReceived.ItemId == TrashMapping.MarketChangeTrap)
+        {
+            CSingleton<PriceChangeManager>.Instance.OnDayStarted(null);
             return;
         }
 
@@ -404,5 +422,24 @@ public class ItemHandler
             float delay = UnityEngine.Random.Range(0.5f, 2f); // adjust as needed
             yield return new WaitForSeconds(delay);
         }
+    }
+    private Coroutine cashOnlyCoroutine;
+    private float remainingTime = 0f;
+    private bool timerRunning = false;
+
+    public bool cashOnly = false;
+    private IEnumerator CashOnlyTimerCoroutine()
+    {
+        timerRunning = true;
+        cashOnly = true;
+
+        while (remainingTime > 0f)
+        {
+            yield return null;
+            remainingTime -= Time.deltaTime;
+        }
+
+        cashOnly = false;
+        timerRunning = false;
     }
 }

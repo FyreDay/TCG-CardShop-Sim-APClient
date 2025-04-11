@@ -13,10 +13,16 @@ namespace ApClient
     {
         private APSaveData aPSaveData;
 
-        public APClientSaveManager() { 
+        public APClientSaveManager() {
             aPSaveData = new APSaveData();
+            Clear();
+        }
+
+        public void Clear()
+        {
             aPSaveData.ProcessedIndex = 0;
-            aPSaveData.MoneyMultiplier = 40;
+            aPSaveData.MoneyMultiplier = 1;
+            aPSaveData.Luck = 0;
             aPSaveData.newCards = new List<int> { };
             for (int i = 1; i < (int)EMonsterType.MAX; i++)
             {
@@ -113,7 +119,7 @@ namespace ApClient
 
                 string contents = JsonUtility.ToJson(CSaveLoad.m_SavedGame);
                 string dictJson = JsonConvert.SerializeObject(aPSaveData.newCards);
-                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\", \"newCardIds\": {dictJson} }}";
+                string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\", \"newCardIds\": {dictJson} , \"maxMoney\": \"{aPSaveData.MoneyMultiplier}\", \"luck\": \"{aPSaveData.Luck}\"}}";
                 File.WriteAllText(getJsonSavePath(), modified);
             }
             catch
@@ -137,6 +143,30 @@ namespace ApClient
 
                     if (!(text == "") && text != null)
                     {
+                        //max money
+                        Match match = Regex.Match(text, @"""maxMoney"":\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            string LastExtraDataValue = match.Groups[1].Value;
+                            int.TryParse(LastExtraDataValue, out int data);
+                            aPSaveData.MoneyMultiplier = data;
+                            Debug.Log($"Extracted maxMoney: {data}");
+                        }
+
+                        text = Regex.Replace(text, @",\s*""maxMoney"":\s*""[^""]*""", "");
+
+                        //luck
+                        match = Regex.Match(text, @"""luck"":\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            string LastExtraDataValue = match.Groups[1].Value;
+                            int.TryParse(LastExtraDataValue, out int data);
+                            aPSaveData.Luck = data;
+                            Debug.Log($"Extracted luck: {data}");
+                        }
+
+                        text = Regex.Replace(text, @",\s*""luck"":\s*""[^""]*""", "");
+                        //new ids
                         Match dictmatch = Regex.Match(text, "\"newCardIds\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", RegexOptions.Singleline);
 
                         if (dictmatch.Success)
@@ -146,7 +176,8 @@ namespace ApClient
                         }
                         string jsonWithoutDict = Regex.Replace(text, "\"newCardIds\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", "", RegexOptions.Singleline);
 
-                        Match match = Regex.Match(text, @"""processedItems"":\s*""([^""]*)""");
+                        //recieved items
+                        match = Regex.Match(text, @"""processedItems"":\s*""([^""]*)""");
                         if (match.Success)
                         {
                             string LastExtraDataValue = match.Groups[1].Value;

@@ -12,6 +12,22 @@ namespace ApClient.patches;
 public class CustomerPatches
 {
 
+    [HarmonyPatch(typeof(Customer), "EvaluateFinishScanItem")]
+    public static class FinishScan
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Customer __instance)
+        {
+            if (Plugin.isCashOnly())
+            {
+                __instance.m_CustomerCash.SetIsCard(false);
+                CSingleton<CustomerManager>.Instance.ResetCustomerExactChangeChance();
+                __instance.m_CurrentQueueCashierCounter.SetCustomerPaidAmount(false, __instance.GetRandomPayAmount(__instance.m_TotalScannedItemCost));
+
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Customer), "OnItemScanned")]
     public static class OnScan
     {
@@ -36,7 +52,9 @@ public class CustomerPatches
         [HarmonyPostfix]
         public static void Postfix(Customer __instance, bool canSpawnSmelly)
         {
+            float old = __instance.m_MaxMoney;
             __instance.m_MaxMoney = __instance.m_MaxMoney * Plugin.m_SaveManager.GetMoneyMult();
+            Plugin.Log($"Customer spawned with {__instance.m_MaxMoney} instead of {old}");
         }
     }
 

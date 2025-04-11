@@ -1,5 +1,6 @@
 ﻿using ApClient.data;
 using ApClient.mapping;
+using ApClient.patches;
 using ApClientl;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
@@ -82,29 +83,18 @@ public class SessionHandler
     DeathLinkService deathLinkService = null;
     public void sendDeath()
     {
-        if (slotData.Deathlink)
-        {
-            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Expensive Bills."));
-        }
+        //if (slotData.Deathlink)
+        //{
+        //    deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Expensive Bills."));
+        //}
     }
     public void connect(string ip, string password, string slot)
     {
         APGui.state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ip);
-        deathLinkService = session.CreateDeathLinkService();
-        deathLinkService.EnableDeathLink();
 
-        deathLinkService.OnDeathLinkReceived += (deathLinkObject) => {
-            if (slotData.Deathlink)
-            {
-                EndOfDayReportScreen.OpenScreen();
-            }
-           // RentBillScreen.EvaluateNewDayBill();  adds 1 day on the bill
-        };
-
-        
         //callback for item retrieval
-        //session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
+        session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
         session.Items.ItemReceived += (receivedItemsHelper) => {
 
             if (!Plugin.isSceneLoaded())
@@ -140,9 +130,33 @@ public class SessionHandler
 
         if (result.Successful)
         {
+            deathLinkService = session.CreateDeathLinkService();
+            deathLinkService.EnableDeathLink();
+            deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
+            {
+                if (slotData.Deathlink)
+                {
+                    EndOfDayReportScreen.OpenScreen();
+                }
+                // RentBillScreen.EvaluateNewDayBill();  adds 1 day on the bill
+            };
+
             Plugin.m_SaveManager.setSeed(session.RoomState.Seed);
-            APGui.state = "Connected";
+            
+            
             var loginSuccess = (LoginSuccessful)result;
+
+            string modversion = loginSuccess.SlotData.GetValueOrDefault("ModVersion").ToString();
+            if (!modversion.Equals(MyPluginInfo.PLUGIN_VERSION))
+            {
+                APGui.state = $"AP Expects Mod v{modversion}";
+            }
+            else
+            {
+                APGui.state = "Connected";
+                Plugin.RunTitleInteractableSaveLogic();
+            }
+
             slotData.CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
             slotData.Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
             slotData.ShopExpansionGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ShopExpansionGoal").ToString());
@@ -154,11 +168,6 @@ public class SessionHandler
             slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
             slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
-
-            if (slotData.Deathlink)
-            {
-                
-            }
 
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));
@@ -174,7 +183,6 @@ public class SessionHandler
             addStartingChecks(slotData.pg2IndexMapping, LicenseMapping.locs2Starting);
             addStartingChecks(slotData.pg3IndexMapping, LicenseMapping.locs3Starting);
 
-            Plugin.RunTitleInteractableSaveLogic();
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);
         }
     }

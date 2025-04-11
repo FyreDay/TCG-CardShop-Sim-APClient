@@ -49,13 +49,9 @@ public class APGui : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F9)) // Press F1 to log scenes
+        if (Input.GetKeyDown(Settings.Instance.MyHotkey.Value)) // Press F1 to log scenes
         {
             showGUI = !showGUI;
-        }
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            EndOfDayReportScreen.OpenScreen();
         }
     }
 }

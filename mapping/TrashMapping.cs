@@ -19,5 +19,8 @@ namespace ApClient.mapping
 
         public static int stinkTrap = 0x1F2800B4;
         public static int lightTrap = 0x1F2800D6;
+        public static int CreditCardFailure = 0x1F2800F8;
+        public static int MarketChangeTrap = 0x1F2800F9;
+        //public static int CurrencyTrap = 0x1F2800FA;
     }
 }

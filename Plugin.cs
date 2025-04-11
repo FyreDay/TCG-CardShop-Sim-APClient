@@ -82,11 +82,13 @@ public class Plugin : BaseUnityPlugin
 
     public static float getNumLuckItems()
     {
-        Log("ooo found and patched a float!");
-        return 4;
+        Log($"Luck: {m_SaveManager.GetLuck()}");
+        return m_SaveManager.GetLuck();
+    }
 
-        
-        //return m_SaveManager.GetLuck();
+    public static bool isCashOnly()
+    {
+        return m_ItemHandler.cashOnly;
     }
 
     public static CardData getNewCard()
@@ -99,6 +101,7 @@ public class Plugin : BaseUnityPlugin
         Log($" Scene Load: {scene.name}");
         if (scene.name == "Title")
         {
+            m_SaveManager.Clear();
             setTitleInteractable(false);
 
             //GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
