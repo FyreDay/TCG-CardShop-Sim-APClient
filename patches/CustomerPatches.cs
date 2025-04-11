@@ -30,6 +30,16 @@ public class CustomerPatches
         }
     }
 
+    [HarmonyPatch(typeof(Customer), "ActivateCustomer")]
+    public static class Activate
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Customer __instance, bool canSpawnSmelly)
+        {
+            __instance.m_MaxMoney = __instance.m_MaxMoney * Plugin.m_SaveManager.GetMoneyMult();
+        }
+    }
+
     [HarmonyPatch(typeof(CustomerTradeCardScreen), "SetCustomer")]
     public static class CustomerTradeScreen_SetCustomer_Transpiler
     {

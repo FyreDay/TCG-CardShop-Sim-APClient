@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,6 +15,8 @@ public class SlotData
     public int GhostGoalAmount { get; set; }
     public bool FoilInSanity { get; set; }
     public int BorderInSanity { get; set; }
+    public int SellCheckAmount { get; set; }
+    public bool Deathlink { get; set; }
     public List<int> pg1IndexMapping { get; set; }
     public List<int> pg2IndexMapping { get; set; }
     public List<int> pg3IndexMapping { get; set; }

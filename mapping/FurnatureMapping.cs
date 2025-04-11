@@ -7,6 +7,7 @@ namespace ApClient.mapping;
 
 public class FurnatureMapping
 {
+    public static int[] reorder = [0, 5, 17,  4, 11,18,  1,6,12,  2, 10, 13,  8,14,20,  3,12,19, 7,15,21, 9];
     public static Dictionary<int, (int itemid, string name, int count)> mapping = new Dictionary<int, (int itemid, string name, int count)>
     {
         {0, (-1, "Small Cabinet", 1) },
@@ -53,4 +54,6 @@ public class FurnatureMapping
 
         return mapping.GetValueOrDefault<int, (int itemid, string name, int count)>(key, (-1, "", 0));
     }
+
+    
 }

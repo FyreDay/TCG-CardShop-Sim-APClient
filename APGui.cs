@@ -53,5 +53,9 @@ public class APGui : MonoBehaviour
         {
             showGUI = !showGUI;
         }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            EndOfDayReportScreen.OpenScreen();
+        }
     }
 }

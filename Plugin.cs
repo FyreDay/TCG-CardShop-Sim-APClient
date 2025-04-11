@@ -80,6 +80,15 @@ public class Plugin : BaseUnityPlugin
         return m_SessionHandler.GetSlotData().TradesAreNew;
     }
 
+    public static float getNumLuckItems()
+    {
+        Log("ooo found and patched a float!");
+        return 4;
+
+        
+        //return m_SaveManager.GetLuck();
+    }
+
     public static CardData getNewCard()
     {
         return m_ItemHandler.RandomNewCard();

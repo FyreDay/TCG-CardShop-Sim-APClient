@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 using UnityEngine.UIElements;
 using static System.Collections.Specialized.BitVector32;
 
@@ -19,6 +20,96 @@ public class ItemHandler
     public void processNewItem(ItemInfo itemReceived)
     {
         Plugin.Log(itemReceived.ItemName);
+
+        if ((int)itemReceived.ItemId == ExpansionMapping.warehouseKey)
+        {
+            CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(isUnlocked: true);
+            AchievementManager.OnShopLotBUnlocked();
+            CPlayerData.m_GameReportDataCollect.upgradeCost -= 5000;
+            CPlayerData.m_GameReportDataCollectPermanent.upgradeCost -= 5000;
+            SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
+            PopupTextPatches.ShowCustomText("Warehouse Key Found");
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(10 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.mediumMoney)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(20 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.largeMoney)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1,25)));
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.smallXp)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(250 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 250))));
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.18), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(500 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 500))));
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.largeXp)
+        {
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.3), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000*(CPlayerData.m_ShopLevel + 1) * 0.1) : 1000) )));
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.randomcard)
+        {
+            var packlist = Enum.GetValues(typeof(ECollectionPackType));
+            var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, Plugin.m_SessionHandler.GetSlotData().CardSanity == 0 ? 8 : Plugin.m_SessionHandler.GetSlotData().CardSanity));
+            CPlayerData.AddCard(cardRoller(packType), 1);
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
+        {
+            CardData d = RandomNewCard();
+            Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
+            CPlayerData.AddCard(d, 1);
+            return;
+
+        }
+
+        if((int)itemReceived.ItemId == TrashMapping.ProgressiveCustomerMoney)
+        {
+            Plugin.m_SaveManager.IncreaseMoneyMult();
+            return;
+        }
+
+        if ((int)itemReceived.ItemId == TrashMapping.IncreaseCardLuck)
+        {
+            Plugin.m_SaveManager.IncreaseLuck();
+            return;
+        }
+
+        if ((int)itemReceived.ItemId == TrashMapping.stinkTrap)
+        {
+            FieldInfo cfieldInfo = typeof(CustomerManager).GetField("m_CustomerList", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (cfieldInfo == null)
+            {
+                return;
+            }
+            List<Customer> list = (List<Customer>)cfieldInfo.GetValue(CSingleton<CustomerManager>.Instance);
+            foreach (Customer c in list)
+            {
+                c.SetSmelly();
+            }
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.lightTrap)
+        {
+
+            CoroutineRunner.Instance.StartCoroutine(ToggleLightMultipleTimes());
+            return;
+        }
+
         if (LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
             PopupTextPatches.ShowCustomText("New License Unlocked");
@@ -41,6 +132,7 @@ public class ItemHandler
 
             RestockItemPanelUIPatches.runLicenseBtnLogic(panel, true, itemMapping.Key);
             Plugin.Log($"Recieved Item While panel was open: {(int)itemReceived.ItemId} and {itemMapping.Key}");
+            return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)
         {
@@ -58,6 +150,7 @@ public class ItemHandler
                 }
 
             }
+            return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveB)
         {
@@ -89,6 +182,7 @@ public class ItemHandler
                     }
                 }
             }
+            return;
         }
         //Log($"Before Employee check: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
         if (EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
@@ -129,7 +223,7 @@ public class ItemHandler
             Plugin.Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
 
             //SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-
+            return;
         }
 
         if (FurnatureMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
@@ -158,6 +252,7 @@ public class ItemHandler
                 return;
             }
             FurnaturePatches.EnableFurnature(panel, itemMapping.Key);
+            return;
         }
         if ((int)itemReceived.ItemId == CardMapping.ghostProgressive)
         {
@@ -213,76 +308,7 @@ public class ItemHandler
                 isChampionCard = false,
                 isNew = true
             }, 1);
-
-        }
-
-
-
-        if ((int)itemReceived.ItemId == ExpansionMapping.warehouseKey)
-        {
-            CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(isUnlocked: true);
-            AchievementManager.OnShopLotBUnlocked();
-            CPlayerData.m_GameReportDataCollect.upgradeCost -= 5000;
-            CPlayerData.m_GameReportDataCollectPermanent.upgradeCost -= 5000;
-            SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-            PopupTextPatches.ShowCustomText("Warehouse Key Found");
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(10 * (CPlayerData.m_ShopLevel + 1)));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.mediumMoney)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(20 * (CPlayerData.m_ShopLevel + 1)));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.largeMoney)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * (CPlayerData.m_ShopLevel + 1)));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.smallXp)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1)));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.2)));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.largeXp)
-        {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.4)));
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.randomcard)
-        {
-            var packlist = Enum.GetValues(typeof(ECollectionPackType));
-            var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, Plugin.m_SessionHandler.GetSlotData().CardSanity == 0 ? 8 : Plugin.m_SessionHandler.GetSlotData().CardSanity));
-            CPlayerData.AddCard(cardRoller(packType), 1);
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
-        {
-            CardData d = RandomNewCard();
-            Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
-            CPlayerData.AddCard(d, 1);
-            //InteractableCashierCounter
-
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.stinkTrap)
-        {
-            FieldInfo cfieldInfo = typeof(CustomerManager).GetField("m_CustomerList", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (cfieldInfo == null)
-            {
-                return;
-            }
-            List<Customer> list = (List<Customer>)cfieldInfo.GetValue(CSingleton<CustomerManager>.Instance);
-            foreach (Customer c in list)
-            {
-                c.SetSmelly();
-            }
-        }
-        if ((int)itemReceived.ItemId == TrashMapping.lightTrap)
-        {
-            SoundManager.PlayAudio("SFX_ButtonLightTap", 0.6f, 0.5f);
-            //CSingleton<LightManager>.Instance.m_ShoplightGrp.SetActive(true);
-            CSingleton<LightManager>.Instance.ToggleShopLight();
+            return;
         }
     }
 
@@ -366,5 +392,17 @@ public class ItemHandler
             isChampionCard = false,
             isNew = true
         };
+    }
+
+    private IEnumerator ToggleLightMultipleTimes()
+    {
+        int repeats = UnityEngine.Random.Range(1, 6) * 2 - 1;
+        for (int i = 0; i < repeats; i++)
+        {
+            CSingleton<LightManager>.Instance.ToggleShopLight();
+            SoundManager.PlayAudio("SFX_ButtonLightTap", 0.6f, 0.5f);
+            float delay = UnityEngine.Random.Range(0.5f, 2f); // adjust as needed
+            yield return new WaitForSeconds(delay);
+        }
     }
 }

@@ -8,7 +8,8 @@ namespace ApClient.data
     {
         public int ProcessedIndex { get; set; }
         public string seed { get; set; }
-
+        public float MoneyMultiplier { get; set; }
+        public int Luck { get; set; }
         public List<int> newCards {  get; set; }
     }
 }

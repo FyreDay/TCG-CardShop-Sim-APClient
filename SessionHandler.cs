@@ -2,6 +2,7 @@
 using ApClient.mapping;
 using ApClientl;
 using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
 using System;
@@ -78,12 +79,30 @@ public class SessionHandler
         startingCounter += 8;
         Plugin.Log($"Goal Amount for {item.name} is {LicenseMapping.GetKeyValueFromType(item.type).Count()}");
     }
-
-
+    DeathLinkService deathLinkService = null;
+    public void sendDeath()
+    {
+        if (slotData.Deathlink)
+        {
+            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Expensive Bills."));
+        }
+    }
     public void connect(string ip, string password, string slot)
     {
         APGui.state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ip);
+        deathLinkService = session.CreateDeathLinkService();
+        deathLinkService.EnableDeathLink();
+
+        deathLinkService.OnDeathLinkReceived += (deathLinkObject) => {
+            if (slotData.Deathlink)
+            {
+                EndOfDayReportScreen.OpenScreen();
+            }
+           // RentBillScreen.EvaluateNewDayBill();  adds 1 day on the bill
+        };
+
+        
         //callback for item retrieval
         //session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
         session.Items.ItemReceived += (receivedItemsHelper) => {
@@ -133,7 +152,13 @@ public class SessionHandler
             slotData.TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
             slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
             slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
+            slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
+            slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
 
+            if (slotData.Deathlink)
+            {
+                
+            }
 
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));

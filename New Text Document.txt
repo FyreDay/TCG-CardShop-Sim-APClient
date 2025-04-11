@@ -24,16 +24,13 @@ traps
 -cant open packs
 -stink trap
 -market price trap
+-All Cash trap
+-change currency trap
+-randomize price trap
+-half customer wallet size
 
-being sent lisense
-
-
-
-Progression limits
-amount of licenses recieved
 progressive customer wealth
 
-Total expansions?
 
 deathlink ends day, "dying" is not paying bills
 

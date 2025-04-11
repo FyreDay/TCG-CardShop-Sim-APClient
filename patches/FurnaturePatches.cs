@@ -15,22 +15,30 @@ public class FurnaturePatches
     [HarmonyPatch(typeof(FurnitureShopPanelUI), "Init")]
     public class Init
     {
+        [HarmonyPrefix]
+        static void Prefix(FurnitureShopPanelUI __instance, FurnitureShopUIScreen furnitureShopUIScreen, int index)
+        {
+            __instance.m_Index = FurnatureMapping.reorder[index];
+        }
+        [HarmonyPostfix]
         static void Postfix(FurnitureShopPanelUI __instance, FurnitureShopUIScreen furnitureShopUIScreen, int index)
         {
             if(index == 0)
             {
                 return;
             }
-            var value = FurnatureMapping.getValueOrEmpty(index);
+            
+            
+            var value = FurnatureMapping.getValueOrEmpty(__instance.m_Index);
             if (value.itemid == -1)
             {
-                Plugin.Log($"Failed to find index: {index}");
+                Plugin.Log($"Failed to find index: {__instance.m_Index}");
                 return;
             }
 
             bool hasAPItem = Plugin.m_SessionHandler.itemCount(value.itemid) >= value.count;
 
-            runFurnatureBtnLogic(__instance, hasAPItem, index);
+            runFurnatureBtnLogic(__instance, hasAPItem, __instance.m_Index );
 
 
         }

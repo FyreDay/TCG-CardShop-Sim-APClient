@@ -16,6 +16,7 @@ namespace ApClient
         public APClientSaveManager() { 
             aPSaveData = new APSaveData();
             aPSaveData.ProcessedIndex = 0;
+            aPSaveData.MoneyMultiplier = 40;
             aPSaveData.newCards = new List<int> { };
             for (int i = 1; i < (int)EMonsterType.MAX; i++)
             {
@@ -40,7 +41,24 @@ namespace ApClient
         {
             return aPSaveData.ProcessedIndex;
         }
+        public void IncreaseMoneyMult()
+        {
+            aPSaveData.MoneyMultiplier = aPSaveData.MoneyMultiplier += 1.07f;
+        }
+        public float GetMoneyMult()
+        {
+            return aPSaveData.MoneyMultiplier;
+        }
 
+        public int GetLuck()
+        {
+            return aPSaveData.Luck;
+        }
+
+        public void IncreaseLuck()
+        {
+            aPSaveData.Luck++;
+        }
         public List<int> GetIncompleteCards()
         {
             return aPSaveData.newCards;
