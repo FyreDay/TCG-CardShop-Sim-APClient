@@ -49,7 +49,7 @@ namespace ApClient
         }
         public void IncreaseMoneyMult()
         {
-            aPSaveData.MoneyMultiplier = aPSaveData.MoneyMultiplier += 1.07f;
+            aPSaveData.MoneyMultiplier = aPSaveData.MoneyMultiplier += 1.025f;
         }
         public float GetMoneyMult()
         {

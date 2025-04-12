@@ -48,17 +48,17 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.smallXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 250))));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 400))));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.mediumXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.1) : 500))));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 800))));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000*(CPlayerData.m_ShopLevel + 1) * 0.1) : 1000) )));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000*(CPlayerData.m_ShopLevel + 1) * 0.2) : 1500) )));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomcard)
@@ -124,7 +124,11 @@ public class ItemHandler
 
         if ((int)itemReceived.ItemId == TrashMapping.MarketChangeTrap)
         {
-            CSingleton<PriceChangeManager>.Instance.OnDayStarted(null);
+            ////CSingleton<PriceChangeManager>.Instance.OnDayStarted(null);
+            //CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
+            //CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
+            //CPlayerData.UpdateItemPricePercentChange();
+            //CPlayerData.UpdatePastCardPricePercentChange();
             return;
         }
 
@@ -370,7 +374,7 @@ public class ItemHandler
         {
             borderId = t_falseIndexes[UnityEngine.Random.Range(0, t_falseIndexes.Count)];
         }
-        else if (d_falseIndexes.Count > 0)
+        else if (d_falseIndexes.Count > 0 && Plugin.m_SessionHandler.GetSlotData().CardSanity >4)
         {
             borderId = d_falseIndexes[UnityEngine.Random.Range(0, d_falseIndexes.Count)];
             isDestiny = true;

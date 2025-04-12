@@ -7,9 +7,11 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace ApClient;
 
@@ -49,6 +51,20 @@ public class SessionHandler
         session.Locations.CompleteLocationChecks(ids);
     }
 
+    public bool isStartingItem(int id)
+    {
+        return id == Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping[0]
+            || id == Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping[0]
+            || id == Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping[0];
+    }
+
+    public int[] startingids()
+    {
+        return [Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping[0],
+            Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping[0],
+            Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping[0]];
+    }
+
     private class ItemCache
     {
 
@@ -68,6 +84,23 @@ public class SessionHandler
                .Select(int.Parse)               // Convert to integers
                .ToList();
     }
+
+    private Coroutine autoSaveCoroutine;
+    private float remainingTime = 0f;
+    private bool timerRunning = false;
+    private IEnumerator AutoSaveTimerCoroutine()
+    {
+        timerRunning = true;
+
+        while (remainingTime > 0f)
+        {
+            yield return null;
+            remainingTime -= Time.deltaTime;
+        }
+
+        timerRunning = false;
+    }
+
     private int startingCounter = 200;
     private void addStartingChecks(List<int> mapping, int startingId)
     {
@@ -111,11 +144,20 @@ public class SessionHandler
             }
             Plugin.m_SaveManager.IncreaseProcessedIndex();
 
-
             ItemInfo itemReceived = receivedItemsHelper.DequeueItem();
 
             Plugin.m_ItemHandler.processNewItem(itemReceived);
 
+            if (receivedItemsHelper.Index % 25 == 0 && !timerRunning)
+            {
+                CSingleton<CGameManager>.Instance.SaveGameData(3);
+                remainingTime += 60f;
+
+                if (!timerRunning)
+                {
+                    autoSaveCoroutine = CoroutineRunner.Instance.StartCoroutine(AutoSaveTimerCoroutine());
+                }
+            }
         };
         try
         {
@@ -130,16 +172,16 @@ public class SessionHandler
 
         if (result.Successful)
         {
-            deathLinkService = session.CreateDeathLinkService();
-            deathLinkService.EnableDeathLink();
-            deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
-            {
-                if (slotData.Deathlink)
-                {
-                    EndOfDayReportScreen.OpenScreen();
-                }
-                // RentBillScreen.EvaluateNewDayBill();  adds 1 day on the bill
-            };
+            //deathLinkService = session.CreateDeathLinkService();
+            //deathLinkService.EnableDeathLink();
+            //deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
+            //{
+            //    if (slotData.Deathlink)
+            //    {
+            //        EndOfDayReportScreen.OpenScreen();
+            //    }
+            //    // RentBillScreen.EvaluateNewDayBill();  adds 1 day on the bill
+            //};
 
             Plugin.m_SaveManager.setSeed(session.RoomState.Seed);
             

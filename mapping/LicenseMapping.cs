@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApClient.data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,65 +12,65 @@ public class LicenseMapping
     public static SortedDictionary<int, (int itemid, string name, int count, int locid, EItemType type)> mapping = new SortedDictionary<int, (int itemid, string name, int count, int locid, EItemType type)>
     {
         {0, (0x1F280001, "Basic Card Pack (32)", 32, 0x1f2800f0, EItemType.BasicCardPack) },
-        {1, (0x1F2800D8, "Basic Card Pack (64)", 64, 0x1f2800f0, EItemType.BasicCardPack) },
-        {2, (0x1F2800D9, "Progressive Basic Card Pack", 4,0x1f2800f1, EItemType.BasicCardBox) },
+        {1, (0x1F2800D8, "Basic Card Pack (64)", 32, 0x1f2800f0, EItemType.BasicCardPack) },
+        {2, (0x1F2800D9, "Progressive Basic Card Pack", 8,0x1f2800f1, EItemType.BasicCardBox) },
         {3, (0x1F2800DA, "Progressive Basic Card Pack", 8,0x1F2800F1, EItemType.BasicCardBox) },
         {4, (0x1F280002, "Progressive Rare Card Pack",32,0x1F2800F2, EItemType.RareCardPack) },
-        {5, (0x1F2800DB, "Progressive Rare Card Pack",64,0x1F2800F2, EItemType.RareCardPack) },
-        {6, (0x1F2800DC, "Progressive Rare Card Pack",4,0x1F2800F3, EItemType.RareCardBox) },
+        {5, (0x1F2800DB, "Progressive Rare Card Pack",32,0x1F2800F2, EItemType.RareCardPack) },
+        {6, (0x1F2800DC, "Progressive Rare Card Pack",8,0x1F2800F3, EItemType.RareCardBox) },
         {7, (0x1F2800DD, "Progressive Rare Card Pack",8,0x1F2800F3, EItemType.RareCardBox) },
         {8, (0x1F280003, "Progressive Epic Card Pack",32,0x1F2800F4, EItemType.EpicCardPack) },
-        {9, (0x1F2800DE, "Progressive Epic Card Pack",64,0x1F2800F4, EItemType.EpicCardPack) },
-        {10, (0x1F2800DF, "Progressive Epic Card Pack",4,0x1F2800F5, EItemType.EpicCardBox) },
+        {9, (0x1F2800DE, "Progressive Epic Card Pack",32,0x1F2800F4, EItemType.EpicCardPack) },
+        {10, (0x1F2800DF, "Progressive Epic Card Pack",8,0x1F2800F5, EItemType.EpicCardBox) },
         {11, (0x1F2800E0, "Progressive Epic Card Pack",8,0x1F2800F5, EItemType.EpicCardBox) },
         {12, (0x1F280004, "Progressive Legendary Card Pack",32,0x1F2800F6, EItemType.LegendaryCardPack) },
-        {13, (0x1F2800E1, "Progressive Legendary Card Pack",64,0x1F2800F6, EItemType.LegendaryCardPack) },
-        {14, (0x1F2800E2, "Progressive Legendary Card Pack",4,0x1F2800F7, EItemType.LegendaryCardBox) },
+        {13, (0x1F2800E1, "Progressive Legendary Card Pack",32,0x1F2800F6, EItemType.LegendaryCardPack) },
+        {14, (0x1F2800E2, "Progressive Legendary Card Pack",8,0x1F2800F7, EItemType.LegendaryCardBox) },
         {15, (0x1F2800E3, "Progressive Legendary Card Pack",8,0x1F2800F7, EItemType.LegendaryCardBox) },
         {67, (0x1F280005, "Fire Battle Deck",9,0x1F280100, EItemType.PreconDeck_Fire) },
         {68, (0x1F280006, "Earth Battle Deck",9,0x1F280101, EItemType.PreconDeck_Earth) },
         {69, (0x1F280007, "Water Battle Deck",9,0x1F280102,EItemType.PreconDeck_Water ) },
         {70, (0x1F280008, "Wind Battle Deck",9,0x1F280103,EItemType.PreconDeck_Wind ) },
         {24, (0x1F280009, "Progressive Basic Destiny Pack", 32, 0x1F2800F8,EItemType.DestinyBasicCardPack ) },
-        {25, (0x1F2800E4, "Progressive Basic Destiny Pack", 64,0x1F2800F8,EItemType.DestinyBasicCardPack ) },
-        {26, (0x1F2800E5, "Progressive Basic Destiny Pack", 4,0x1F2800F9,EItemType.DestinyBasicCardBox) },
+        {25, (0x1F2800E4, "Progressive Basic Destiny Pack", 32,0x1F2800F8,EItemType.DestinyBasicCardPack ) },
+        {26, (0x1F2800E5, "Progressive Basic Destiny Pack", 8,0x1F2800F9,EItemType.DestinyBasicCardBox) },
         {27, (0x1F2800E6, "Progressive Basic Destiny Pack", 8, 0x1F2800F9,EItemType.DestinyBasicCardBox) },
         {28, (0x1F28000A, "Progressive Rare Destiny Pack",32,0x1F2800FA,EItemType.DestinyRareCardPack ) },
-        {29, (0x1F2800E7, "Progressive Rare Destiny Pack",64,0x1F2800FA,EItemType.DestinyRareCardPack ) },
-        {30, (0x1F2800E8, "Progressive Rare Destiny Pack",4,0x1F2800FB,EItemType.DestinyRareCardBox  ) },
+        {29, (0x1F2800E7, "Progressive Rare Destiny Pack",32,0x1F2800FA,EItemType.DestinyRareCardPack ) },
+        {30, (0x1F2800E8, "Progressive Rare Destiny Pack",8,0x1F2800FB,EItemType.DestinyRareCardBox  ) },
         {31, (0x1F2800E9, "Progressive Rare Destiny Pack",8,0x1F2800FB,EItemType.DestinyRareCardBox  ) },
         {32, (0x1F28000B, "Progressive Epic Destiny Pack",32,0x1F2800FC,EItemType.DestinyEpicCardPack) },
-        {33, (0x1F2800EA, "Progressive Epic Destiny Pack",64,0x1F2800FC,EItemType.DestinyEpicCardPack) },
-        {34, (0x1F2800EB, "Progressive Epic Destiny Pack",4,0x1F2800FD,EItemType.DestinyEpicCardBox) },
+        {33, (0x1F2800EA, "Progressive Epic Destiny Pack",32,0x1F2800FC,EItemType.DestinyEpicCardPack) },
+        {34, (0x1F2800EB, "Progressive Epic Destiny Pack",8,0x1F2800FD,EItemType.DestinyEpicCardBox) },
         {35, (0x1F2800EC, "Progressive Epic Destiny Pack",8,0x1F2800FD,EItemType.DestinyEpicCardBox) },
         {36, (0x1F28000C, "Progressive Legendary Destiny Pack",32,0x1F2800FE,EItemType.DestinyLegendaryCardPack) },
-        {37, (0x1F2800ED, "Progressive Legendary Destiny Pack",64,0x1F2800FE,EItemType.DestinyLegendaryCardPack) },
-        {38, (0x1F2800EE, "Progressive Legendary Destiny Pack",4,0x1F2800FF,EItemType.DestinyLegendaryCardBox ) },
+        {37, (0x1F2800ED, "Progressive Legendary Destiny Pack",32,0x1F2800FE,EItemType.DestinyLegendaryCardPack) },
+        {38, (0x1F2800EE, "Progressive Legendary Destiny Pack",8,0x1F2800FF,EItemType.DestinyLegendaryCardBox ) },
         {39, (0x1F2800EF, "Progressive Legendary Destiny Pack",8,0x1F2800FF,EItemType.DestinyLegendaryCardBox ) },
         {71, (0x1F28000D, "Fire Destiny Deck",9,0x1F280104,EItemType.PreconDeck_FireDestiny ) },
         {72, (0x1F28000E, "Earth Destiny Deck",9,0x1F280105,EItemType.PreconDeck_EarthDestiny  ) },
         {73, (0x1F28000F, "Water Destiny Deck",9,0x1F280106,EItemType.PreconDeck_WaterDestiny  ) },
         {74, (0x1F280010, "Wind Destiny Deck",9,0x1F280107,EItemType.PreconDeck_WindDestiny ) },//end
         {40, (0x1F280011, "Cleanser (8)",8,0x1f280108,EItemType.Deodorant ) },
-        {41, (0x1F2800F0, "Progressive Cleanser",16,0x1f280108,EItemType.Deodorant ) },
+        {41, (0x1F2800F0, "Progressive Cleanser",8,0x1f280108,EItemType.Deodorant ) },
         {75, (0x1F280012, "Card Sleeves (Clear)",32,0x1f280109,EItemType.CardSleeve_Clear  ) },
         {76, (0x1F280013, "Card Sleeves (Tetramon)",32,0x1f28010A,EItemType.CardSleeve_Tetramon) },
-        {43, (0x1F280014, "D20 Dice Red (16)",16,0x1f28010B,EItemType.D20DiceBox ) },
-        {44, (0x1F280015, "D20 Dice Blue (16)",16,0x1f28010C,EItemType.D20DiceBox2) },
-        {45, (0x1F280016, "D20 Dice Black (16)",16,0x1f28010D,EItemType.D20DiceBox3) },
-        {46, (0x1F280017, "D20 Dice White (16)",16,0x1f28010E,EItemType.D20DiceBox4) },
+        {43, (0x1F280014, "D20 Dice Red (16)",8,0x1f28010B,EItemType.D20DiceBox ) },
+        {44, (0x1F280015, "D20 Dice Blue (16)",8,0x1f28010C,EItemType.D20DiceBox2) },
+        {45, (0x1F280016, "D20 Dice Black (16)",8,0x1f28010D,EItemType.D20DiceBox3) },
+        {46, (0x1F280017, "D20 Dice White (16)",8,0x1f28010E,EItemType.D20DiceBox4) },
         {77, (0x1F280018, "Card Sleeves (Fire)",32,0x1f28010F,EItemType.CardSleeve_Fire) },
         {78, (0x1F280019, "Card Sleeves (Earth)",32,0x1F280110,EItemType.CardSleeve_Earth) },
         {79, (0x1F28001A, "Card Sleeves (Water)",32,0x1F280111,EItemType.CardSleeve_Water) },
         {80, (0x1F28001B, "Card Sleeves (Wind)",32,0x1F280112,EItemType.CardSleeve_Wind) },
         {16, (0x1F28001C, "Progressive Deck Box Red",8,0x1F280113,EItemType.DeckBox1) },
-        {17, (0x1F2800F1, "Progressive Deck Box Red",16,0x1F280113,EItemType.DeckBox1) },
+        {17, (0x1F2800F1, "Progressive Deck Box Red",8,0x1F280113,EItemType.DeckBox1) },
         {18, (0x1F28001D, "Progressive Deck Box Green",8,0x1F280114,EItemType.DeckBox2) },
-        {19, (0x1F2800F2, "Progressive Deck Box Green",16,0x1F280114,EItemType.DeckBox2) },
+        {19, (0x1F2800F2, "Progressive Deck Box Green",8,0x1F280114,EItemType.DeckBox2) },
         {20, (0x1F28001E, "Progressive Deck Box Blue",8,0x1F280115,EItemType.DeckBox3) },
-        {21, (0x1F2800F3, "Progressive Deck Box Blue",16,0x1F280115,EItemType.DeckBox3) },
+        {21, (0x1F2800F3, "Progressive Deck Box Blue",8,0x1F280115,EItemType.DeckBox3) },
         {22, (0x1F28001F, "Progressive Deck Box Yellow",8,0x1F280116,EItemType.DeckBox4) },
-        {23, (0x1F2800F4, "Progressive Deck Box Yellow",16,0x1F280116, EItemType.DeckBox4) },//end
+        {23, (0x1F2800F4, "Progressive Deck Box Yellow",8,0x1F280116, EItemType.DeckBox4) },//end
         {42, (0x1F280020, "Collection Book ",4,0x1F280117,EItemType.BinderBook) },
         {66, (0x1F280021, "Premium Collection Book", 4, 0x1F280118,EItemType.BinderBookPremium) },
         {83, (0x1F280022, "Playmat (Drilceros)", 8, 0x1f280119,EItemType.Playmat2b) },
@@ -160,25 +161,38 @@ public class LicenseMapping
        
         return mapping.GetValueOrDefault<int, (int itemid, string name, int count, int locid, EItemType type)>(key, (-1, "", 0, -1, EItemType.None));
     }
-
+    private static Dictionary<EItemType, List<KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType)>>> typeLookup = new Dictionary<EItemType, List<KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType)>>>(); 
     public static List<KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType)>> GetKeyValueFromType(EItemType type)
     {
+        if (typeLookup.ContainsKey(type))
+        {
+            return typeLookup[type];
+        }
+
         var result = mapping.Where(pair => pair.Value.type == type).ToList();
         var duplicatedList = new List<KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType type)>>();
-
-        for (int i = 0; i < Plugin.m_SessionHandler.GetSlotData().SellCheckAmount; i++)
+        
+        foreach (var kvp in result)
         {
-            foreach (var kvp in result)
+            var firstitem = kvp.Value;
+            if (Plugin.m_SessionHandler.isStartingItem(kvp.Key))
             {
-                var item = kvp.Value;
-
-                // Create the modified tuple with the updated count
-                var modifiedValue = (item.itemid, item.name, item.count * (i+1), (kvp.Value.locid & ~0xF000) | ((i & 0xF) << 12), item.type);
-
-                // Add the modified KeyValuePair to the duplicated list
-                duplicatedList.Add(new KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType type)>(kvp.Key, modifiedValue));
+                for (int s = Plugin.m_SessionHandler.GetSlotData().SellCheckAmount; s < Math.Min(Plugin.m_SessionHandler.GetSlotData().SellCheckAmount + 6, 16); s++)
+                {
+                    var val = (firstitem.itemid, firstitem.name, firstitem.count * (s + 1), (firstitem.locid & ~0xF000) | ((s & 0xF) << 12), firstitem.type);
+                    duplicatedList.Add(new KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType type)>(kvp.Key, val));
+                }
             }
         }
+        var item = result.First();
+        for (int i = 0; i < Plugin.m_SessionHandler.GetSlotData().SellCheckAmount; i++)
+        {
+            var modifiedValue = (item.Value.itemid, item.Value.name, item.Value.count * (i + 1), (item.Value.locid & ~0xF000) | ((i & 0xF) << 12), item.Value.type);
+            duplicatedList.Add(new KeyValuePair<int, (int itemid, string name, int count, int locid, EItemType type)>(item.Key, modifiedValue));
+        }
+
+        typeLookup.Add(type, duplicatedList);
+        Plugin.Log(string.Join(", ", duplicatedList));
         return duplicatedList;
     }
 

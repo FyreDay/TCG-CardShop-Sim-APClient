@@ -49,6 +49,13 @@ public class APGui : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
+            CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
+            CPlayerData.UpdateItemPricePercentChange();
+            CPlayerData.UpdatePastCardPricePercentChange();
+        }
         if (Input.GetKeyDown(Settings.Instance.MyHotkey.Value)) // Press F1 to log scenes
         {
             showGUI = !showGUI;
