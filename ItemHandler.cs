@@ -25,8 +25,6 @@ public class ItemHandler
         {
             CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(isUnlocked: true);
             AchievementManager.OnShopLotBUnlocked();
-            CPlayerData.m_GameReportDataCollect.upgradeCost -= 5000;
-            CPlayerData.m_GameReportDataCollectPermanent.upgradeCost -= 5000;
             SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
             PopupTextPatches.ShowCustomText("Warehouse Key Found");
             return;

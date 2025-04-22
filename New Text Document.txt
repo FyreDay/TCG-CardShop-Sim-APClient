@@ -18,7 +18,6 @@ if Goal is card expansion, cards in that expansion
     Money
     Fame
 
-
 traps
 -fame trap
 -cant open packs
@@ -36,4 +35,3 @@ deathlink ends day, "dying" is not paying bills
 
 not that you need to change cfg
 
-3660889480591175721
