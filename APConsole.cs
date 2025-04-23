@@ -9,7 +9,7 @@ using Archipelago.MultiClient.Net.Converters;
 using System.Text.RegularExpressions;
 using System.Linq;
 
-public class ArchipelagoConsoleUI : MonoBehaviour
+public class APConsole : MonoBehaviour
 {
 
     [Serializable]
@@ -54,14 +54,20 @@ public class ArchipelagoConsoleUI : MonoBehaviour
     private static float MessageHeight = 10f;
     private static float ConsoleHeight = 280f;
     private static int MaxMessages = (int) (ConsoleHeight / (MessageHeight * 1.5));
-    public static ArchipelagoConsoleUI Create()
+
+    public static APConsole Instance { get; private set; }
+
+    public static void Create()
     {
-        
+        if (Instance != null )
+        {
+            return;
+        }
         var go = new GameObject("ArchipelagoConsoleUI");
         DontDestroyOnLoad(go);
-        var ui = go.AddComponent<ArchipelagoConsoleUI>();
+        var ui = go.AddComponent<APConsole>();
         ui.CreateConsoleCanvas();
-        return ui;
+        Instance = ui;
     }
 
     private void Update()
@@ -146,11 +152,9 @@ public class ArchipelagoConsoleUI : MonoBehaviour
 
     public void Log(string text)
     {
-        
         LogEntry entry = new(text, DateTime.Now.ToUnixTimeStamp());
 
         cachedEntries.Enqueue(entry);
-        Debug.Log(text);
     }
 
     private void CreateConsoleCanvas()
@@ -174,7 +178,7 @@ public class ArchipelagoConsoleUI : MonoBehaviour
         rect.anchorMin = new Vector2(0f, 0f);   // Bottom left
         rect.anchorMax = new Vector2(0f, 0f);
         rect.pivot = new Vector2(0f, 0f);
-        rect.anchoredPosition = new Vector2(60f, 25f); // Slight offset from corner
+        rect.anchoredPosition = new Vector2(60f, 35f); // Slight offset from corner
         messageParent = messageContainer.transform;
     }
 

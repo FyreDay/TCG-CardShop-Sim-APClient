@@ -65,6 +65,13 @@ namespace ApClient
         {
             aPSaveData.Luck++;
         }
+        public void DecreaseLuck()
+        {
+            if (aPSaveData.Luck > 0)
+            {
+                aPSaveData.Luck--;
+            }
+        }
         public List<int> GetIncompleteCards()
         {
             return aPSaveData.newCards;

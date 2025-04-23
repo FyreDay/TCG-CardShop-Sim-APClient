@@ -5,6 +5,7 @@ using ApClientl;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
 using System;
 using System.Collections;
@@ -116,10 +117,10 @@ public class SessionHandler
     DeathLinkService deathLinkService = null;
     public void sendDeath()
     {
-        //if (slotData.Deathlink)
-        //{
-        //    deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Expensive Bills."));
-        //}
+        if (slotData.Deathlink)
+        {
+            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Expensive Bills."));
+        }
     }
     public void connect(string ip, string password, string slot)
     {
@@ -127,7 +128,11 @@ public class SessionHandler
         session = ArchipelagoSessionFactory.CreateSession(ip);
 
         //callback for item retrieval
-        session.Socket.SocketClosed += (reason) => { APGui.showGUI = true; };
+        session.Socket.SocketClosed += (reason) => { 
+            APGui.showGUI = true;
+            APConsole.Instance.Log("Connection Closed");
+        };
+        session.MessageLog.OnMessageReceived += OnMessageReceived;
         session.Items.ItemReceived += (receivedItemsHelper) => {
 
             if (!Plugin.isSceneLoaded())
@@ -172,16 +177,20 @@ public class SessionHandler
 
         if (result.Successful)
         {
-            //deathLinkService = session.CreateDeathLinkService();
-            //deathLinkService.EnableDeathLink();
-            //deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
-            //{
-            //    if (slotData.Deathlink)
-            //    {
-            //        EndOfDayReportScreen.OpenScreen();
-            //    }
-            //    // RentBillScreen.EvaluateNewDayBill();  adds 1 day on the bill
-            //};
+            deathLinkService = session.CreateDeathLinkService();
+            deathLinkService.EnableDeathLink();
+            deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
+            {
+                if (slotData.Deathlink && Plugin.isSceneLoaded())
+                {
+                    APConsole.Instance.Log($"{deathLinkObject.Source} {deathLinkObject.Cause}");
+                    CSingleton<LightManager>.Instance.m_HasDayEnded = true;
+                    CSingleton<LightManager>.Instance.m_TimeHour = 21;
+                    CSingleton<LightManager>.Instance.EvaluateTimeClock();
+                    CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
+                    EndOfDayReportScreen.OpenScreen();
+                }
+            };
 
             Plugin.m_SaveManager.setSeed(session.RoomState.Seed);
             
@@ -196,6 +205,7 @@ public class SessionHandler
             else
             {
                 APGui.state = "Connected";
+                
                 Plugin.RunTitleInteractableSaveLogic();
             }
 
@@ -209,7 +219,7 @@ public class SessionHandler
             slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
             slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
-            //slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
+            slotData.Deathlink = true; // loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
 
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));
@@ -227,6 +237,19 @@ public class SessionHandler
 
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);
         }
+        else
+        {
+            var failure = (LoginFailure)result;
+            var errorMessage = $"Failed to Connect to {ip} as {slot}:";
+            errorMessage = failure.Errors.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
+            errorMessage = failure.ErrorCodes.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
+            APConsole.Instance.Log(errorMessage);
+        }
+    }
+
+    static void OnMessageReceived(LogMessage message)
+    {
+        APConsole.Instance.Log(message.ToString() ?? string.Empty);
     }
 
     public void ProcessCachedItems()

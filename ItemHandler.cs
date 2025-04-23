@@ -87,6 +87,17 @@ public class ItemHandler
             return;
         }
 
+        if ((int)itemReceived.ItemId == TrashMapping.DecreaseCardLuck)
+        {
+            Plugin.m_SaveManager.DecreaseLuck();
+            return;
+        }
+        if ((int)itemReceived.ItemId == TrashMapping.CurrencyTrap)
+        {
+            CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.RandomRangeInt(0, 8);
+            return;
+        }
+
         if ((int)itemReceived.ItemId == TrashMapping.stinkTrap)
         {
             FieldInfo cfieldInfo = typeof(CustomerManager).GetField("m_CustomerList", BindingFlags.NonPublic | BindingFlags.Instance);

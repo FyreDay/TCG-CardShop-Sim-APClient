@@ -37,8 +37,6 @@ public class Plugin : BaseUnityPlugin
     public static ItemHandler m_ItemHandler = new ItemHandler();
     public static SessionHandler m_SessionHandler = new SessionHandler();
 
-    public static ArchipelagoConsoleUI Console;
-
     private Plugin()
     {
         this.m_Harmony.PatchAll();
@@ -52,13 +50,14 @@ public class Plugin : BaseUnityPlugin
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.sceneLoaded += this.OnSceneLoad;
         
+
     }
     void Start()
     {
         var go = new GameObject("MyGUI");
         go.AddComponent<APGui>();
         DontDestroyOnLoad(go);
-        Console = ArchipelagoConsoleUI.Create();
+        APConsole.Create();
     }
 
     private void OnDestroy()
@@ -117,7 +116,7 @@ public class Plugin : BaseUnityPlugin
         }
         if (scene.name == "Start")
         {
-
+            CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
             APGui.showGUI = false;
 
         }
@@ -172,22 +171,18 @@ public class Plugin : BaseUnityPlugin
     //remove me
     private void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.G))
-        //{
-        //    Console.Log("Received: money of Cheese card from Player3");
-        //}
 
-        //if (Input.GetKeyDown(KeyCode.F))
-        //{
-        //    Console.Log("Sent: license card Blade to flying level up");
-        //}
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            
+        }
 
-        //if (Input.GetKeyDown(KeyCode.H))
-        //{
-        //    CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
-        //    CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
-        //    CPlayerData.UpdateItemPricePercentChange();
-        //    CPlayerData.UpdatePastCardPricePercentChange();
-        //}
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
+            CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
+            CPlayerData.UpdateItemPricePercentChange();
+            CPlayerData.UpdatePastCardPricePercentChange();
+        }
     }
 }
