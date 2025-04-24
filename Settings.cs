@@ -20,6 +20,7 @@ public class Settings
     public ConfigEntry<int> StartingMoney;
     public ConfigEntry<int> XpMultiplier;
     public ConfigEntry<KeyCode> MyHotkey;
+    public ConfigEntry<KeyCode> ConsoleHotkey;
     public ConfigEntry<string> LastUsedIP;
     public ConfigEntry<string> LastUsedPassword;
     public ConfigEntry<string> LastUsedSlot;
@@ -34,8 +35,14 @@ public class Settings
             "2. Hotkeys",
             "Toggle Connection Window",
             KeyCode.F8, // Default key
-            "Press this key to op AP Connection GUI"
-);
+            "Press this key to toggle AP Connection GUI"
+        );
+        ConsoleHotkey = plugin.Config.Bind(
+            "2. Hotkeys",
+            "Toggle AP Console",
+            KeyCode.F9, // Default key
+            "Press this key to toggle AP Console Output"
+        );
 
         LastUsedIP = plugin.Config.Bind("Connection", "LastUsedIP", "", "The last server IP entered.");
         LastUsedPassword = plugin.Config.Bind("Connection", "LastUsedPassword", "", "The last server password entered.");

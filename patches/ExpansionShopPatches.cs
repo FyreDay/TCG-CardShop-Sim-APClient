@@ -18,15 +18,15 @@ public class ExpansionShopPatches
         [HarmonyPostfix]
         static void Postfix(ExpansionShopPanelUI __instance, ExpansionShopUIScreen expansionShopUIScreen, int index, bool isShopB)
         {
+            if(!CPlayerData.m_IsWarehouseRoomUnlocked && isShopB)
+            {
+                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+            }
             //Plugin.Log($"init expansion Shop {index} is B: {isShopB}");
             //Plugin.Log($"Count of progressive A: {Plugin.itemCount(ExpansionMapping.progressiveA)}");
-            FieldInfo? fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fieldInfo == null)
-            {
-                return;
-            }
 
-            int m_LevelRequired = (int)fieldInfo.GetValue(__instance);
+            int m_LevelRequired = __instance.m_LevelRequired;
             bool hasAPItem = false;
             if (isShopB)
             {

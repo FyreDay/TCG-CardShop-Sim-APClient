@@ -12,6 +12,7 @@ public class SlotData
     public int Goal { get; set; }
     public int ShopExpansionGoal { get; set; }
     public int LevelGoal { get; set; }
+    public int MaxLevel { get; set; }
     public int GhostGoalAmount { get; set; }
     public bool FoilInSanity { get; set; }
     public int BorderInSanity { get; set; }

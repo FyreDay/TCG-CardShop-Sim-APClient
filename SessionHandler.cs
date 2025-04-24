@@ -112,14 +112,14 @@ public class SessionHandler
             LicenseMapping.mapping.Add(startingCounter + i, (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
         }
         startingCounter += 8;
-        Plugin.Log($"Goal Amount for {item.name} is {LicenseMapping.GetKeyValueFromType(item.type).Count()}");
     }
     DeathLinkService deathLinkService = null;
     public void sendDeath()
     {
         if (slotData.Deathlink)
         {
-            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Expensive Bills."));
+            Plugin.Log("Sent Death!");
+            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Not Paying Bills."));
         }
     }
     public void connect(string ip, string password, string slot)
@@ -142,7 +142,7 @@ public class SessionHandler
 
                 return;
             }
-            Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
+            //Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
             if (Plugin.m_SaveManager.GetProcessedIndex() > receivedItemsHelper.Index)
             {
                 return;
@@ -156,7 +156,7 @@ public class SessionHandler
             if (receivedItemsHelper.Index % 25 == 0 && !timerRunning)
             {
                 CSingleton<CGameManager>.Instance.SaveGameData(3);
-                remainingTime += 60f;
+                remainingTime += 20f;
 
                 if (!timerRunning)
                 {
@@ -188,7 +188,7 @@ public class SessionHandler
                     CSingleton<LightManager>.Instance.m_TimeHour = 21;
                     CSingleton<LightManager>.Instance.EvaluateTimeClock();
                     CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
-                    EndOfDayReportScreen.OpenScreen();
+                   //CoroutineRunner.RunOnMainThread(() => EndOfDayReportScreen.OpenScreen());
                 }
             };
 
@@ -220,6 +220,7 @@ public class SessionHandler
             slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
             slotData.Deathlink = true; // loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
+            slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("FinalLevelRequirement").ToString());
 
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));

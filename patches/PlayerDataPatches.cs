@@ -118,34 +118,20 @@ class PlayerDataPatches
     }
 
     [HarmonyPatch]
-    class AddLicense
+    class ReduceCoin
     {
         static MethodBase TargetMethod()
         {
-            var type = typeof(CPlayerData); // Singleton class, CPlayerData
-            var method = type.GetMethod("SetUnlockItemLicense", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); // Static method
-
-            if (method == null)
-            {
-                Plugin.Log("Static method 'SetUnlockItemLicense' not found!");
-            }
-
-            return method;
+            return AccessTools.Method(typeof(CPlayerData), "CPlayer_OnReduceCoin", null, null);
         }
-        // Prefix: Runs before the method
-        static void Prefix(int index)
+        [HarmonyPrefix]
+        static void CPlayer_OnReduceCoin(CEventPlayer_ReduceCoin evt)
         {
-            
-            //Plugin.Log($"Before adding license: {index}, Type: {InventoryBase.GetRestockData(index).itemType}");
-            //Plugin.Log($"id: {LicenseMapping.mapping.GetValueOrDefault(index)}");
-            //Plugin.session.Locations.CompleteLocationChecks(LicenseMapping.mapping.GetValueOrDefault(index).locid);
-            //return Plugin.hasItem(LicenseMapping.mapping.GetValueOrDefault(index).itemid);
-        }
-
-        // Postfix: Runs after the method
-        static void Postfix(int index)
-        {
-            //Plugin.Log($"After adding license:" );
+            //if(CPlayerData.m_CoinAmount >= 0 && CPlayerData.m_CoinAmount - evt.m_CoinValue < 0)
+            //{
+            //    Plugin.m_SessionHandler.sendDeath();
+            //    Plugin.Log("Died to negative money");
+            //}
         }
     }
 
@@ -173,15 +159,27 @@ class PlayerDataPatches
             {
                 return;
             }
+            if (cardData.expansionType != ECardExpansionType.Tetramon && cardData.expansionType != ECardExpansionType.Destiny)
+            {
+                return;
+            }
 
-            ECollectionPackType expansionType = (ECollectionPackType)AccessTools.Field(typeof(CardOpeningSequence), "m_CollectionPackType").GetValue(CSingleton<CardOpeningSequence>.Instance);
 
             //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
-            if((int)expansionType < Plugin.m_SessionHandler.GetSlotData().CardSanity 
-                && CPlayerData.GetCardAmount(cardData) == 0 
+            if ((int)CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType < Plugin.m_SessionHandler.GetSlotData().CardSanity
+                && !CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)] 
                 && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity
                 && (!cardData.isFoil || Plugin.m_SessionHandler.GetSlotData().FoilInSanity))
             {
+                if (cardData.expansionType == ECardExpansionType.Tetramon)
+                {
+                    Plugin.m_SaveManager.IncreaseTetramonChecks();
+                }
+
+                if (cardData.expansionType == ECardExpansionType.Destiny)
+                {
+                    Plugin.m_SaveManager.IncreaseDestinyChecks();
+                }
                 Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
             }
         }

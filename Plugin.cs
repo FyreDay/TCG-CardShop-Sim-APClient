@@ -116,7 +116,7 @@ public class Plugin : BaseUnityPlugin
         }
         if (scene.name == "Start")
         {
-            CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
+            //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
             APGui.showGUI = false;
 
         }
@@ -174,15 +174,21 @@ public class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            
+            CoroutineRunner.RunOnMainThread(() =>
+            {
+                CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
+                Plugin.Log("open shop b");
+                CSingleton<UnlockRoomManager>.Instance.Init();
+            });
         }
 
         if (Input.GetKeyDown(KeyCode.H))
         {
-            CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
-            CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
-            CPlayerData.UpdateItemPricePercentChange();
-            CPlayerData.UpdatePastCardPricePercentChange();
+            CSingleton<LightManager>.Instance.m_HasDayEnded = true;
+            CSingleton<LightManager>.Instance.m_TimeHour = 21;
+            CSingleton<LightManager>.Instance.EvaluateTimeClock();
+            CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
+            CoroutineRunner.RunOnMainThread(() => EndOfDayReportScreen.OpenScreen());
         }
     }
 }

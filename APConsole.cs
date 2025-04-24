@@ -8,6 +8,7 @@ using System.ComponentModel;
 using Archipelago.MultiClient.Net.Converters;
 using System.Text.RegularExpressions;
 using System.Linq;
+using ApClient;
 
 public class APConsole : MonoBehaviour
 {
@@ -40,6 +41,8 @@ public class APConsole : MonoBehaviour
       string.Join("|", keywordColors.Keys.Select(Regex.Escape)),
       RegexOptions.IgnoreCase
     );
+
+    private bool showConsole = true;
 
     private Transform messageParent;
     private readonly List<LogEntry> visibleEntries = new();
@@ -79,6 +82,11 @@ public class APConsole : MonoBehaviour
         }
 
         UpdateUI();
+
+        if (Input.GetKeyDown(Settings.Instance.ConsoleHotkey.Value)) // Press F1 to log scenes
+        {
+            showConsole = !showConsole;
+        }
     }
 
     private void UpdateUI()
@@ -152,9 +160,12 @@ public class APConsole : MonoBehaviour
 
     public void Log(string text)
     {
-        LogEntry entry = new(text, DateTime.Now.ToUnixTimeStamp());
+        if (showConsole)
+        {
+            LogEntry entry = new(text, DateTime.Now.ToUnixTimeStamp());
 
-        cachedEntries.Enqueue(entry);
+            cachedEntries.Enqueue(entry);
+        }
     }
 
     private void CreateConsoleCanvas()

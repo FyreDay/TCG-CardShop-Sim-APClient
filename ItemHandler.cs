@@ -23,10 +23,14 @@ public class ItemHandler
 
         if ((int)itemReceived.ItemId == ExpansionMapping.warehouseKey)
         {
-            CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(isUnlocked: true);
-            AchievementManager.OnShopLotBUnlocked();
+            CoroutineRunner.RunOnMainThread(() =>
+            {
+                CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
+                Plugin.Log("open shop b");
+                //CSingleton<UnlockRoomManager>.Instance.Init();
+            });
+
             SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-            PopupTextPatches.ShowCustomText("Warehouse Key Found");
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
@@ -133,17 +137,15 @@ public class ItemHandler
 
         if ((int)itemReceived.ItemId == TrashMapping.MarketChangeTrap)
         {
-            ////CSingleton<PriceChangeManager>.Instance.OnDayStarted(null);
-            //CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
-            //CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
-            //CPlayerData.UpdateItemPricePercentChange();
-            //CPlayerData.UpdatePastCardPricePercentChange();
+            CSingleton<PriceChangeManager>.Instance.EvaluatePriceChange();
+            CSingleton<PriceChangeManager>.Instance.EvaluatePriceCrash();
+            CPlayerData.UpdateItemPricePercentChange();
+            CPlayerData.UpdatePastCardPricePercentChange();
             return;
         }
 
         if (LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
-            PopupTextPatches.ShowCustomText("New License Unlocked");
             var itemMapping = LicenseMapping.getKeyValue((int)itemReceived.ItemId, Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId));
             RestockItemPanelUI panel = null;
             //update Restock ui
@@ -327,7 +329,7 @@ public class ItemHandler
                     break;
                 }
             }
-
+            Plugin.m_SaveManager.IncreaseGhostChecks();
 
             CPlayerData.AddCard(new CardData
             {

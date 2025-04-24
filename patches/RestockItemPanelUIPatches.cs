@@ -97,7 +97,18 @@ public class RestockItemPanelUIPatches
 
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index)
     {
-        Plugin.Log($"Item Data: {index} : {__instance.m_LevelRequired}");
+        if(__instance.m_LevelRequired > Plugin.m_SessionHandler.GetSlotData().MaxLevel)
+        {
+            __instance.m_UIGrp.SetActive(value: false);
+            __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+            __instance.m_LicenseUIGrp.SetActive(value: true);
+            __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+            __instance.m_LevelRequirementText.text = "Level Requirement Beyond Goal. Not In Multiworld";
+            return;
+        }
+
+
+        //Plugin.Log($"Item Data: {index} : {__instance.m_LevelRequired}");
         if (hasItem && CPlayerData.m_ShopLevel +1 >= __instance.m_LevelRequired)
         {
             __instance.m_UIGrp.SetActive(value: true);
