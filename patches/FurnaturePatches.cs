@@ -89,7 +89,7 @@ public class FurnaturePatches
         // Prefix: Runs before the method
         static bool Prefix(FurnitureShopPanelUI __instance)
         {
-            FieldInfo? fieldInfoi = typeof(FurnitureShopPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo fieldInfoi = typeof(FurnitureShopPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoi == null)
             {
                 return false;

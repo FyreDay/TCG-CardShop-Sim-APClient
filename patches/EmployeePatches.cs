@@ -14,7 +14,7 @@ public class EmployeePatches
     {
         static void Postfix(HireWorkerPanelUI __instance, HireWorkerScreen hireWorkerScreen, int index)
         {
-            Plugin.Log($"Employee Index: {index}");
+            //Plugin.Log($"Employee Index: {index}");
             var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
             __instance.m_LevelRequirementText.text = $"Requires AP Worker Unlock";
 
@@ -38,7 +38,7 @@ public class EmployeePatches
     {
         static bool Prefix(HireWorkerPanelUI __instance)
         {
-            FieldInfo? fieldInfo = typeof(HireWorkerPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo fieldInfo = typeof(HireWorkerPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfo == null)
             {
                 return false;
@@ -46,7 +46,7 @@ public class EmployeePatches
 
             int index = (int)fieldInfo.GetValue(__instance);
             var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
-            Plugin.Log($"at employee hire {val.name} {val.itemid} {val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid)}");
+            //Plugin.Log($"at employee hire {val.name} {val.itemid} {val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid)}");
             if (val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid))
             {
                 HireEmployee(__instance, index);
@@ -62,7 +62,7 @@ public class EmployeePatches
             return;
         }
 
-        FieldInfo? fieldInfoFee = typeof(HireWorkerPanelUI).GetField("m_TotalHireFee", BindingFlags.NonPublic | BindingFlags.Instance);
+        FieldInfo fieldInfoFee = typeof(HireWorkerPanelUI).GetField("m_TotalHireFee", BindingFlags.NonPublic | BindingFlags.Instance);
         if (fieldInfoFee == null)
         {
             return;
@@ -84,7 +84,7 @@ public class EmployeePatches
                 num++;
             }
         }
-        FieldInfo? fieldInfoHired = typeof(HireWorkerPanelUI).GetField("m_IsHired", BindingFlags.NonPublic | BindingFlags.Instance);
+        FieldInfo fieldInfoHired = typeof(HireWorkerPanelUI).GetField("m_IsHired", BindingFlags.NonPublic | BindingFlags.Instance);
         if (fieldInfoHired == null)
         {
             return;

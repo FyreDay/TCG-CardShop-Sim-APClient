@@ -129,7 +129,7 @@ public class ExpansionShopPatches
                 Plugin.m_SessionHandler.SendGoalCompletion();
                 PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Expanded To Your Goal!");
             }
-            Plugin.Log("Prefix executed on EvaluateCartCheckout for Expansion");
+            //Plugin.Log("Prefix executed on EvaluateCartCheckout for Expansion");
         }
     }
     [HarmonyPatch]

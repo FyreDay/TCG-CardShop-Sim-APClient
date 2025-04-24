@@ -78,7 +78,6 @@ class PlayerDataPatches
             //UnityEngine
             //CPlayerData.m_TutorialIndex = 16;
             //CPlayerData.m_HasFinishedTutorial = true;
-            Plugin.Log("Postfix executed on CreateDefaultData");
             CPlayerData.m_IsItemLicenseUnlocked[0] = false;
             Plugin.m_SaveManager.setIncompleteCards(GetValidTypeIdsForSanity());
         }
@@ -106,7 +105,7 @@ class PlayerDataPatches
 
             if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel+1 >= 2)
             {
-                Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
+                //Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
                 Plugin.m_SessionHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
                 if(Plugin.m_SessionHandler.GetSlotData().Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.m_SessionHandler.GetSlotData().LevelGoal)
                 {

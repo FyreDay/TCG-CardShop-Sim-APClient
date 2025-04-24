@@ -7,6 +7,7 @@ This Plugin is the TCG Card Shop Simulator implementation of a client to connect
 For the AP world see https://github.com/FyreDay/Archipelago-TCGCardShopSimulator/releases
 
 ## Setup
+### Manual Setup
 
 Mod TCG Card Shop Simulator with BepinEX with at least v5.4 Latest BepinEx is recommended
 
@@ -18,15 +19,27 @@ OR
 
 2.Install BepinEX from https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.2
 
-### BepinEx Configuration
+#### BepinEx Configuration
 
 Once installed navigate to `TCG Card Shop Simulator\BepInEx\config` and open `BepInEx.cfg`
 
 Under [ChainLoader] change HideManagerGameObject = false to HideManagerGameObject = true
 
-### Install Plugin
+#### Install Plugin
 
 Extract the latest release into `TCG Card Shop Simulator\BepInEx\plugins`
+
+### Thunderstore
+
+This mod is also on thunderstore. Install Thunderstore on your computer and create a profile with AP Client
+
+#### BepinEx Configuration
+
+Once installed, Launch the game once to generate the config files
+
+CLick 'Edit config' on the left
+
+Under [ChainLoader] change HideManagerGameObject = false to HideManagerGameObject = true
 
 ## Connecting
 

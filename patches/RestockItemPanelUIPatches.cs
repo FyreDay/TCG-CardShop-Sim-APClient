@@ -240,8 +240,7 @@ public class RestockItemPanelUIPatches
                     break;
             }
 
-            Plugin.Log("new");
-            Plugin.Log(string.Join(", ", __instance.m_CurrentRestockDataIndexList));
+            //Plugin.Log(string.Join(", ", __instance.m_CurrentRestockDataIndexList));
         }
     }
 }

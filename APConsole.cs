@@ -83,9 +83,18 @@ public class APConsole : MonoBehaviour
 
         UpdateUI();
 
-        if (Input.GetKeyDown(Settings.Instance.ConsoleHotkey.Value)) // Press F1 to log scenes
+        if (Input.GetKeyDown(Settings.Instance.ConsoleHotkey.Value)) 
         {
-            showConsole = !showConsole;
+            if (showConsole)
+            {
+                Log("Disabling AP Console");
+                showConsole = false;
+            }
+            else
+            {
+                showConsole = true;
+                Log("AP Console Enabled");
+            }
         }
     }
 

@@ -35,11 +35,11 @@ public class CustomerPatches
         public static void Postfix(Item item)
         {
             CPlayerData.m_StockSoldList[(int)item.GetItemType()]++;
-            Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
+            //Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
             var locations = LicenseMapping.GetKeyValueFromType(item.GetItemType()).Where(i => i.Value.count <= CPlayerData.m_StockSoldList[(int)item.GetItemType()]);
             foreach (var Loc in locations)
             {
-                Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
+                //Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
                 Plugin.m_SessionHandler.CompleteLocationChecks(Loc.Value.locid);
 
             }

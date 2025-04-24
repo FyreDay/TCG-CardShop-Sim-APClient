@@ -26,8 +26,6 @@ public class ItemHandler
             CoroutineRunner.RunOnMainThread(() =>
             {
                 CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
-                Plugin.Log("open shop b");
-                //CSingleton<UnlockRoomManager>.Instance.Init();
             });
 
             SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);

@@ -174,21 +174,10 @@ public class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            CoroutineRunner.RunOnMainThread(() =>
-            {
-                CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
-                Plugin.Log("open shop b");
-                CSingleton<UnlockRoomManager>.Instance.Init();
-            });
         }
 
         if (Input.GetKeyDown(KeyCode.H))
         {
-            CSingleton<LightManager>.Instance.m_HasDayEnded = true;
-            CSingleton<LightManager>.Instance.m_TimeHour = 21;
-            CSingleton<LightManager>.Instance.EvaluateTimeClock();
-            CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
-            CoroutineRunner.RunOnMainThread(() => EndOfDayReportScreen.OpenScreen());
         }
     }
 }

@@ -247,7 +247,6 @@ public class APClientSaveManager
         var path = getGdSavePath();
         var jsonpath = getJsonSavePath();
 
-        bool flag = false;
         if (File.Exists(jsonpath))
         {
             try
@@ -338,12 +337,10 @@ public class APClientSaveManager
                     CSaveLoad.m_SavedGame = JsonUtility.FromJson<CGameData>(text);
                     return true;
                 }
-
-                flag = true;
             }
             catch
             {
-                flag = true;
+                Plugin.Log("Failed to retrieve save data");
             }
         }
         return false;

@@ -119,7 +119,7 @@ public class SessionHandler
         if (slotData.Deathlink)
         {
             Plugin.Log("Sent Death!");
-            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, "Died to Not Paying Bills."));
+            deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, Settings.Instance.LastUsedSlot.Value + " Died to Not Paying Bills."));
         }
     }
     public void connect(string ip, string password, string slot)
@@ -183,7 +183,7 @@ public class SessionHandler
             {
                 if (slotData.Deathlink && Plugin.isSceneLoaded())
                 {
-                    APConsole.Instance.Log($"{deathLinkObject.Source} {deathLinkObject.Cause}");
+                    APConsole.Instance.Log($"{deathLinkObject.Cause}");
                     CSingleton<LightManager>.Instance.m_HasDayEnded = true;
                     CSingleton<LightManager>.Instance.m_TimeHour = 21;
                     CSingleton<LightManager>.Instance.EvaluateTimeClock();
@@ -219,20 +219,20 @@ public class SessionHandler
             slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
             slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
-            slotData.Deathlink = true; // loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
+            slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
             slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("FinalLevelRequirement").ToString());
 
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
-            Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));
+            //Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));
             slotData.pg2IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
-            Plugin.Log(string.Join(", ", slotData.pg2IndexMapping));
+            //Plugin.Log(string.Join(", ", slotData.pg2IndexMapping));
             slotData.pg3IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
-            Plugin.Log(string.Join(", ", slotData.pg3IndexMapping));
+            //Plugin.Log(string.Join(", ", slotData.pg3IndexMapping));
             slotData.ttIndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
-            Plugin.Log(string.Join(", ", slotData.ttIndexMapping));
+            //Plugin.Log(string.Join(", ", slotData.ttIndexMapping));
 
             addStartingChecks(slotData.pg1IndexMapping, LicenseMapping.locs1Starting);
-            Plugin.Log($"Mapping is {slotData.pg2IndexMapping.Count}");
+            //Plugin.Log($"Mapping is {slotData.pg2IndexMapping.Count}");
             addStartingChecks(slotData.pg2IndexMapping, LicenseMapping.locs2Starting);
             addStartingChecks(slotData.pg3IndexMapping, LicenseMapping.locs3Starting);
 
@@ -262,7 +262,7 @@ public class SessionHandler
         while (cachedItems.Any())
         {
             var item = cachedItems.Dequeue();
-            Plugin.Log($"{Plugin.m_SaveManager.GetProcessedIndex()} : {item.index}");
+            //Plugin.Log($"{Plugin.m_SaveManager.GetProcessedIndex()} : {item.index}");
             if (Plugin.m_SaveManager.GetProcessedIndex() > item.index)
             {
                 return;
