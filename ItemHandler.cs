@@ -345,70 +345,79 @@ public class ItemHandler
 
     public CardData RandomNewCard()
     {
-        Plugin.Log("random new card");
-        int border_sanity = 5;
-        bool foil_sanity = true;
-        if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0){
-            border_sanity = Plugin.m_SessionHandler.GetSlotData().BorderInSanity;
-            foil_sanity = Plugin.m_SessionHandler.GetSlotData().FoilInSanity;
-        }
-        
-        List<int> incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
-        //Check for old saves
-        if(incompletecards.Count == 0)
+        try
         {
-            Plugin.m_SaveManager.setIncompleteCards(PlayerDataPatches.GetValidTypeIdsForSanity());
-            incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
-        }
-
-        int cardId = incompletecards[UnityEngine.Random.Range(0, incompletecards.Count)];
-
-        int index = (cardId-1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Tetramon);
-        List<int> t_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false).GetRange(index, foil_sanity ? 12 : 6).Select((val, idx) => new { val, idx })
-            .Where(x => !x.val && x.idx % 6 <= border_sanity)
-            .Select(x => x.idx)
-            .ToList();
-        Plugin.Log($"border <= {border_sanity}");
-        Plugin.Log(string.Join(", ", t_falseIndexes));
-        index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
-        List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, foil_sanity ? 12 : 6)
-            .Select((val, idx) => new { val, idx })
-            .Where(x => !x.val && x.idx % 6 <= border_sanity)
-            .Select(x => x.idx)
-            .ToList();
-
-        int borderId = 0;
-        bool isDestiny = false;
-        if (t_falseIndexes.Count > 0)
-        {
-            borderId = t_falseIndexes[UnityEngine.Random.Range(0, t_falseIndexes.Count)];
-        }
-        else if (d_falseIndexes.Count > 0 && Plugin.m_SessionHandler.GetSlotData().CardSanity >4)
-        {
-            borderId = d_falseIndexes[UnityEngine.Random.Range(0, d_falseIndexes.Count)];
-            isDestiny = true;
-            if(d_falseIndexes.Count == 1)
+            Plugin.Log("random new card");
+            int border_sanity = 5;
+            bool foil_sanity = true;
+            if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
             {
-                Plugin.m_SaveManager.CompleteCardId(cardId);
+                border_sanity = Plugin.m_SessionHandler.GetSlotData().BorderInSanity;
+                foil_sanity = Plugin.m_SessionHandler.GetSlotData().FoilInSanity;
             }
+
+            List<int> incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
+            //Check for old saves
+            if (incompletecards.Count == 0)
+            {
+                Plugin.m_SaveManager.setIncompleteCards(PlayerDataPatches.GetValidTypeIdsForSanity());
+                incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
+            }
+
+            int cardId = incompletecards[UnityEngine.Random.Range(0, incompletecards.Count)];
+
+            int index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Tetramon);
+            List<int> t_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false).GetRange(index, foil_sanity ? 12 : 6).Select((val, idx) => new { val, idx })
+                .Where(x => !x.val && x.idx % 6 <= border_sanity)
+                .Select(x => x.idx)
+                .ToList();
+            Plugin.Log($"border <= {border_sanity}");
+            Plugin.Log(string.Join(", ", t_falseIndexes));
+            index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
+            List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, foil_sanity ? 12 : 6)
+                .Select((val, idx) => new { val, idx })
+                .Where(x => !x.val && x.idx % 6 <= border_sanity)
+                .Select(x => x.idx)
+                .ToList();
+
+            int borderId = 0;
+            bool isDestiny = false;
+            if (t_falseIndexes.Count > 0)
+            {
+                borderId = t_falseIndexes[UnityEngine.Random.Range(0, t_falseIndexes.Count)];
+            }
+            else if (d_falseIndexes.Count > 0 && Plugin.m_SessionHandler.GetSlotData().CardSanity > 4)
+            {
+                borderId = d_falseIndexes[UnityEngine.Random.Range(0, d_falseIndexes.Count)];
+                isDestiny = true;
+                if (d_falseIndexes.Count == 1)
+                {
+                    Plugin.m_SaveManager.CompleteCardId(cardId);
+                }
+            }
+            else
+            {
+                Plugin.Log($"You have collected all Cards for {(EMonsterType)cardId}");
+                Plugin.m_SaveManager.CompleteCardId(cardId);
+                return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
+            }
+            ECardExpansionType cardExpansionType = isDestiny ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
+            return new CardData
+            {
+                isFoil = borderId > 5,
+                isDestiny = isDestiny,
+                borderType = CPlayerData.GetCardBorderType(borderId % 6, cardExpansionType),
+                monsterType = (EMonsterType)cardId,
+                expansionType = cardExpansionType,
+                isChampionCard = false,
+                isNew = true
+            };
         }
-        else
+        catch (Exception e)
         {
-            Plugin.Log($"You have collected all Cards for {(EMonsterType)cardId}");
-            Plugin.m_SaveManager.CompleteCardId(cardId);
+            Plugin.Log($"New Card Gen Error: {e.Message}");
             return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
         }
-        ECardExpansionType cardExpansionType = isDestiny ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
-        return new CardData
-        {
-            isFoil = borderId > 5,
-            isDestiny = isDestiny,
-            borderType = CPlayerData.GetCardBorderType(borderId % 6, cardExpansionType),
-            monsterType = (EMonsterType)cardId,
-            expansionType = cardExpansionType,
-            isChampionCard = false,
-            isNew = true
-        };
     }
     private static CardData cardRoller(ECollectionPackType collectionPackType)
     {

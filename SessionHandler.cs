@@ -177,21 +177,6 @@ public class SessionHandler
 
         if (result.Successful)
         {
-            deathLinkService = session.CreateDeathLinkService();
-            deathLinkService.EnableDeathLink();
-            deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
-            {
-                if (slotData.Deathlink && Plugin.isSceneLoaded())
-                {
-                    APConsole.Instance.Log($"{deathLinkObject.Cause}");
-                    CSingleton<LightManager>.Instance.m_HasDayEnded = true;
-                    CSingleton<LightManager>.Instance.m_TimeHour = 21;
-                    CSingleton<LightManager>.Instance.EvaluateTimeClock();
-                    CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
-                   //CoroutineRunner.RunOnMainThread(() => EndOfDayReportScreen.OpenScreen());
-                }
-            };
-
             Plugin.m_SaveManager.setSeed(session.RoomState.Seed);
             
             
@@ -221,6 +206,21 @@ public class SessionHandler
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
             slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
             slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("FinalLevelRequirement").ToString());
+
+            deathLinkService = session.CreateDeathLinkService();
+            deathLinkService.EnableDeathLink();
+            deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
+            {
+                if (slotData.Deathlink && Plugin.isSceneLoaded())
+                {
+                    APConsole.Instance.Log($"{deathLinkObject.Cause}");
+                    CSingleton<LightManager>.Instance.m_HasDayEnded = true;
+                    CSingleton<LightManager>.Instance.m_TimeHour = 21;
+                    CSingleton<LightManager>.Instance.EvaluateTimeClock();
+                    CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
+                    //CoroutineRunner.RunOnMainThread(() => EndOfDayReportScreen.OpenScreen());
+                }
+            };
 
             slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
             //Plugin.Log(string.Join(", ", slotData.pg1IndexMapping));

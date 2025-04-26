@@ -62,20 +62,20 @@ public class EmployeePatches
             return;
         }
 
-        FieldInfo fieldInfoFee = typeof(HireWorkerPanelUI).GetField("m_TotalHireFee", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (fieldInfoFee == null)
+        if(CPlayerData.m_CoinAmount < __instance.m_TotalHireFee)
         {
+            NotEnoughResourceTextPopup.ShowText(ENotEnoughResourceText.Money);
             return;
         }
-        float m_TotalHireFee = (float)fieldInfoFee.GetValue(__instance);
-        CEventManager.QueueEvent(new CEventPlayer_ReduceCoin(m_TotalHireFee));
+
+        CEventManager.QueueEvent(new CEventPlayer_ReduceCoin(__instance.m_TotalHireFee));
         CPlayerData.SetIsWorkerHired(index, isHired: true);
         //send to AP
         //Plugin.session.Locations.CompleteLocationChecks(EmployeeMapping.mapping.GetValueOrDefault(index).locid);
 
         CSingleton<WorkerManager>.Instance.ActivateWorker(index, resetTask: true);
-        CPlayerData.m_GameReportDataCollect.employeeCost -= m_TotalHireFee;
-        CPlayerData.m_GameReportDataCollectPermanent.employeeCost -= m_TotalHireFee;
+        CPlayerData.m_GameReportDataCollect.employeeCost -= __instance.m_TotalHireFee;
+        CPlayerData.m_GameReportDataCollectPermanent.employeeCost -= __instance.m_TotalHireFee;
         int num = 0;
         for (int i = 0; i < CPlayerData.m_IsWorkerHired.Count; i++)
         {
