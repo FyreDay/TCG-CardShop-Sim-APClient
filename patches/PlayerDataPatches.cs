@@ -186,14 +186,11 @@ class PlayerDataPatches
 
                 for (int i = 1; i <= Plugin.m_SessionHandler.GetSlotData().ChecksPerPack; i++)
                 {
-                    long[] checks = new long[Plugin.m_SessionHandler.GetSlotData().ChecksPerPack];
                     if(found >= i * numPercheck)
                     {
                         Plugin.Log($"Send Card Check {i} {CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1)}");
-                        checks[i-1] = CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1);
+                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1));
                     }
-
-                    Plugin.m_SessionHandler.CompleteLocationChecks(checks);
                 }
             }
         }

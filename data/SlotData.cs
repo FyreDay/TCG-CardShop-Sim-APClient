@@ -21,6 +21,8 @@ public class SlotData
     public int CardCollectPercentage { get; set; } 
     public int GamesPerCheck { get; set; }
     public int NumberOfGameChecks { get; set; }
+    public int NumberOfSellCardChecks { get; set; }
+    public int SellCardsPerCheck { get; set; }
     public bool Deathlink { get; set; }
     public List<int> pg1IndexMapping { get; set; }
     public List<int> pg2IndexMapping { get; set; }

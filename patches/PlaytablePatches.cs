@@ -8,7 +8,7 @@ public class PlaytablePatches
 {
     public class test
     {
-        InteractablePlayTable
+        //InteractablePlayTable
 
     }
 }

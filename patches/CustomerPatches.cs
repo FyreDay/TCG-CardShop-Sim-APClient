@@ -53,17 +53,24 @@ public class CustomerPatches
         {
             if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Ghost)
             {
+                //card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity
                 Plugin.Log("Scanned Ghost card");
             }
 
-            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Tetramon)
+            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Tetramon || card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Destiny)
             {
-                Plugin.Log("Scanned Tetramon card");
-            }
+                Plugin.m_SaveManager.IncreaseCardSold(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity);
+                
+                int sold = Plugin.m_SaveManager.GetCardsSold(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity);
 
-            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Destiny)
-            {
-                Plugin.Log("Scanned Destiny card");
+                for (int i = 1; i <= Plugin.m_SessionHandler.GetSlotData().NumberOfSellCardChecks; i++)
+                {
+                    if (sold >= i * Plugin.m_SessionHandler.GetSlotData().SellCardsPerCheck)
+                    {
+                        
+                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getSellCheckId(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity, i-1));
+                    }
+                }
             }
         }
     }

@@ -209,7 +209,9 @@ public class SessionHandler
             slotData.ChecksPerPack = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ChecksPerPack").ToString());
             slotData.CardCollectPercentage = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardCollectPercentage").ToString());
             slotData.NumberOfGameChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("NumberOfGameChecks").ToString());
-            slotData.GamesPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GamesPerCheck").ToString());
+            slotData.GamesPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GamesPerCheck").ToString()); 
+            slotData.NumberOfSellCardChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("NumberOfSellCardChecks").ToString());
+            slotData.SellCardsPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCardsPerCheck").ToString());
 
             deathLinkService = session.CreateDeathLinkService();
             deathLinkService.EnableDeathLink();

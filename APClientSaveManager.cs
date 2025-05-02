@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 namespace ApClient;
@@ -129,6 +130,79 @@ public class APClientSaveManager
                 break;
 
         }
+    }
+
+    public void IncreaseCardSold(ECardExpansionType expansionType, ERarity rarity)
+    {
+        if (expansionType == ECardExpansionType.Tetramon)
+        {
+            switch (rarity)
+            {
+                case ERarity.Common:
+                    aPSaveData.TetramonCommonChecksSold++;
+                    break;
+                case ERarity.Rare:
+                    aPSaveData.TetramonRareChecksSold++;
+                    break;
+                case ERarity.Epic:
+                    aPSaveData.TetramonEpicChecksSold++;
+                    break;
+                case ERarity.Legendary:
+                    aPSaveData.TetramonLegendaryChecksSold++;
+                    break;
+            }
+        }
+        else
+        {
+            switch (rarity)
+            {
+                case ERarity.Common:
+                    aPSaveData.DestinyCommonChecksSold++;
+                    break;
+                case ERarity.Rare:
+                    aPSaveData.DestinyRareChecksSold++;
+                    break;
+                case ERarity.Epic:
+                    aPSaveData.DestinyEpicChecksSold++;
+                    break;
+                case ERarity.Legendary:
+                    aPSaveData.DestinyLegendaryChecksSold++;
+                    break;
+            }
+        }
+    }
+
+    public int GetCardsSold(ECardExpansionType expansionType, ERarity rarity)
+    {
+        if (expansionType == ECardExpansionType.Tetramon)
+        {
+            switch (rarity)
+            {
+                case ERarity.Common:
+                    return aPSaveData.TetramonCommonChecksSold;
+                case ERarity.Rare:
+                    return aPSaveData.TetramonRareChecksSold;
+                case ERarity.Epic:
+                    return aPSaveData.TetramonEpicChecksSold;
+                case ERarity.Legendary:
+                    return aPSaveData.TetramonLegendaryChecksSold;
+            }
+        }
+        else
+        {
+            switch (rarity)
+            {
+                case ERarity.Common:
+                    return aPSaveData.DestinyCommonChecksSold;
+                case ERarity.Rare:
+                    return aPSaveData.DestinyRareChecksSold;
+                case ERarity.Epic:
+                    return aPSaveData.DestinyEpicChecksSold;
+                case ERarity.Legendary:
+                    return aPSaveData.DestinyLegendaryChecksSold;
+            }
+        }
+        return -1;
     }
 
     public void IncreaseGhostChecks()
@@ -318,204 +392,114 @@ public class APClientSaveManager
         Plugin.Log("AP Save saveSlotIndex " + saveSlotIndex);
         CSaveLoad.m_SavedGame = CGameData.instance;
 
-        //try
-        //{
-            
-        //    using FileStream fileStream = File.Create(getGdSavePath(Plugin.session.RoomState.Seed));
-        //    new BinaryFormatter().Serialize(fileStream, CSaveLoad.m_SavedGame);
-        //    fileStream.Close();
-        //}
-        //catch
-        //{
-        
-        //    Debug.Log("Error saving gd");
-        //}
+        var wrapper = new SaveDataWrapper
+        {
+            gameData = CGameData.instance,
+            ProcessedIndex = aPSaveData.ProcessedIndex,
+            newCards = aPSaveData.newCards,
+            MoneyMultiplier = aPSaveData.MoneyMultiplier,
+            Luck = aPSaveData.Luck,
+            TetramonCommonChecksFound = aPSaveData.TetramonCommonChecksFound,
+            DestinyCommonChecksFound = aPSaveData.DestinyCommonChecksFound,
+            TetramonRareChecksFound = aPSaveData.TetramonRareChecksFound,
+            DestinyRareChecksFound = aPSaveData.DestinyRareChecksFound,
+            TetramonEpicChecksFound = aPSaveData.TetramonEpicChecksFound,
+            DestinyEpicChecksFound = aPSaveData.DestinyEpicChecksFound,
+            TetramonLegendaryChecksFound = aPSaveData.TetramonLegendaryChecksFound,
+            DestinyLegendaryChecksFound = aPSaveData.DestinyLegendaryChecksFound,
+            TetramonCommonChecksSold = aPSaveData.TetramonCommonChecksSold,
+            DestinyCommonChecksSold = aPSaveData.DestinyCommonChecksSold,
+            TetramonRareChecksSold = aPSaveData.TetramonRareChecksSold,
+            DestinyRareChecksSold = aPSaveData.DestinyRareChecksSold,
+            TetramonEpicChecksSold = aPSaveData.TetramonEpicChecksSold,
+            DestinyEpicChecksSold = aPSaveData.DestinyEpicChecksSold,
+            TetramonLegendaryChecksSold = aPSaveData.TetramonLegendaryChecksSold,
+            DestinyLegendaryChecksSold = aPSaveData.DestinyLegendaryChecksSold,
+            GhostCardsSold = aPSaveData.GhostCardsSold
+        };
 
         try
         {
-
-            string contents = JsonUtility.ToJson(CSaveLoad.m_SavedGame);
-            string dictJson = JsonConvert.SerializeObject(aPSaveData.newCards);
-            string modified = contents.TrimEnd('}') + $", \"processedItems\": \"{aPSaveData.ProcessedIndex}\", \"newCardIds\": {dictJson} , \"maxMoney\": \"{aPSaveData.MoneyMultiplier}\", \"luck\": \"{aPSaveData.Luck}\"}}";
-            modified = modified.TrimEnd('}') + $", \"TetramonCommonChecksFound\": \"{aPSaveData.TetramonCommonChecksFound}\", \"DestinyCommonChecksFound\": \"{aPSaveData.DestinyCommonChecksFound}\"}}";
-            modified = modified.TrimEnd('}') + $", \"TetramonRareChecksFound\": \"{aPSaveData.TetramonRareChecksFound}\", \"DestinyRareChecksFound\": \"{aPSaveData.DestinyRareChecksFound}\"}}";
-            modified = modified.TrimEnd('}') + $", \"TetramonEpicChecksFound\": \"{aPSaveData.TetramonEpicChecksFound}\", \"DestinyEpicChecksFound\": \"{aPSaveData.DestinyEpicChecksFound}\"}}";
-            modified = modified.TrimEnd('}') + $", \"TetramonLegendaryChecksFound\": \"{aPSaveData.TetramonLegendaryChecksFound}\", \"DestinyLegendaryChecksFound\": \"{aPSaveData.DestinyLegendaryChecksFound}\"}}";
-            modified = modified.TrimEnd('}') + $", \"GhostCardsSold\": \"{aPSaveData.GhostCardsSold}\"}}";
-            File.WriteAllText(getJsonSavePath(), modified);
+            string json = JsonUtility.ToJson(wrapper, true);
+            File.WriteAllText(getJsonSavePath(), json);
         }
-        catch
+        catch (Exception ex)
         {
-            Debug.Log("Error saving JSON");
+            Debug.LogError("Error saving JSON: " + ex);
         }
     }
     public bool Load()
     {
-        var path = getGdSavePath();
-        var jsonpath = getJsonSavePath();
+        string jsonpath = getJsonSavePath();
 
-        if (File.Exists(jsonpath))
+        if (!File.Exists(jsonpath))
+            return false;
+
+        try
         {
-            try
-            {
-                string text = File.ReadAllText(jsonpath);
+            string text = File.ReadAllText(jsonpath);
+            var wrapper = JsonConvert.DeserializeObject<SaveDataWrapper>(text);
 
-                if (!(text == "") && text != null)
-                {
-                    //Ghost num
-                    Match ghostmatch = Regex.Match(text, @"""GhostChecksFound"":\s*""([^""]*)""");
-                    if (ghostmatch.Success)
-                    {
-                        string LastExtraDataValue = ghostmatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.GhostCardsSold = data;
-                        Debug.Log($"Extracted GhostChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""GhostChecksFound"":\s*""[^""]*""", "");
+            if (wrapper == null) return false;
 
-                    //Destiny num
-                    Match destinymatch = Regex.Match(text, @"""DestinyLegendaryChecksFound"":\s*""([^""]*)""");
-                    if (destinymatch.Success)
-                    {
-                        string LastExtraDataValue = destinymatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.DestinyLegendaryChecksFound = data;
-                        Debug.Log($"Extracted DestinyLegendaryChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""DestinyLegendaryChecksFound"":\s*""[^""]*""", "");
+            CSaveLoad.m_SavedGame = wrapper.gameData;
 
-                    //trtramon num
-                    Match basicmatch = Regex.Match(text, @"""TetramonLegendaryChecksFound"":\s*""([^""]*)""");
-                    if (basicmatch.Success)
-                    {
-                        string LastExtraDataValue = basicmatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.TetramonLegendaryChecksFound = data;
-                        Debug.Log($"Extracted TetramonLegendaryChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""TetramonLegendaryChecksFound"":\s*""[^""]*""", "");
-                    //Destiny num
-                    destinymatch = Regex.Match(text, @"""DestinyEpicChecksFound"":\s*""([^""]*)""");
-                    if (destinymatch.Success)
-                    {
-                        string LastExtraDataValue = destinymatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.DestinyEpicChecksFound = data;
-                        Debug.Log($"Extracted DestinyEpicChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""DestinyEpicChecksFound"":\s*""[^""]*""", "");
+            aPSaveData.ProcessedIndex = wrapper.ProcessedIndex;
+            aPSaveData.newCards = wrapper.newCards ?? new();
+            aPSaveData.MoneyMultiplier = wrapper.MoneyMultiplier;
+            aPSaveData.Luck = wrapper.Luck;
+            aPSaveData.TetramonCommonChecksFound = wrapper.TetramonCommonChecksFound;
+            aPSaveData.DestinyCommonChecksFound = wrapper.DestinyCommonChecksFound;
+            aPSaveData.TetramonRareChecksFound = wrapper.TetramonRareChecksFound;
+            aPSaveData.DestinyRareChecksFound = wrapper.DestinyRareChecksFound;
+            aPSaveData.TetramonEpicChecksFound = wrapper.TetramonEpicChecksFound;
+            aPSaveData.DestinyEpicChecksFound = wrapper.DestinyEpicChecksFound;
+            aPSaveData.TetramonLegendaryChecksFound = wrapper.TetramonLegendaryChecksFound;
+            aPSaveData.DestinyLegendaryChecksFound = wrapper.DestinyLegendaryChecksFound;
+            aPSaveData.TetramonCommonChecksSold = wrapper.TetramonCommonChecksSold;
+            aPSaveData.DestinyCommonChecksSold = wrapper.DestinyCommonChecksSold;
+            aPSaveData.TetramonRareChecksSold = wrapper.TetramonRareChecksSold;
+            aPSaveData.DestinyRareChecksSold = wrapper.DestinyRareChecksSold;
+            aPSaveData.TetramonEpicChecksSold = wrapper.TetramonEpicChecksSold;
+            aPSaveData.DestinyEpicChecksSold = wrapper.DestinyEpicChecksSold;
+            aPSaveData.TetramonLegendaryChecksSold = wrapper.TetramonLegendaryChecksSold;
+            aPSaveData.DestinyLegendaryChecksSold = wrapper.DestinyLegendaryChecksSold;
+            aPSaveData.GhostCardsSold = wrapper.GhostCardsSold;
 
-                    //trtramon num
-                    basicmatch = Regex.Match(text, @"""TetramonEpicChecksFound"":\s*""([^""]*)""");
-                    if (basicmatch.Success)
-                    {
-                        string LastExtraDataValue = basicmatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.TetramonEpicChecksFound = data;
-                        Debug.Log($"Extracted TetramonEpicChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""TetramonEpicChecksFound"":\s*""[^""]*""", "");
-                    //Destiny num
-                    destinymatch = Regex.Match(text, @"""DestinyRareChecksFound"":\s*""([^""]*)""");
-                    if (destinymatch.Success)
-                    {
-                        string LastExtraDataValue = destinymatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.DestinyRareChecksFound = data;
-                        Debug.Log($"Extracted DestinyRareChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""DestinyRareChecksFound"":\s*""[^""]*""", "");
-
-                    //trtramon num
-                    basicmatch = Regex.Match(text, @"""TetramonRareChecksFound"":\s*""([^""]*)""");
-                    if (basicmatch.Success)
-                    {
-                        string LastExtraDataValue = basicmatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.TetramonRareChecksFound = data;
-                        Debug.Log($"Extracted TetramonRareChecksFound: {data}");
-                    }
-
-                    text = Regex.Replace(text, @",\s*""TetramonRareChecksFound"":\s*""[^""]*""", "");
-
-                    //Destiny num
-                    destinymatch = Regex.Match(text, @"""DestinyCommonChecksFound"":\s*""([^""]*)""");
-                    if (destinymatch.Success)
-                    {
-                        string LastExtraDataValue = destinymatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.DestinyCommonChecksFound = data;
-                        Debug.Log($"Extracted DestinyCommonChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""DestinyCommonChecksFound"":\s*""[^""]*""", "");
-                    //trtramon num
-                    basicmatch = Regex.Match(text, @"""TetramonCommonChecksFound"":\s*""([^""]*)""");
-                    if (basicmatch.Success)
-                    {
-                        string LastExtraDataValue = basicmatch.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.TetramonCommonChecksFound = data;
-                        Debug.Log($"Extracted TetramonCommonChecksFound: {data}");
-                    }
-                    text = Regex.Replace(text, @",\s*""TetramonCommonChecksFound"":\s*""[^""]*""", "");
-
-                    //max money
-                    Match match = Regex.Match(text, @"""maxMoney"":\s*""([^""]*)""");
-                    if (match.Success)
-                    {
-                        string LastExtraDataValue = match.Groups[1].Value;
-                        float.TryParse(LastExtraDataValue, out float data);
-                        aPSaveData.MoneyMultiplier = data;
-                        Debug.Log($"Extracted maxMoney: {data}");
-                    }
-
-                    text = Regex.Replace(text, @",\s*""maxMoney"":\s*""[^""]*""", "");
-
-                    //luck
-                    match = Regex.Match(text, @"""luck"":\s*""([^""]*)""");
-                    if (match.Success)
-                    {
-                        string LastExtraDataValue = match.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.Luck = data;
-                        Debug.Log($"Extracted luck: {data}");
-                    }
-
-                    text = Regex.Replace(text, @",\s*""luck"":\s*""[^""]*""", "");
-                    //new ids
-                    Match dictmatch = Regex.Match(text, "\"newCardIds\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", RegexOptions.Singleline);
-
-                    if (dictmatch.Success)
-                    {
-                        string dictJson = "{" + dictmatch.Groups[1].Value + "}";
-                        aPSaveData.newCards = JsonConvert.DeserializeObject<List<int>>(dictJson);
-                    }
-                    string jsonWithoutDict = Regex.Replace(text, "\"newCardIds\"\\s*:\\s*\\{(.*?)\\}\\s*(,|})", "", RegexOptions.Singleline);
-
-                    //recieved items
-                    match = Regex.Match(text, @"""processedItems"":\s*""([^""]*)""");
-                    if (match.Success)
-                    {
-                        string LastExtraDataValue = match.Groups[1].Value;
-                        int.TryParse(LastExtraDataValue, out int data);
-                        aPSaveData.ProcessedIndex = data;
-                        Debug.Log($"Extracted processedItems: {data}");
-                    }
-                    
-                    text = Regex.Replace(text, @",\s*""processedItems"":\s*""[^""]*""", "");
-
-                    
-                    Debug.Log("Modified JSON before deserialization");
-                    CSaveLoad.m_SavedGame = JsonUtility.FromJson<CGameData>(text);
-                    return true;
-                }
-            }
-            catch
-            {
-                Plugin.Log("Failed to retrieve save data");
-            }
+            return true;
+        }
+        catch
+        {
+            Plugin.Log("Failed to retrieve save data");
         }
         return false;
+    }
+
+    [Serializable]
+    public class SaveDataWrapper
+    {
+        public CGameData gameData;
+        public int ProcessedIndex;
+        public List<int> newCards = new();
+        public float MoneyMultiplier;
+        public int Luck;
+        public int TetramonCommonChecksFound;
+        public int DestinyCommonChecksFound;
+        public int TetramonRareChecksFound;
+        public int DestinyRareChecksFound;
+        public int TetramonEpicChecksFound;
+        public int DestinyEpicChecksFound;
+        public int TetramonLegendaryChecksFound;
+        public int DestinyLegendaryChecksFound;
+        public int TetramonCommonChecksSold;
+        public int DestinyCommonChecksSold;
+        public int TetramonRareChecksSold;
+        public int DestinyRareChecksSold;
+        public int TetramonEpicChecksSold;
+        public int DestinyEpicChecksSold;
+        public int TetramonLegendaryChecksSold;
+        public int DestinyLegendaryChecksSold;
+        public int GhostCardsSold;
     }
 
 }

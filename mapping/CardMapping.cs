@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
+using UnityEngine.Rendering;
 
 namespace ApClient.mapping
 {
@@ -19,6 +20,11 @@ namespace ApClient.mapping
         }
 
         public static int ghostProgressive = 0x1F2800D7;
+
+        public static int getSellCheckId(ECardExpansionType expansionType, ERarity rarity, int check)
+        {
+            return 0x1F280342 + check + (((int)rarity + ((int)expansionType * 4)) * 50);
+        }
 
         public static int getCheckId(ECollectionPackType packType, int check)
         {
