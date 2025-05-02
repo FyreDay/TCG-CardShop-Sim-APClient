@@ -19,7 +19,7 @@ public class ItemHandler
 
     public void processNewItem(ItemInfo itemReceived)
     {
-        Plugin.Log(itemReceived.ItemName);
+        //Plugin.Log(itemReceived.ItemName);
 
         if ((int)itemReceived.ItemId == ExpansionMapping.warehouseKey)
         {
@@ -71,7 +71,7 @@ public class ItemHandler
         if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
         {
             CardData d = RandomNewCard();
-            Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
+            //Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
             CPlayerData.AddCard(d, 1);
             return;
 
@@ -85,6 +85,10 @@ public class ItemHandler
 
         if ((int)itemReceived.ItemId == TrashMapping.IncreaseCardLuck)
         {
+            if(Plugin.m_SaveManager.GetLuck() >= 100)
+            {
+                CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
+            }
             Plugin.m_SaveManager.IncreaseLuck();
             return;
         }
@@ -160,9 +164,13 @@ public class ItemHandler
             {
                 return;
             }
+            if(panel.m_LevelRequired > Plugin.m_SessionHandler.GetSlotData().MaxLevel)
+            {
+                Plugin.Log($"ITEM PASSED MAX LEVEL AHHHHH: {(int)itemReceived.ItemId} and {itemMapping.Key} index is {panel.m_Index}");
+            }
 
             RestockItemPanelUIPatches.runLicenseBtnLogic(panel, true, itemMapping.Key);
-            Plugin.Log($"Recieved Item While panel was open: {(int)itemReceived.ItemId} and {itemMapping.Key}");
+            //Plugin.Log($"Recieved Item: {(int)itemReceived.ItemId} and {itemMapping.Key}");
             return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)
@@ -371,8 +379,8 @@ public class ItemHandler
                 .Where(x => !x.val && x.idx % 6 <= border_sanity)
                 .Select(x => x.idx)
                 .ToList();
-            Plugin.Log($"border <= {border_sanity}");
-            Plugin.Log(string.Join(", ", t_falseIndexes));
+            //Plugin.Log($"border <= {border_sanity}");
+            //Plugin.Log(string.Join(", ", t_falseIndexes));
             index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
             List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, foil_sanity ? 12 : 6)
                 .Select((val, idx) => new { val, idx })

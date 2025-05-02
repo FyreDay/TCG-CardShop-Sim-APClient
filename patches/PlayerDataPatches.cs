@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using UnityEngine.UIElements;
@@ -154,32 +155,46 @@ class PlayerDataPatches
         // Prefix: Runs before the method
         static void Prefix(CardData cardData, int addAmount)
         {
-            if(Plugin.m_SessionHandler.GetSlotData().CardSanity == 0)
-            {
-                return;
-            }
             if (cardData.expansionType != ECardExpansionType.Tetramon && cardData.expansionType != ECardExpansionType.Destiny)
             {
                 return;
             }
 
+           
 
-            //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
-            if ((int)CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType < Plugin.m_SessionHandler.GetSlotData().CardSanity
-                && !CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)] 
-                && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity
-                && (!cardData.isFoil || Plugin.m_SessionHandler.GetSlotData().FoilInSanity))
+            if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
             {
-                if (cardData.expansionType == ECardExpansionType.Tetramon)
+                //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
+                if ((int)CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType < Plugin.m_SessionHandler.GetSlotData().CardSanity
+                    && !CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)]
+                    && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity
+                    && (!cardData.isFoil || Plugin.m_SessionHandler.GetSlotData().FoilInSanity))
                 {
-                    Plugin.m_SaveManager.IncreaseTetramonChecks();
+                    Plugin.m_SaveManager.IncreaseCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                    Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
                 }
+            }
+            else if(!CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)])
+            {
 
-                if (cardData.expansionType == ECardExpansionType.Destiny)
+                Plugin.m_SaveManager.IncreaseCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+
+                int found = Plugin.m_SaveManager.GetCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                int totalcards = Plugin.m_SaveManager.GetTotalCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                float maxcollect = (totalcards * (Plugin.m_SessionHandler.GetSlotData().CardCollectPercentage / 100f));
+                float numPercheck =  maxcollect / Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
+
+                for (int i = 1; i <= Plugin.m_SessionHandler.GetSlotData().ChecksPerPack; i++)
                 {
-                    Plugin.m_SaveManager.IncreaseDestinyChecks();
+                    long[] checks = new long[Plugin.m_SessionHandler.GetSlotData().ChecksPerPack];
+                    if(found >= i * numPercheck)
+                    {
+                        Plugin.Log($"Send Card Check {i} {CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1)}");
+                        checks[i-1] = CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1);
+                    }
+
+                    Plugin.m_SessionHandler.CompleteLocationChecks(checks);
                 }
-                Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
             }
         }
 

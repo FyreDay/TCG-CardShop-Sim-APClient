@@ -45,6 +45,29 @@ public class CustomerPatches
         }
     }
 
+    [HarmonyPatch(typeof(Customer), "OnCardScanned")]
+    public static class OnCardScan
+    {
+        [HarmonyPostfix]
+        public static void Postfix(InteractableCard3d card)
+        {
+            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Ghost)
+            {
+                Plugin.Log("Scanned Ghost card");
+            }
+
+            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Tetramon)
+            {
+                Plugin.Log("Scanned Tetramon card");
+            }
+
+            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Destiny)
+            {
+                Plugin.Log("Scanned Destiny card");
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Customer), "ActivateCustomer")]
     public static class Activate
     {
@@ -55,6 +78,20 @@ public class CustomerPatches
             __instance.m_MaxMoney = __instance.m_MaxMoney * Plugin.m_SaveManager.GetMoneyMult();
             Plugin.Log($"Customer spawned with {__instance.m_MaxMoney} instead of {old}");
         }
+    }
+
+    [HarmonyPatch(typeof(Customer), "PlayTableGameEnded")]
+    public static class FinishPaytableGame
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Customer __instance, float totalPlayTime, float playTableFee)
+        {
+            if (totalPlayTime > 0f)
+            {
+                Plugin.Log("game ended code here");
+            }
+        }
+
     }
 
     [HarmonyPatch(typeof(CustomerTradeCardScreen), "SetCustomer")]
@@ -158,4 +195,6 @@ public class CustomerPatches
             }
         }
     }
+
+    
 }

@@ -21,6 +21,7 @@ public class Settings
     public ConfigEntry<int> XpMultiplier;
     public ConfigEntry<KeyCode> MyHotkey;
     public ConfigEntry<KeyCode> ConsoleHotkey;
+    public ConfigEntry<bool> disabledeathlink;
     public ConfigEntry<string> LastUsedIP;
     public ConfigEntry<string> LastUsedPassword;
     public ConfigEntry<string> LastUsedSlot;
@@ -30,6 +31,13 @@ public class Settings
         this.plugin = plugin;
 
         this.StartingMoney = plugin.Config.Bind<int>("1. GamePlay", "Starting Money", 1000, new ConfigDescription("The Amount of Money you Start With", new AcceptableValueRange<int>(1, int.MaxValue)));//, new ConfigurationManagerAttributes { Order = 1 }));
+        
+        disabledeathlink = plugin.Config.Bind(
+            "1. GamePlay",
+            "Force Deathlink Off",
+            false, 
+            "If this is on, Deathlink is forced off"
+        );
 
         MyHotkey = plugin.Config.Bind(
             "2. Hotkeys",

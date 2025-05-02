@@ -133,6 +133,22 @@ public class ExpansionShopPatches
         }
     }
     [HarmonyPatch]
+    class NoUnlockB
+    {
+        static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(typeof(ExpansionShopUIScreen), "OnPressUnlockShopB", null, null);
+        }
+
+        [HarmonyPrefix]
+        public static bool Prefix()
+        {
+            return false;
+        }
+    }
+
+
+    [HarmonyPatch]
     class PanelUI
     {
         static MethodBase TargetMethod()

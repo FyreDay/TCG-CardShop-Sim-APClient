@@ -35,3 +35,6 @@ deathlink ends day, "dying" is not paying bills
 
 not that you need to change cfg
 
+-Speed up day trap
+-move shop stuff around
+

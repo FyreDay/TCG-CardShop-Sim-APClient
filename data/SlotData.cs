@@ -17,6 +17,10 @@ public class SlotData
     public bool FoilInSanity { get; set; }
     public int BorderInSanity { get; set; }
     public int SellCheckAmount { get; set; }
+    public int ChecksPerPack { get; set; }
+    public int CardCollectPercentage { get; set; } 
+    public int GamesPerCheck { get; set; }
+    public int NumberOfGameChecks { get; set; }
     public bool Deathlink { get; set; }
     public List<int> pg1IndexMapping { get; set; }
     public List<int> pg2IndexMapping { get; set; }

@@ -97,7 +97,7 @@ public class RestockItemPanelUIPatches
 
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index)
     {
-        if(__instance.m_LevelRequired > Plugin.m_SessionHandler.GetSlotData().MaxLevel)
+        if(__instance.m_LevelRequired > Plugin.m_SessionHandler.GetSlotData().MaxLevel+1)
         {
             __instance.m_UIGrp.SetActive(value: false);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);

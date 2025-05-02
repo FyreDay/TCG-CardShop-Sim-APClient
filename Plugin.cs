@@ -118,7 +118,6 @@ public class Plugin : BaseUnityPlugin
         {
             //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
             APGui.showGUI = false;
-
         }
     }
     public static void RunTitleInteractableSaveLogic()
@@ -174,6 +173,11 @@ public class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(KeyCode.B))
         {
+            for (int i = 1; i < (int)EMonsterType.MAX; i++)
+            {
+                var name = InventoryBase.GetMonsterData((EMonsterType)i).GetName();
+                Log($"{(EMonsterType)i} : {name}");
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.H))

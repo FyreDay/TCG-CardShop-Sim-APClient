@@ -22,7 +22,7 @@ namespace ApClient.patches
                     { 20f,   .25f }, //First edition
                     { 8f,   .2f }, //Silver
                     { 4f,   .1f }, //Gold
-                    { 1f,   .05f }, //EX
+                    { 1f,   .75f }, //EX
                     { 0.25f, .05f }, //full art
                 };
                 

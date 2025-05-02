@@ -11,8 +11,14 @@ namespace ApClient.data
         public float MoneyMultiplier { get; set; }
         public int Luck { get; set; }
         public List<int> newCards {  get; set; }
-        public int TetramonChecksFound { get; set; }
-        public int DestinyChecksFound { get; set; }
-        public int GhostChecksFound { get; set; }
+        public int TetramonCommonChecksFound { get; set; }
+        public int TetramonRareChecksFound { get; set; }
+        public int TetramonEpicChecksFound { get; set; }
+        public int TetramonLegendaryChecksFound { get; set; }
+        public int DestinyCommonChecksFound { get; set; }
+        public int DestinyRareChecksFound { get; set; }
+        public int DestinyEpicChecksFound { get; set; }
+        public int DestinyLegendaryChecksFound { get; set; }
+        public int GhostCardsSold { get; set; }
     }
 }
