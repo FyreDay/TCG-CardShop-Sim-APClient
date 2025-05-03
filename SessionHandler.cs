@@ -86,22 +86,6 @@ public class SessionHandler
                .ToList();
     }
 
-    private Coroutine autoSaveCoroutine;
-    private float remainingTime = 0f;
-    private bool timerRunning = false;
-    private IEnumerator AutoSaveTimerCoroutine()
-    {
-        timerRunning = true;
-
-        while (remainingTime > 0f)
-        {
-            yield return null;
-            remainingTime -= Time.deltaTime;
-        }
-
-        timerRunning = false;
-    }
-
     private int startingCounter = 200;
     private void addStartingChecks(List<int> mapping, int startingId)
     {
@@ -153,16 +137,7 @@ public class SessionHandler
 
             Plugin.m_ItemHandler.processNewItem(itemReceived);
 
-            if (receivedItemsHelper.Index % 25 == 0 && !timerRunning)
-            {
-                CSingleton<CGameManager>.Instance.SaveGameData(3);
-                remainingTime += 20f;
-
-                if (!timerRunning)
-                {
-                    autoSaveCoroutine = CoroutineRunner.Instance.StartCoroutine(AutoSaveTimerCoroutine());
-                }
-            }
+            CSingleton<CGameManager>.Instance.SaveGameData(3);
         };
         try
         {
@@ -278,6 +253,7 @@ public class SessionHandler
             Plugin.m_ItemHandler.processNewItem(item.info);
         }
         cachedItems.Clear();
+        CSingleton<CGameManager>.Instance.SaveGameData(3);
 
     }
 }

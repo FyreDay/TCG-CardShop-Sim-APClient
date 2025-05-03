@@ -1,9 +1,11 @@
 ﻿using ApClient.data;
+using ApClient.mapping;
 using I2.Loc.SimpleJSON;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -84,6 +86,16 @@ public class APClientSaveManager
         {
             aPSaveData.Luck--;
         }
+    }
+
+    public bool isEventUnlocked(EGameEventFormat format)
+    {
+        return aPSaveData.UnlockedGameEvents.Contains(format);
+    }
+
+    public void setEventUnlocked(EGameEventFormat format)
+    {
+        aPSaveData.UnlockedGameEvents.Add(format);
     }
     public List<int> GetIncompleteCards()
     {
@@ -384,7 +396,6 @@ public class APClientSaveManager
     {
         return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.seed}.json";
     }
-
     public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getGdSavePath()); }
     public void Save(int saveSlotIndex)
     {
@@ -425,9 +436,10 @@ public class APClientSaveManager
         }
         catch (Exception ex)
         {
-            Debug.LogError("Error saving JSON: " + ex);
+            Plugin.Log("Error saving JSON: " + ex);
         }
     }
+
     public bool Load()
     {
         string jsonpath = getJsonSavePath();

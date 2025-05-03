@@ -19,7 +19,7 @@ namespace ApClient.mapping
             return 0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
         }
 
-        public static int ghostProgressive = 0x1F2800D7;
+        public static int ghostcard = 0x1F2800D7;
 
         public static int getSellCheckId(ECardExpansionType expansionType, ERarity rarity, int check)
         {

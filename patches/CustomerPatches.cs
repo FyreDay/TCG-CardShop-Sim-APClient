@@ -53,7 +53,14 @@ public class CustomerPatches
         {
             if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Ghost)
             {
-                //card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity
+                if(Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+                {
+                    Plugin.m_SaveManager.IncreaseGhostChecks();
+                    if (Plugin.m_SaveManager.GetGhostChecks() >= Plugin.m_SessionHandler.GetSlotData().GhostGoalAmount)
+                    {
+                        Plugin.m_SessionHandler.SendGoalCompletion();
+                    }
+                }
                 Plugin.Log("Scanned Ghost card");
             }
 

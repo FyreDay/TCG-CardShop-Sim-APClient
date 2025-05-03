@@ -43,7 +43,7 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeMoney)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1,25)));
+            CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.smallXp)
@@ -58,7 +58,7 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.largeXp)
         {
-            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000*(CPlayerData.m_ShopLevel + 1) * 0.2) : 1500) )));
+            CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 1500))));
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomcard)
@@ -75,6 +75,11 @@ public class ItemHandler
             CPlayerData.AddCard(d, 1);
             return;
 
+        }
+        if (PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId) != EGameEventFormat.None)
+        {
+            Plugin.m_SaveManager.setEventUnlocked(PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId));
+            return;
         }
 
         if((int)itemReceived.ItemId == TrashMapping.ProgressiveCustomerMoney)
@@ -293,56 +298,16 @@ public class ItemHandler
             FurnaturePatches.EnableFurnature(panel, itemMapping.Key);
             return;
         }
-        if ((int)itemReceived.ItemId == CardMapping.ghostProgressive)
+        if ((int)itemReceived.ItemId == CardMapping.ghostcard)
         {
-            bool isDestiny = false;
-            int total = 0;
-            List<bool> collectedlist = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Ghost, isDestiny);
-            total = collectedlist.FindAll(i => i == true).Count;
-            if (total >= 36)
-            {
-                isDestiny = true;
-                collectedlist = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Ghost, isDestiny);
-                total += collectedlist.FindAll(i => i == true).Count;
-            }
-
-
-            if (Plugin.m_SessionHandler.GetSlotData().Goal == 2 && Plugin.m_SessionHandler.GetSlotData().GhostGoalAmount <= total)
-            {
-                Plugin.m_SessionHandler.SendGoalCompletion();
-                PopupTextPatches.ShowCustomText($"Congrats! You Collected {total} Ghost Cards and Completed Your Goal!");
-            }
             var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-
-            bool isFoil = false;
-            int index = 0;
-            for (int i = 0; i < list.Count; i++)
-            {
-                int dataindex = (int)(i * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Ghost) + ECardBorderType.FullArt);
-                if (collectedlist[dataindex])
-                {
-                    dataindex += CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Ghost, includeFoilCount: false);
-                    if (!collectedlist[dataindex])
-                    {
-                        isFoil = true;
-                        index = i;
-                        break;
-                    }
-                }
-                else
-                {
-                    index = i;
-                    break;
-                }
-            }
-            Plugin.m_SaveManager.IncreaseGhostChecks();
 
             CPlayerData.AddCard(new CardData
             {
-                isFoil = isFoil,
-                isDestiny = isDestiny,
+                isFoil = UnityEngine.Random.Range(0F, 1F) > 0.5,
+                isDestiny = UnityEngine.Random.Range(0F, 1F) > 0.5,
                 borderType = ECardBorderType.FullArt,
-                monsterType = list[index],
+                monsterType = list[UnityEngine.Random.Range(0, list.Count())],
                 expansionType = ECardExpansionType.Ghost,
                 isChampionCard = false,
                 isNew = true
