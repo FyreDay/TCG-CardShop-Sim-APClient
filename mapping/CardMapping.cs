@@ -19,7 +19,11 @@ namespace ApClient.mapping
             return 0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
         }
 
-        public static int ghostcard = 0x1F2800D7;
+        public static int oneghostcard = 0x1F280108;
+        public static int twoghostcard = 0x1F280109;
+        public static int threeghostcard = 0x1F28010A;
+        public static int fourghostcard = 0x1F28010B;
+        public static int fiveghostcard = 0x1F28010C;
 
         public static int getSellCheckId(ECardExpansionType expansionType, ERarity rarity, int check)
         {
