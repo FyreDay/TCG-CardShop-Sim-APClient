@@ -103,7 +103,7 @@ public class Plugin : BaseUnityPlugin
         Log($" Scene Load: {scene.name}");
         if (scene.name == "Title")
         {
-            m_SaveManager.Clear();
+            m_SaveManager = new APClientSaveManager();
             setTitleInteractable(false);
 
             //GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();

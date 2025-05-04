@@ -23,14 +23,15 @@ public class APClientSaveManager
     public int cachedRareChecks= -1;
     public int cachedEpicChecks = -1;
     public int cachedLegendaryChecks= -1;
+    public int customersPlayedGames = 0;
 
     public APClientSaveManager() {
-        aPSaveData = new APSaveData();
         Clear();
     }
 
     public void Clear()
     {
+        aPSaveData = new APSaveData();
         aPSaveData.ProcessedIndex = 0;
         aPSaveData.MoneyMultiplier = 1;
         aPSaveData.Luck = 0;
@@ -39,7 +40,15 @@ public class APClientSaveManager
         {
             aPSaveData.newCards.Add(i);
         }
-    }
+
+        cachedTetramonCheckCount = -1;
+        cachedDestinyCheckCount = -1;
+        cachedCommonChecks = -1;
+        cachedRareChecks = -1;
+        cachedEpicChecks = -1;
+        cachedLegendaryChecks = -1;
+        customersPlayedGames = 0;
+}
     public void setSeed(string seed)
     {
         aPSaveData.seed = seed;
@@ -79,6 +88,19 @@ public class APClientSaveManager
     public void IncreaseLuck()
     {
         aPSaveData.Luck++;
+    }
+    public int GetEventGamesPlayed()
+    {
+        return aPSaveData.EventGamesPlayed;
+    }
+
+    public void IncreaseCustomersPlayed()
+    {
+        customersPlayedGames++;
+        if (customersPlayedGames % 2 == 0)
+        {
+            aPSaveData.EventGamesPlayed++;
+        }
     }
     public void DecreaseLuck()
     {
@@ -426,7 +448,8 @@ public class APClientSaveManager
             DestinyEpicChecksSold = aPSaveData.DestinyEpicChecksSold,
             TetramonLegendaryChecksSold = aPSaveData.TetramonLegendaryChecksSold,
             DestinyLegendaryChecksSold = aPSaveData.DestinyLegendaryChecksSold,
-            GhostCardsSold = aPSaveData.GhostCardsSold
+            GhostCardsSold = aPSaveData.GhostCardsSold,
+            EventGamesPlayed = aPSaveData.EventGamesPlayed
         };
 
         try
@@ -477,6 +500,7 @@ public class APClientSaveManager
             aPSaveData.TetramonLegendaryChecksSold = wrapper.TetramonLegendaryChecksSold;
             aPSaveData.DestinyLegendaryChecksSold = wrapper.DestinyLegendaryChecksSold;
             aPSaveData.GhostCardsSold = wrapper.GhostCardsSold;
+            aPSaveData.EventGamesPlayed = wrapper.EventGamesPlayed;
 
             return true;
         }
@@ -512,6 +536,7 @@ public class APClientSaveManager
         public int TetramonLegendaryChecksSold;
         public int DestinyLegendaryChecksSold;
         public int GhostCardsSold;
+        public int EventGamesPlayed;
     }
 
 }

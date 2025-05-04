@@ -26,4 +26,6 @@ public class PlayTableMapping
             _ => EGameEventFormat.None
         };
     }
+
+    public static int PlayCheckStartingId = 0x1F280310;
 }

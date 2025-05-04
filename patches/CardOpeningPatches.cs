@@ -18,14 +18,14 @@ namespace ApClient.patches
                 var codes = new List<CodeInstruction>(instructions);
                 var floatFields = new Dictionary<float, float>
                 {
-                    { 5f,   .5f }, //foil starts at 5%, increases by .5 for each luck item
-                    { 20f,   .25f }, //First edition
-                    { 8f,   .2f }, //Silver
-                    { 4f,   .1f }, //Gold
-                    { 1f,   .75f }, //EX
-                    { 0.25f, .05f }, //full art
-                };
-                
+                    { 5f,   .45f }, //foil starts at 5%, increases by .5 for each luck item
+                    { 20f,   0f }, //First edition
+                    { 8f,   .12f }, //Silver
+                    { 4f,   .26f }, //Gold
+                    { 1f,   .29f }, //EX
+                    { 0.25f, .5f }, //full art
+                }; 
+
                 // Track if we already patched a float
                 var patchedFloats = new HashSet<float>();
                 MethodInfo getNumItemsFound = AccessTools.Method(typeof(Plugin), "getNumLuckItems");

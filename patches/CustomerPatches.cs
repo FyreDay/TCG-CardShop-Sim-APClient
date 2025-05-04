@@ -102,7 +102,15 @@ public class CustomerPatches
         {
             if (totalPlayTime > 0f)
             {
-                Plugin.Log("game ended code here");
+                Plugin.m_SaveManager.IncreaseCustomersPlayed();
+
+                for (int i = 0; i < Plugin.m_SessionHandler.GetSlotData().NumberOfGameChecks; i++)
+                {
+                    if (Plugin.m_SaveManager.GetEventGamesPlayed() >= (i+1) * Plugin.m_SessionHandler.GetSlotData().GamesPerCheck)
+                    {
+                        Plugin.m_SessionHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + i);
+                    }
+                }
             }
         }
 

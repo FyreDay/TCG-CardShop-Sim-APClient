@@ -300,56 +300,55 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == CardMapping.oneghostcard)
         {
-            var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-            addRandomGhost(list);
+            
+            addRandomGhost();
 
             return;
         }
         if ((int)itemReceived.ItemId == CardMapping.twoghostcard)
         {
-            var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-            addRandomGhost(list);
-            addRandomGhost(list);
+            for (int i = 0; i < 2; i++)
+            {
+                addRandomGhost();
+            }
             return;
         }
         if ((int)itemReceived.ItemId == CardMapping.threeghostcard)
         {
-            var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-            addRandomGhost(list);
-            addRandomGhost(list);
-            addRandomGhost(list);
+            for (int i = 0; i < 3; i++)
+            {
+                addRandomGhost();
+            }
 
             return;
         }
         if ((int)itemReceived.ItemId == CardMapping.fourghostcard)
         {
-            var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-            addRandomGhost(list);
-            addRandomGhost(list);            
-            addRandomGhost(list);
-            addRandomGhost(list);
+            for (int i = 0; i < 4; i++)
+            {
+                addRandomGhost();
+            }
             return;
         }
         if ((int)itemReceived.ItemId == CardMapping.fiveghostcard)
         {
-            var list = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-            addRandomGhost(list);
-            addRandomGhost(list);
-            addRandomGhost(list);
-            addRandomGhost(list);
-            addRandomGhost(list);
+            for(int i = 0; i< 5; i++)
+            {
+                addRandomGhost();
+            }
             return;
         }
     }
 
-    private void addRandomGhost(List<EMonsterType> availabletypes)
+    private void addRandomGhost()
     {
+        List<EMonsterType> availabletypes = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
         CPlayerData.AddCard(new CardData
         {
             isFoil = UnityEngine.Random.Range(0F, 1F) > 0.5,
             isDestiny = UnityEngine.Random.Range(0F, 1F) > 0.5,
-            borderType = ECardBorderType.FullArt,
-            monsterType = availabletypes[UnityEngine.Random.Range(0, availabletypes.Count())],
+            borderType = ECardBorderType.Base,
+            monsterType = InventoryBase.GetMonsterData(availabletypes[UnityEngine.Random.Range(0, availabletypes.Count())]).MonsterType,
             expansionType = ECardExpansionType.Ghost,
             isChampionCard = false,
             isNew = true

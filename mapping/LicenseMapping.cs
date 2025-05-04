@@ -138,7 +138,7 @@ public class LicenseMapping
         {127, (0x1F28005E, "Playmat Purple", 8, 0x1F280152,EItemType.UP_Playmat3) },
         {128, (0x1F28005F, "Playmat Yellow", 8, 0x1F280153,EItemType.UP_Playmat4) },
         {121, (0x1F280060, "Pocket Pages", 32, 0x1F280154,EItemType.UP_PlatinumSeriesPocketPages ) },
-        {122, (0x1F280061, "Card Holder", 32, 0x1F280155,EItemType.UP_SemiRigidCardHolder ) },
+        {122, (0x1F280061, "Card Holder", 8, 0x1F280155,EItemType.UP_SemiRigidCardHolder ) },
         {129, (0x1F2800B5, "Collectors Album", 8, 0x1F280156,EItemType.UP_Album) },
     };
 

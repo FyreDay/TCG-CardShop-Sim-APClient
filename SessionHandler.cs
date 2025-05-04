@@ -106,16 +106,17 @@ public class SessionHandler
             deathLinkService.SendDeathLink(new DeathLink(Settings.Instance.LastUsedSlot.Value, Settings.Instance.LastUsedSlot.Value + " Died to Not Paying Bills."));
         }
     }
+    private bool isConnected = false;
+    public bool GetIsConnected()
+    {
+        return isConnected;
+    }
     public void connect(string ip, string password, string slot)
     {
         APGui.state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ip);
 
-        //callback for item retrieval
-        session.Socket.SocketClosed += (reason) => { 
-            APGui.showGUI = true;
-            APConsole.Instance.Log("Connection Closed");
-        };
+        
         session.MessageLog.OnMessageReceived += OnMessageReceived;
         session.Items.ItemReceived += (receivedItemsHelper) => {
 
@@ -152,9 +153,17 @@ public class SessionHandler
 
         if (result.Successful)
         {
+            isConnected = true;
             Plugin.m_SaveManager.setSeed(session.RoomState.Seed);
-            
-            
+
+            //callback for item retrieval
+            session.Socket.SocketClosed += (reason) => {
+                isConnected = false;
+                APGui.showGUI = true;
+                APGui.state = "AP Disconnected";
+                APConsole.Instance.Log("Connection Closed");
+            };
+
             var loginSuccess = (LoginSuccessful)result;
 
             string modversion = loginSuccess.SlotData.GetValueOrDefault("ModVersion").ToString();

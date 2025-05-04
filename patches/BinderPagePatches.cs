@@ -91,7 +91,7 @@ public class BinderPagePatches
             }
             CardData cardData = __instance.m_CurrentRaycastedInteractableCard3d.m_Card3dUI.m_CardUI.GetCardData();
             int num = CPlayerData.GetCardSaveIndex(cardData);
-            int cardAmountByIndex = CPlayerData.GetCardAmountByIndex(num, cardData.expansionType, cardData.expansionType == ECardExpansionType.Ghost);
+            int cardAmountByIndex = CPlayerData.GetCardAmountByIndex(num, cardData.expansionType, cardData.isDestiny);
             if (cardAmountByIndex <= 0)
             {
                 return false;
@@ -112,7 +112,7 @@ public class BinderPagePatches
             }
             CardData cardData = __instance.m_CurrentRaycastedInteractableCard3d.m_Card3dUI.m_CardUI.GetCardData();
             int num = CPlayerData.GetCardSaveIndex(cardData);
-            int cardAmountByIndex = CPlayerData.GetCardAmountByIndex(num, cardData.expansionType, cardData.expansionType == ECardExpansionType.Ghost);
+            int cardAmountByIndex = CPlayerData.GetCardAmountByIndex(num, cardData.expansionType, cardData.isDestiny);
             if (cardAmountByIndex <= 0)
             {
                 return false;
@@ -174,10 +174,11 @@ public class BinderPagePatches
                 if (found && cardAmountByIndex <= 0)
                 {
                     bool isDestiny = false;
-                    if (cardExpansionType == ECardExpansionType.Ghost && num >= InventoryBase.GetShownMonsterList(cardExpansionType).Count * CPlayerData.GetCardAmountPerMonsterType(cardExpansionType))
+                    if (cardExpansionType == ECardExpansionType.Ghost)// && num >= InventoryBase.GetShownMonsterList(cardExpansionType).Count * CPlayerData.GetCardAmountPerMonsterType(cardExpansionType))
                     {
-                        isDestiny = true;
-                        num -= InventoryBase.GetShownMonsterList(cardExpansionType).Count * CPlayerData.GetCardAmountPerMonsterType(cardExpansionType);
+                        continue;
+                        //isDestiny = true;
+                        //num -= InventoryBase.GetShownMonsterList(cardExpansionType).Count * CPlayerData.GetCardAmountPerMonsterType(cardExpansionType);
                     }
 
                     CardData cardData = new CardData();
@@ -190,7 +191,7 @@ public class BinderPagePatches
                     cardData.isFoil = i >= CPlayerData.GetCardAmountPerMonsterType(cardExpansionType, includeFoilCount: false);
                     __instance.m_CardList[i].m_CardUI.SetCardUI(cardData);
                     __instance.m_CardList[i].SetVisibility(isVisible: true);
-                    __instance.m_CardList[i].m_CardCountText.text = "Check Collected";
+                    __instance.m_CardList[i].m_CardCountText.text = cardExpansionType == ECardExpansionType.Ghost ? "Ghost Found" : "Check Collected";
                     __instance.m_CardList[i].SetCardCountTextVisibility(isVisible: true);
 
                     SetCardUIAlpha(__instance.m_CardList[i], 0.35f);
