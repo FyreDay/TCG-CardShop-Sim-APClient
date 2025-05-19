@@ -24,7 +24,7 @@ namespace ApClient.patches
                 CPlayerData.m_HasFinishedTutorial = true;
                 CPlayerData.m_TutorialDataList.Clear();
                 Plugin.onSceneLoadLogic();
-                CEventManager.QueueEvent(new CEventPlayer_SetCoin(Settings.Instance.StartingMoney.Value));
+                //CEventManager.QueueEvent(new CEventPlayer_SetCoin(Settings.Instance.StartingMoney.Value));
 
             }
         }

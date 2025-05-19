@@ -192,7 +192,7 @@ public class LicenseMapping
         }
 
         typeLookup.Add(type, duplicatedList);
-        Plugin.Log(string.Join(", ", duplicatedList));
+        //Plugin.Log(string.Join(", ", duplicatedList));
         return duplicatedList;
     }
 

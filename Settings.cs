@@ -30,7 +30,7 @@ public class Settings
     {
         this.plugin = plugin;
 
-        this.StartingMoney = plugin.Config.Bind<int>("1. GamePlay", "Starting Money", 1000, new ConfigDescription("The Amount of Money you Start With", new AcceptableValueRange<int>(1, int.MaxValue)));//, new ConfigurationManagerAttributes { Order = 1 }));
+        //this.StartingMoney = plugin.Config.Bind<int>("1. GamePlay", "Starting Money", 1000, new ConfigDescription("The Amount of Money you Start With", new AcceptableValueRange<int>(1, int.MaxValue)));//, new ConfigurationManagerAttributes { Order = 1 }));
         
         disabledeathlink = plugin.Config.Bind(
             "1. GamePlay",

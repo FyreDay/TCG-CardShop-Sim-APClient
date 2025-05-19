@@ -35,11 +35,11 @@ public class CustomerPatches
         public static void Postfix(Item item)
         {
             CPlayerData.m_StockSoldList[(int)item.GetItemType()]++;
-            Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
+            //Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
             var locations = LicenseMapping.GetKeyValueFromType(item.GetItemType()).Where(i => i.Value.count <= CPlayerData.m_StockSoldList[(int)item.GetItemType()]);
             foreach (var Loc in locations)
             {
-                Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
+                //Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
                 Plugin.m_SessionHandler.CompleteLocationChecks(Loc.Value.locid);
             }
         }
@@ -61,7 +61,6 @@ public class CustomerPatches
                         Plugin.m_SessionHandler.SendGoalCompletion();
                     }
                 }
-                Plugin.Log("Scanned Ghost card");
             }
 
             if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Tetramon || card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Destiny)
@@ -90,7 +89,7 @@ public class CustomerPatches
         {
             float old = __instance.m_MaxMoney;
             __instance.m_MaxMoney = __instance.m_MaxMoney * Plugin.m_SaveManager.GetMoneyMult();
-            Plugin.Log($"Customer spawned with {__instance.m_MaxMoney} instead of {old}");
+            //Plugin.Log($"Customer spawned with {__instance.m_MaxMoney} instead of {old}");
         }
     }
 

@@ -188,7 +188,7 @@ class PlayerDataPatches
                 {
                     if(found >= i * numPercheck)
                     {
-                        Plugin.Log($"Send Card Check {i} {CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1)}");
+                        //Plugin.Log($"Send Card Check {i} {CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1)}");
                         Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1));
                     }
                 }

@@ -90,11 +90,14 @@ public class ItemHandler
 
         if ((int)itemReceived.ItemId == TrashMapping.IncreaseCardLuck)
         {
-            if(Plugin.m_SaveManager.GetLuck() >= 100)
+            if (Plugin.m_SaveManager.GetLuck() >= 100)
             {
                 CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
             }
-            Plugin.m_SaveManager.IncreaseLuck();
+            else
+            {
+                Plugin.m_SaveManager.IncreaseLuck();
+            }
             return;
         }
 
@@ -105,6 +108,7 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.CurrencyTrap)
         {
+            GameInstance
             CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.RandomRangeInt(0, 8);
             return;
         }
@@ -169,10 +173,6 @@ public class ItemHandler
             {
                 return;
             }
-            if(panel.m_LevelRequired > Plugin.m_SessionHandler.GetSlotData().MaxLevel)
-            {
-                Plugin.Log($"ITEM PASSED MAX LEVEL AHHHHH: {(int)itemReceived.ItemId} and {itemMapping.Key} index is {panel.m_Index}");
-            }
 
             RestockItemPanelUIPatches.runLicenseBtnLogic(panel, true, itemMapping.Key);
             //Plugin.Log($"Recieved Item: {(int)itemReceived.ItemId} and {itemMapping.Key}");
@@ -232,7 +232,6 @@ public class ItemHandler
         if (EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
         {
             var itemMapping = EmployeeMapping.getKeyValue((int)itemReceived.ItemId);
-            Plugin.Log($"worker recieved id: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
             //cannot run uless level fully loaded
             var screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
 
@@ -372,8 +371,7 @@ public class ItemHandler
             //Check for old saves
             if (incompletecards.Count == 0)
             {
-                Plugin.m_SaveManager.setIncompleteCards(PlayerDataPatches.GetValidTypeIdsForSanity());
-                incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
+                return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
             }
 
             int cardId = incompletecards[UnityEngine.Random.Range(0, incompletecards.Count)];

@@ -50,7 +50,8 @@ public class BinderPagePatches
         static void Postfix(CollectionBinderUI __instance, int expansionIndex)
         {
             ECardExpansionType eCardExpansionType = (ECardExpansionType)expansionIndex;
-            clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+            clonedText.text = $"{(eCardExpansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+        
         }
     }
 
@@ -65,12 +66,16 @@ public class BinderPagePatches
             bool found = CPlayerData.GetIsCardCollectedList(cardData.expansionType, cardData.expansionType == ECardExpansionType.Ghost)[num];
             if (found && cardCount <= 0 && cardData != null)
             {
-                SetCardUIAlpha(__instance.m_CardList[cardIndex], 0.35f);
-                __instance.m_CardList[cardIndex].m_CardUI.SetCardUI(cardData);
-                __instance.m_CardList[cardIndex].SetVisibility(isVisible: true);
-                //DisableInteractability(__instance.m_CardList[cardIndex].m_CardUI);
-                __instance.m_CardList[cardIndex].m_CardCountText.text = "Check Collected";
-                __instance.m_CardList[cardIndex].SetCardCountTextVisibility(isVisible: true);
+                if (cardData.expansionType != ECardExpansionType.Ghost)
+                {
+                    SetCardUIAlpha(__instance.m_CardList[cardIndex], 0.35f);
+                    __instance.m_CardList[cardIndex].m_CardUI.SetCardUI(cardData);
+                    __instance.m_CardList[cardIndex].SetVisibility(isVisible: true);
+                    //DisableInteractability(__instance.m_CardList[cardIndex].m_CardUI);
+
+                    __instance.m_CardList[cardIndex].m_CardCountText.text = "Check Collected";
+                    __instance.m_CardList[cardIndex].SetCardCountTextVisibility(isVisible: true);
+                }
             }
             else
             {

@@ -246,6 +246,10 @@ public class APClientSaveManager
 
     public int getTotalExpansionChecks(ECardExpansionType cardExpansionType)
     {
+        if(cardExpansionType == ECardExpansionType.Ghost)
+        {
+            return Plugin.m_SessionHandler.GetSlotData().GhostGoalAmount;
+        }
         if (cardExpansionType != ECardExpansionType.Tetramon && cardExpansionType != ECardExpansionType.Destiny)
         {
             return 0;
@@ -422,7 +426,6 @@ public class APClientSaveManager
     public void Save(int saveSlotIndex)
     {
         System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/Saves/");
-        Plugin.Log("AP Save saveSlotIndex " + saveSlotIndex);
         CSaveLoad.m_SavedGame = CGameData.instance;
 
         var wrapper = new SaveDataWrapper
