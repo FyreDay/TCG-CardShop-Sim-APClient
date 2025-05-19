@@ -67,51 +67,15 @@ public class ItemHandler
             var packlist = Enum.GetValues(typeof(ECollectionPackType));
             var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, Plugin.m_SessionHandler.GetSlotData().CardSanity == 0 ? 8 : Plugin.m_SessionHandler.GetSlotData().CardSanity));
             CardData card = Plugin.m_CardHelper.CardRoller(packType);
-            CoroutineRunner.RunOnMainThread(() =>
-            {
-                CPlayerData.AddCard(card, 1);
-            });
+            //Plugin.Log($"Card is: {card.monsterType} and {card.expansionType} with {card.borderType} and isFoil {card.isFoil}");
+            CPlayerData.AddCard(card, 1);
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
         {
-            int expansion_limit = 8;
-            int border_sanity = 5;
-            bool foil_sanity = true;
-            if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
-            {
-                border_sanity = Plugin.m_SessionHandler.GetSlotData().BorderInSanity;
-                foil_sanity = Plugin.m_SessionHandler.GetSlotData().FoilInSanity;
-                expansion_limit = Plugin.m_SessionHandler.GetSlotData().CardSanity;
-            }
-            
-
-            ECardExpansionType expansion = UnityEngine.Random.Range(0, expansion_limit) > 4 ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
-
-            HashSet<ERarity> desiredRarities = new HashSet<ERarity>();
-
-            if(expansion == ECardExpansionType.Destiny)
-            {
-                for (int i = 0; i < expansion_limit - 4; i++)
-                {
-                    desiredRarities.Add((ERarity)i);
-                }
-            }
-
-            if (expansion == ECardExpansionType.Tetramon)
-            {
-                for (int i = 0; i < expansion_limit && i < 4; i++)
-                {
-                    desiredRarities.Add((ERarity)i);
-                }
-            }
-
-            //Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
-            CardData card = Plugin.m_CardHelper.RandomNewCard(expansion, desiredRarities, border_sanity,foil_sanity);
-            CoroutineRunner.RunOnMainThread(() =>
-            {
-                CPlayerData.AddCard(card, 1);
-            });
+            CardData card = Plugin.getNewCard();
+            //Plugin.Log($"Card is: {card.monsterType} and {card.expansionType} with {card.borderType} and isFoil {card.isFoil}");
+            CPlayerData.AddCard(card, 1);
             return;
 
         }

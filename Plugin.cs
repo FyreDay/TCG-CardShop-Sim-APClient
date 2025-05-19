@@ -85,7 +85,6 @@ public class Plugin : BaseUnityPlugin
 
     public static float getNumLuckItems()
     {
-        Log($"Luck: {m_SaveManager.GetLuck()}");
         return m_SaveManager.GetLuck();
     }
 
@@ -96,7 +95,37 @@ public class Plugin : BaseUnityPlugin
 
     public static CardData getNewCard()
     {
-        return m_ItemHandler.RandomNewCard();
+        int expansion_limit = 8;
+        int border_sanity = 5;
+        bool foil_sanity = true;
+        if (m_SessionHandler.GetSlotData().CardSanity != 0)
+        {
+            border_sanity = m_SessionHandler.GetSlotData().BorderInSanity;
+            foil_sanity = m_SessionHandler.GetSlotData().FoilInSanity;
+            expansion_limit = m_SessionHandler.GetSlotData().CardSanity;
+        }
+
+
+        ECardExpansionType expansion = UnityEngine.Random.Range(0, expansion_limit) > 4 ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
+
+        HashSet<ERarity> desiredRarities = new HashSet<ERarity>();
+
+        if (expansion == ECardExpansionType.Destiny)
+        {
+            for (int i = 0; i < expansion_limit - 4; i++)
+            {
+                desiredRarities.Add((ERarity)i);
+            }
+        }
+
+        if (expansion == ECardExpansionType.Tetramon)
+        {
+            for (int i = 0; i < expansion_limit && i < 4; i++)
+            {
+                desiredRarities.Add((ERarity)i);
+            }
+        }
+        return m_CardHelper.RandomNewCard(expansion, desiredRarities, border_sanity, foil_sanity);
     }
 
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
@@ -117,6 +146,7 @@ public class Plugin : BaseUnityPlugin
         }
         if (scene.name == "Start")
         {
+            
             //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
             APGui.showGUI = false;
         }

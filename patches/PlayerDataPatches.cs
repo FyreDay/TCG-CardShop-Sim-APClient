@@ -80,7 +80,6 @@ class PlayerDataPatches
             //CPlayerData.m_TutorialIndex = 16;
             //CPlayerData.m_HasFinishedTutorial = true;
             CPlayerData.m_IsItemLicenseUnlocked[0] = false;
-            Plugin.m_SaveManager.setIncompleteCards(GetValidTypeIdsForSanity());
         }
     }
 

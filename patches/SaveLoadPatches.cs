@@ -64,5 +64,11 @@ public class SaveLoadPatches
             __result = true;
             return false;
         }
+
+        [HarmonyPostfix]
+        static void Postfix()
+        {
+            
+        }
     }
 }

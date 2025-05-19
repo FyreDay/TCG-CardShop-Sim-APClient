@@ -13,6 +13,10 @@ namespace ApClient.patches;
 public class BinderPagePatches
 {
     private static TextMeshProUGUI clonedText;
+    private static TextMeshProUGUI commonText;
+    private static TextMeshProUGUI rareText;
+    private static TextMeshProUGUI epicText;
+    private static TextMeshProUGUI legendaryText;
 
     [HarmonyPatch(typeof(CollectionBinderUI))]
     public class Awake
@@ -37,8 +41,18 @@ public class BinderPagePatches
         [HarmonyPostfix]
         static void Postfix(CollectionBinderUI __instance, int current, ECardExpansionType expansionType)
         {
-            ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
-            clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+            if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0)
+            {
+                ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
+                clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+
+            }
+            else
+            {
+                ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
+                clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+                //GetCardChecks / GetTotalCardChecks for each card expansion
+            }
         }
     }
 
@@ -49,9 +63,15 @@ public class BinderPagePatches
         [HarmonyPostfix]
         static void Postfix(CollectionBinderUI __instance, int expansionIndex)
         {
-            ECardExpansionType eCardExpansionType = (ECardExpansionType)expansionIndex;
-            clonedText.text = $"{(eCardExpansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
-        
+            if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+            {
+                ECardExpansionType eCardExpansionType = (ECardExpansionType)expansionIndex;
+                clonedText.text = $"{(eCardExpansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+            }
+            else
+            {
+                clonedText.text = "";
+            }
         }
     }
 
