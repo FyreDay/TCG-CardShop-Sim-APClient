@@ -36,6 +36,7 @@ public class Plugin : BaseUnityPlugin
     public static APClientSaveManager m_SaveManager = new APClientSaveManager();
     public static ItemHandler m_ItemHandler = new ItemHandler();
     public static SessionHandler m_SessionHandler = new SessionHandler();
+    public static CardHelper m_CardHelper = new CardHelper();
 
     private Plugin()
     {

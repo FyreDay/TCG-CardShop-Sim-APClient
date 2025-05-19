@@ -10,7 +10,6 @@ namespace ApClient.data
         public string seed { get; set; }
         public float MoneyMultiplier { get; set; }
         public int Luck { get; set; }
-        public List<int> newCards {  get; set; }
         public int TetramonCommonChecksFound { get; set; }
         public int TetramonRareChecksFound { get; set; }
         public int TetramonEpicChecksFound { get; set; }

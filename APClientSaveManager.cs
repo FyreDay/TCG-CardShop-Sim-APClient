@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -34,12 +35,6 @@ public class APClientSaveManager
         aPSaveData = new APSaveData();
         aPSaveData.ProcessedIndex = 0;
         aPSaveData.MoneyMultiplier = 1;
-        aPSaveData.Luck = 0;
-        aPSaveData.newCards = new List<int> { };
-        for (int i = 1; i < (int)EMonsterType.MAX; i++)
-        {
-            aPSaveData.newCards.Add(i);
-        }
 
         cachedTetramonCheckCount = -1;
         cachedDestinyCheckCount = -1;
@@ -118,20 +113,6 @@ public class APClientSaveManager
     public void setEventUnlocked(EGameEventFormat format)
     {
         aPSaveData.UnlockedGameEvents.Add(format);
-    }
-    public List<int> GetIncompleteCards()
-    {
-        return aPSaveData.newCards;
-    }
-
-    public void CompleteCardId(int id)
-    {
-        aPSaveData.newCards.Remove(id);
-    }
-
-    public void setIncompleteCards(List<int> list)
-    {
-        aPSaveData.newCards = list;
     }
 
     public void IncreaseCardChecks(ECollectionPackType packType)
@@ -432,7 +413,6 @@ public class APClientSaveManager
         {
             gameData = CGameData.instance,
             ProcessedIndex = aPSaveData.ProcessedIndex,
-            newCards = aPSaveData.newCards,
             MoneyMultiplier = aPSaveData.MoneyMultiplier,
             Luck = aPSaveData.Luck,
             TetramonCommonChecksFound = aPSaveData.TetramonCommonChecksFound,
@@ -483,7 +463,6 @@ public class APClientSaveManager
             CSaveLoad.m_SavedGame = wrapper.gameData;
 
             aPSaveData.ProcessedIndex = wrapper.ProcessedIndex;
-            aPSaveData.newCards = wrapper.newCards ?? new();
             aPSaveData.MoneyMultiplier = wrapper.MoneyMultiplier;
             aPSaveData.Luck = wrapper.Luck;
             aPSaveData.TetramonCommonChecksFound = wrapper.TetramonCommonChecksFound;

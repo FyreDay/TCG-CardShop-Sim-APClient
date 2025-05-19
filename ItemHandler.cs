@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using static System.Collections.Specialized.BitVector32;
 
@@ -65,14 +66,52 @@ public class ItemHandler
         {
             var packlist = Enum.GetValues(typeof(ECollectionPackType));
             var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, Plugin.m_SessionHandler.GetSlotData().CardSanity == 0 ? 8 : Plugin.m_SessionHandler.GetSlotData().CardSanity));
-            CPlayerData.AddCard(cardRoller(packType), 1);
+            CardData card = Plugin.m_CardHelper.CardRoller(packType);
+            CoroutineRunner.RunOnMainThread(() =>
+            {
+                CPlayerData.AddCard(card, 1);
+            });
             return;
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
         {
-            CardData d = RandomNewCard();
+            int expansion_limit = 8;
+            int border_sanity = 5;
+            bool foil_sanity = true;
+            if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
+            {
+                border_sanity = Plugin.m_SessionHandler.GetSlotData().BorderInSanity;
+                foil_sanity = Plugin.m_SessionHandler.GetSlotData().FoilInSanity;
+                expansion_limit = Plugin.m_SessionHandler.GetSlotData().CardSanity;
+            }
+            
+
+            ECardExpansionType expansion = UnityEngine.Random.Range(0, expansion_limit) > 4 ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
+
+            HashSet<ERarity> desiredRarities = new HashSet<ERarity>();
+
+            if(expansion == ECardExpansionType.Destiny)
+            {
+                for (int i = 0; i < expansion_limit - 4; i++)
+                {
+                    desiredRarities.Add((ERarity)i);
+                }
+            }
+
+            if (expansion == ECardExpansionType.Tetramon)
+            {
+                for (int i = 0; i < expansion_limit && i < 4; i++)
+                {
+                    desiredRarities.Add((ERarity)i);
+                }
+            }
+
             //Plugin.Log($"Card is: {d.monsterType} and {d.expansionType}");
-            CPlayerData.AddCard(d, 1);
+            CardData card = Plugin.m_CardHelper.RandomNewCard(expansion, desiredRarities, border_sanity,foil_sanity);
+            CoroutineRunner.RunOnMainThread(() =>
+            {
+                CPlayerData.AddCard(card, 1);
+            });
             return;
 
         }
@@ -108,7 +147,6 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.CurrencyTrap)
         {
-            GameInstance
             CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.RandomRangeInt(0, 8);
             return;
         }
@@ -354,96 +392,6 @@ public class ItemHandler
         }, 1);
     }
 
-    public CardData RandomNewCard()
-    {
-        try
-        {
-            Plugin.Log("random new card");
-            int border_sanity = 5;
-            bool foil_sanity = true;
-            if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
-            {
-                border_sanity = Plugin.m_SessionHandler.GetSlotData().BorderInSanity;
-                foil_sanity = Plugin.m_SessionHandler.GetSlotData().FoilInSanity;
-            }
-
-            List<int> incompletecards = Plugin.m_SaveManager.GetIncompleteCards();
-            //Check for old saves
-            if (incompletecards.Count == 0)
-            {
-                return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
-            }
-
-            int cardId = incompletecards[UnityEngine.Random.Range(0, incompletecards.Count)];
-
-            int index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Tetramon);
-            List<int> t_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Tetramon, false).GetRange(index, foil_sanity ? 12 : 6).Select((val, idx) => new { val, idx })
-                .Where(x => !x.val && x.idx % 6 <= border_sanity)
-                .Select(x => x.idx)
-                .ToList();
-            //Plugin.Log($"border <= {border_sanity}");
-            //Plugin.Log(string.Join(", ", t_falseIndexes));
-            index = (cardId - 1) * CPlayerData.GetCardAmountPerMonsterType(ECardExpansionType.Destiny);
-            List<int> d_falseIndexes = CPlayerData.GetIsCardCollectedList(ECardExpansionType.Destiny, false).GetRange(index, foil_sanity ? 12 : 6)
-                .Select((val, idx) => new { val, idx })
-                .Where(x => !x.val && x.idx % 6 <= border_sanity)
-                .Select(x => x.idx)
-                .ToList();
-
-            int borderId = 0;
-            bool isDestiny = false;
-            if (t_falseIndexes.Count > 0)
-            {
-                borderId = t_falseIndexes[UnityEngine.Random.Range(0, t_falseIndexes.Count)];
-            }
-            else if (d_falseIndexes.Count > 0 && Plugin.m_SessionHandler.GetSlotData().CardSanity > 4)
-            {
-                borderId = d_falseIndexes[UnityEngine.Random.Range(0, d_falseIndexes.Count)];
-                isDestiny = true;
-                if (d_falseIndexes.Count == 1)
-                {
-                    Plugin.m_SaveManager.CompleteCardId(cardId);
-                }
-            }
-            else
-            {
-                Plugin.Log($"You have collected all Cards for {(EMonsterType)cardId}");
-                Plugin.m_SaveManager.CompleteCardId(cardId);
-                return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
-            }
-            ECardExpansionType cardExpansionType = isDestiny ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
-            return new CardData
-            {
-                isFoil = borderId > 5,
-                isDestiny = isDestiny,
-                borderType = CPlayerData.GetCardBorderType(borderId % 6, cardExpansionType),
-                monsterType = (EMonsterType)cardId,
-                expansionType = cardExpansionType,
-                isChampionCard = false,
-                isNew = true
-            };
-        }
-        catch (Exception e)
-        {
-            Plugin.Log($"New Card Gen Error: {e.Message}");
-            return cardRoller(ECollectionPackType.DestinyLegendaryCardPack);
-        }
-    }
-    private static CardData cardRoller(ECollectionPackType collectionPackType)
-    {
-        ECardExpansionType expansionType = UnityEngine.Random.Range(0F, 1F) > 0.5 ? ECardExpansionType.Tetramon : ECardExpansionType.Destiny;
-        return new CardData
-        {
-            isFoil = UnityEngine.Random.Range(0F,1F) > 0.5,
-            isDestiny = expansionType == ECardExpansionType.Destiny,
-            borderType = (ECardBorderType)UnityEngine.Random.Range(0, 7),
-            monsterType = (EMonsterType)UnityEngine.Random.Range(0, (int)EMonsterType.MAX),
-            expansionType = expansionType,
-            isChampionCard = false,
-            isNew = true
-        };
-    }
-
     private IEnumerator ToggleLightMultipleTimes()
     {
         int repeats = UnityEngine.Random.Range(1, 6) * 2 - 1;
@@ -455,6 +403,7 @@ public class ItemHandler
             yield return new WaitForSeconds(delay);
         }
     }
+
     private Coroutine cashOnlyCoroutine;
     private float remainingTime = 0f;
     private bool timerRunning = false;
