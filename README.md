@@ -57,7 +57,7 @@ The each page in the restock shop is randomized, the items inherit the level req
 
 You start with a license from each restock page to sell at the beginning of the game. 
 
-Table Top page is currently not randomized, and not functioning perfectly. you still have to purchuse licenses there.
+Table Top page is currently not randomized, and not functioning perfectly. you still have to purchase licenses there.
 
 ### Locations
 
@@ -65,7 +65,7 @@ By default these are considered Locations. More may be added in the future.
 
 -Selling products equal to how many come in a box
 
--Extra Sell Chacks are added for your starting items licenses
+-Extra Sell Checks are added for your starting items licenses
 
 -Buying Shop expansions
 
@@ -111,7 +111,7 @@ There are three Implemented Goals
 
 #### Shop Expansion
 	
-Purchuse X shop expansions. The amount can be set in the yaml
+Purchase X shop expansions. The amount can be set in the yaml
 
 #### Level
 
