@@ -29,5 +29,6 @@ namespace ApClient.data
         public int GhostCardsSold { get; set; }
         public List<EGameEventFormat> UnlockedGameEvents { get; set; }
         public int EventGamesPlayed { get; set; }
+        public List<int> newCards { get; set; }
     }
 }

@@ -229,8 +229,16 @@ public class APClientSaveManager
     {
         if(cardExpansionType == ECardExpansionType.Ghost)
         {
-            return Plugin.m_SessionHandler.GetSlotData().GhostGoalAmount;
+            if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+            {
+                return Plugin.m_SessionHandler.GetSlotData().GhostGoalAmount;
+            }
+            else
+            {
+                return 0;
+            }
         }
+
         if (cardExpansionType != ECardExpansionType.Tetramon && cardExpansionType != ECardExpansionType.Destiny)
         {
             return 0;
@@ -238,14 +246,29 @@ public class APClientSaveManager
 
         if (cardExpansionType == ECardExpansionType.Tetramon && cachedTetramonCheckCount != -1)
         {
+            Plugin.Log("-1");
             return cachedTetramonCheckCount;
         }
 
         if (cardExpansionType == ECardExpansionType.Destiny && cachedDestinyCheckCount != -1)
         {
+            Plugin.Log("-1");
             return cachedDestinyCheckCount;
         }
-
+        //if (Plugin.m_SessionHandler.GetSlotData().CardSanity == 0)
+        //{
+        //    cachedCommonChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
+        //    cachedRareChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
+        //    cachedEpicChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
+        //    cachedLegendaryChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
+        //    return Plugin.m_SessionHandler.GetSlotData().ChecksPerPack * 4;
+        //}
+        //else
+        //{
+        cachedCommonChecks = 0;
+        cachedRareChecks = 0;
+        cachedEpicChecks = 0;
+        cachedLegendaryChecks = 0;
         int checkAmount = 0;
         for (int i = 0; i < InventoryBase.GetShownMonsterList(cardExpansionType).Count; i++)
         {
@@ -255,7 +278,7 @@ public class APClientSaveManager
 
             if (ERarity.Common == rarity)
             {
-
+                Plugin.Log("common");
                 cachedCommonChecks += 12;
 
 
@@ -308,10 +331,13 @@ public class APClientSaveManager
             cachedDestinyCheckCount = checkAmount;
         }
         return checkAmount;
+        //}
     }
 
-    public int GetTotalCardChecks(ECollectionPackType packType)
+    
+    public int GetTotalCountedCards(ECollectionPackType packType)
     {
+        getTotalExpansionChecks(ECardExpansionType.Tetramon);
         switch (packType)
         {
             case ECollectionPackType.BasicCardPack:
@@ -379,6 +405,34 @@ public class APClientSaveManager
                 return aPSaveData.DestinyEpicChecksFound;
             case ECollectionPackType.DestinyLegendaryCardPack:
                 return aPSaveData.DestinyLegendaryChecksFound;
+
+        }
+
+        return -1;
+    }
+    public int GetSentChecks(ECollectionPackType packType)
+    {
+        int totalcards = Plugin.m_SaveManager.GetTotalCountedCards(packType);
+        float maxcollect = (totalcards * (Plugin.m_SessionHandler.GetSlotData().CardCollectPercentage / 100f));
+        float numPercheck = maxcollect / Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
+        switch (packType)
+        {
+            case ECollectionPackType.BasicCardPack:
+                return (int)(aPSaveData.TetramonCommonChecksFound / numPercheck);
+            case ECollectionPackType.RareCardPack:
+                return (int)(aPSaveData.TetramonRareChecksFound / numPercheck);
+            case ECollectionPackType.EpicCardPack:
+                return (int)(aPSaveData.TetramonEpicChecksFound / numPercheck);
+            case ECollectionPackType.LegendaryCardPack:
+                return (int)(aPSaveData.TetramonLegendaryChecksFound / numPercheck);
+            case ECollectionPackType.DestinyBasicCardPack:
+                return (int)(aPSaveData.DestinyCommonChecksFound / numPercheck);
+            case ECollectionPackType.DestinyRareCardPack:
+                return (int)(aPSaveData.DestinyRareChecksFound / numPercheck);
+            case ECollectionPackType.DestinyEpicCardPack:
+                return (int)(aPSaveData.DestinyEpicChecksFound / numPercheck);
+            case ECollectionPackType.DestinyLegendaryCardPack:
+                return (int)(aPSaveData.DestinyLegendaryChecksFound / numPercheck);
 
         }
 

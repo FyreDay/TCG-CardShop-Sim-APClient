@@ -6,17 +6,37 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements.UIR;
 
 namespace ApClient.patches;
 
 
 public class BinderPagePatches
 {
-    private static TextMeshProUGUI clonedText;
+    private static TextMeshProUGUI sanityText;
     private static TextMeshProUGUI commonText;
     private static TextMeshProUGUI rareText;
     private static TextMeshProUGUI epicText;
     private static TextMeshProUGUI legendaryText;
+
+    private static void updatepackText(ECardExpansionType eCardExpansionType)
+    {
+        if (eCardExpansionType == ECardExpansionType.Tetramon)
+        {
+            commonText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.BasicCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Basic Pack Checks";
+            rareText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.RareCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Rare Pack Checks";
+            epicText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.EpicCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Epic Pack Checks";
+            legendaryText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.LegendaryCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Legendary Pack Checks";
+        }
+        else
+        {
+            commonText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.DestinyBasicCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Destiny Basic Pack Checks";
+            rareText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.DestinyRareCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Destiny Rare Pack Checks";
+            epicText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.DestinyEpicCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Destiny Epic Pack Checks";
+            legendaryText.text = $"{Plugin.m_SaveManager.GetSentChecks(ECollectionPackType.DestinyLegendaryCardPack)} / {Plugin.m_SessionHandler.GetSlotData().ChecksPerPack} Destiny Legendary Pack Checks";
+        }
+        sanityText.text = "";
+    }
 
     [HarmonyPatch(typeof(CollectionBinderUI))]
     public class Awake
@@ -26,10 +46,37 @@ public class BinderPagePatches
         [HarmonyPostfix]
         static void Postfix(CollectionBinderUI __instance)
         {
-            clonedText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+            sanityText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+            sanityText.rectTransform.anchoredPosition += new Vector2(0, -80);
             ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
-            clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
-            clonedText.rectTransform.anchoredPosition += new Vector2(0, -80);
+            if (eCardExpansionType == ECardExpansionType.Ghost)
+            {
+                sanityText.text = "";
+                if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+                {
+                    sanityText.text = $"{(eCardExpansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+                }
+                
+            }
+            else if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0)
+            {
+
+                sanityText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+                
+            }
+            else
+            {
+                commonText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+                rareText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+                epicText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+                legendaryText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+
+                updatepackText(eCardExpansionType);
+                commonText.rectTransform.anchoredPosition += new Vector2(-100, -60);
+                rareText.rectTransform.anchoredPosition += new Vector2(100, -60);
+                epicText.rectTransform.anchoredPosition += new Vector2(-100, -120);
+                legendaryText.rectTransform.anchoredPosition += new Vector2(100, -120);
+            }
         }
     }
 
@@ -41,16 +88,29 @@ public class BinderPagePatches
         [HarmonyPostfix]
         static void Postfix(CollectionBinderUI __instance, int current, ECardExpansionType expansionType)
         {
-            if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0)
+            if (expansionType == ECardExpansionType.Ghost)
+            {
+                sanityText.text = "";
+                if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+                {
+                    sanityText.text = $"{(expansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(expansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(expansionType)} {expansionType.ToString()} Checks";
+                }
+                commonText.text = "";
+                rareText.text = "";
+                epicText.text = "";
+                legendaryText.text = "";
+            }
+            else if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0)
             {
                 ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
-                clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+                sanityText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
 
             }
             else
             {
                 ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
-                clonedText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+
+                updatepackText(eCardExpansionType);
                 //GetCardChecks / GetTotalCardChecks for each card expansion
             }
         }
@@ -63,14 +123,30 @@ public class BinderPagePatches
         [HarmonyPostfix]
         static void Postfix(CollectionBinderUI __instance, int expansionIndex)
         {
-            if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+            ECardExpansionType expansionType = (ECardExpansionType)expansionIndex;
+            if (Plugin.m_SessionHandler.GetSlotData().Goal == 2 && expansionType == ECardExpansionType.Ghost)
             {
-                ECardExpansionType eCardExpansionType = (ECardExpansionType)expansionIndex;
-                clonedText.text = $"{(eCardExpansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+                sanityText.text = "";
+                if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
+                {
+                    sanityText.text = $"{(expansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(expansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(expansionType)} {expansionType.ToString()} Checks";
+                }
+                commonText.text = "";
+                rareText.text = "";
+                epicText.text = "";
+                legendaryText.text = "";
+            }
+            else if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0)
+            {
+                ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
+                sanityText.text = $"{Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+
             }
             else
             {
-                clonedText.text = "";
+                ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
+
+                updatepackText(eCardExpansionType);
             }
         }
     }
@@ -227,7 +303,7 @@ public class BinderPagePatches
 
     static void SetCardUIAlpha(Card3dUIGroup cardUI, float alpha)
     {
-        Debug.Log($"Found {cardUI.GetComponentsInChildren<UnityEngine.UI.Image>(true).Length} images to alpha");
+        //Debug.Log($"Found {cardUI.GetComponentsInChildren<UnityEngine.UI.Image>(true).Length} images to alpha");
         if (cardUI == null) return;
 
         // Set alpha on all images

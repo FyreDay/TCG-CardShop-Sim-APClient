@@ -179,7 +179,7 @@ class PlayerDataPatches
                 Plugin.m_SaveManager.IncreaseCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
 
                 int found = Plugin.m_SaveManager.GetCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
-                int totalcards = Plugin.m_SaveManager.GetTotalCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                int totalcards = Plugin.m_SaveManager.GetTotalCountedCards(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
                 float maxcollect = (totalcards * (Plugin.m_SessionHandler.GetSlotData().CardCollectPercentage / 100f));
                 float numPercheck =  maxcollect / Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
 
