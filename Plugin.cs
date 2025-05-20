@@ -204,11 +204,11 @@ public class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            for (int i = 1; i < (int)EMonsterType.MAX; i++)
-            {
-                var name = InventoryBase.GetMonsterData((EMonsterType)i).GetName();
-                Log($"{(EMonsterType)i} : {name}");
-            }
+            //for (int i = 1; i < (int)EMonsterType.MAX; i++)
+            //{
+            //    var name = InventoryBase.GetMonsterData((EMonsterType)i).GetName();
+            //    Log($"{(EMonsterType)i} : {name}");
+            //}
         }
 
         if (Input.GetKeyDown(KeyCode.H))

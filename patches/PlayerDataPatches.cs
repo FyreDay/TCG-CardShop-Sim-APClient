@@ -159,27 +159,32 @@ class PlayerDataPatches
                 return;
             }
 
-           
-
+            ECollectionPackType packtype = CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType;
+            if (packtype == ECollectionPackType.None)
+            {
+                ERarity rarity = InventoryBase.GetMonsterData(cardData.monsterType).Rarity;
+                packtype = (ECollectionPackType)(((int)cardData.expansionType * 4) + (int)rarity);
+            }
             if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
             {
-                //Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Expansion: {(int)expansionType}");
-                if ((int)CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType < Plugin.m_SessionHandler.GetSlotData().CardSanity
+
+                Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Pack: {packtype.ToString()}");
+                if ((int)packtype < Plugin.m_SessionHandler.GetSlotData().CardSanity
                     && !CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)]
                     && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity
                     && (!cardData.isFoil || Plugin.m_SessionHandler.GetSlotData().FoilInSanity))
                 {
-                    Plugin.m_SaveManager.IncreaseCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                    Plugin.m_SaveManager.IncreaseCardChecks(packtype);
                     Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
                 }
             }
             else if(!CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)])
             {
 
-                Plugin.m_SaveManager.IncreaseCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                Plugin.m_SaveManager.IncreaseCardChecks(packtype);
 
-                int found = Plugin.m_SaveManager.GetCardChecks(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
-                int totalcards = Plugin.m_SaveManager.GetTotalCountedCards(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType);
+                int found = Plugin.m_SaveManager.GetCardChecks(packtype);
+                int totalcards = Plugin.m_SaveManager.GetTotalCountedCards(packtype);
                 float maxcollect = (totalcards * (Plugin.m_SessionHandler.GetSlotData().CardCollectPercentage / 100f));
                 float numPercheck =  maxcollect / Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
 
@@ -188,7 +193,7 @@ class PlayerDataPatches
                     if(found >= i * numPercheck)
                     {
                         //Plugin.Log($"Send Card Check {i} {CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1)}");
-                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1));
+                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getCheckId(packtype, i-1));
                     }
                 }
             }

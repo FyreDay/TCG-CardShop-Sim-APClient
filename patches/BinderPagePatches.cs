@@ -46,6 +46,16 @@ public class BinderPagePatches
         [HarmonyPostfix]
         static void Postfix(CollectionBinderUI __instance)
         {
+            
+            commonText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+            rareText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+            epicText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+            legendaryText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
+            commonText.text = "";
+            rareText.text = "";
+            epicText.text = "";
+            legendaryText.text = "";
+
             sanityText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
             sanityText.rectTransform.anchoredPosition += new Vector2(0, -80);
             ECardExpansionType eCardExpansionType = __instance.m_CollectionAlbum.m_ExpansionType;
@@ -54,7 +64,7 @@ public class BinderPagePatches
                 sanityText.text = "";
                 if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
                 {
-                    sanityText.text = $"{(eCardExpansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
+                    sanityText.text = $"Sold {Plugin.m_SaveManager.GetExpansionChecks(eCardExpansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(eCardExpansionType)} {eCardExpansionType.ToString()} Checks";
                 }
                 
             }
@@ -66,11 +76,6 @@ public class BinderPagePatches
             }
             else
             {
-                commonText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
-                rareText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
-                epicText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
-                legendaryText = GameObject.Instantiate(__instance.m_CardCollectedText, __instance.m_CardCollectedText.transform.parent);
-
                 updatepackText(eCardExpansionType);
                 commonText.rectTransform.anchoredPosition += new Vector2(-100, -60);
                 rareText.rectTransform.anchoredPosition += new Vector2(100, -60);
@@ -93,7 +98,7 @@ public class BinderPagePatches
                 sanityText.text = "";
                 if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
                 {
-                    sanityText.text = $"{(expansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(expansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(expansionType)} {expansionType.ToString()} Checks";
+                    sanityText.text = $"Sold {Plugin.m_SaveManager.GetExpansionChecks(expansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(expansionType)} {expansionType.ToString()} Checks";
                 }
                 commonText.text = "";
                 rareText.text = "";
@@ -129,7 +134,7 @@ public class BinderPagePatches
                 sanityText.text = "";
                 if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
                 {
-                    sanityText.text = $"{(expansionType == ECardExpansionType.Ghost ? "Sold" : "")} {Plugin.m_SaveManager.GetExpansionChecks(expansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(expansionType)} {expansionType.ToString()} Checks";
+                    sanityText.text = $"Sold {Plugin.m_SaveManager.GetExpansionChecks(expansionType)} / {Plugin.m_SaveManager.getTotalExpansionChecks(expansionType)} {expansionType.ToString()} Checks";
                 }
                 commonText.text = "";
                 rareText.text = "";

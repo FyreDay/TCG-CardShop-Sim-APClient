@@ -10,7 +10,7 @@ namespace ApClient;
 
 public class CardHelper
 {
-    private ERarity[] CardRarities = new ERarity[121];
+    private ERarity[] CardRarities = new ERarity[(int)EMonsterType.MAX];
     private bool initialized = false;
 
     public CardHelper() 
@@ -20,17 +20,34 @@ public class CardHelper
 
     public void Initialize()
     {
-        for (int i = 1; i <= CardRarities.Length; i++)
+        CardRarities[0] = ERarity.None;
+        for (int i = 1; i < CardRarities.Length; i++)
         {
-            CardRarities[i-1] = InventoryBase.GetMonsterData((EMonsterType)i).Rarity;
+            try
+            {
+                CardRarities[i] = InventoryBase.GetMonsterData((EMonsterType)i).Rarity;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log("Failed to get monster data");
+            }
+            
         }
         initialized = true;
+        foreach (ERarity value in CardRarities)
+        {
+            Console.WriteLine(value);
+        }
         Plugin.Log("initialized card helper");
     }
 
     public CardData RandomNewCard(ECardExpansionType expansion, HashSet<ERarity> allowedRarities, int borderlimit,bool foils)
     {
-        Plugin.Log("RandomNewCard Start");
+        Plugin.Log($"RandomNewCard {expansion.ToString()} {allowedRarities.Count} {borderlimit} {foils}");
+        foreach (ERarity value in allowedRarities)
+        {
+            Console.WriteLine($"allowed: {value}");
+        }
         try
         {
             if (!initialized)
@@ -40,11 +57,11 @@ public class CardHelper
 
             List<bool> cardCollectedList = CPlayerData.GetIsCardCollectedList(expansion, false);
             int versionsPerCard = foils ? 12 : 6;
-            int cardCount = 121;
+            int cardCount = (int)EMonsterType.MAX -1;
 
             var candidateIndices = new List<int>();
 
-            for (int cardNameIndex = 0; cardNameIndex < cardCount; cardNameIndex++)
+            for (int cardNameIndex = 1; cardNameIndex < cardCount; cardNameIndex++)
             {
                 if (!allowedRarities.Contains(CardRarities[cardNameIndex]))
                 {
@@ -67,13 +84,14 @@ public class CardHelper
             }
             if (candidateIndices.Count == 0)
             {
+                Plugin.Log("No new cards");
                 return CardRoller((ECollectionPackType)UnityEngine.Random.Range(0, 4));
             }
 
             int cardIndex = candidateIndices[UnityEngine.Random.Range(0, candidateIndices.Count)];
-            int monsterTypeIndex = cardIndex / 12;
             int versionIndex = cardIndex % 12;
-            return new CardData
+            int monsterTypeIndex = (cardIndex - versionIndex) / 12;
+            CardData card = new CardData
             {
                 isFoil = versionIndex > 5,
                 isDestiny = expansion == ECardExpansionType.Destiny,
@@ -83,9 +101,12 @@ public class CardHelper
                 isChampionCard = false,
                 isNew = true
             };
+            Plugin.Log($"{card.monsterType} {card.borderType} {card.expansionType} {card.isFoil}");
+            return card;
         }
         catch (Exception ex)
         {
+            Plugin.Log(ex.Message);
             throw;
         }
     }
