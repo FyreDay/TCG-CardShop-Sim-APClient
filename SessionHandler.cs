@@ -154,7 +154,7 @@ public class SessionHandler
         if (result.Successful)
         {
             isConnected = true;
-            Plugin.m_SaveManager.setSeed(session.RoomState.Seed);
+            Plugin.m_SaveManager.setConnectionData(session.RoomState.Seed, slot);
 
             //callback for item retrieval
             session.Socket.SocketClosed += (reason) => {

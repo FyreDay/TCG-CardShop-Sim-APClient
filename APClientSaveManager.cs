@@ -44,9 +44,10 @@ public class APClientSaveManager
         cachedLegendaryChecks = -1;
         customersPlayedGames = 0;
 }
-    public void setSeed(string seed)
+    public void setConnectionData(string seed, string slot)
     {
         aPSaveData.seed = seed;
+        aPSaveData.slotname = slot;
     }
 
     public void setProcessedIndex(int index)
@@ -450,12 +451,12 @@ public class APClientSaveManager
     }
     private string getGdSavePath()
     {
-        return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.seed}.gd";
+        return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.slotname}_{aPSaveData.seed}.gd";
     }
 
     private string getJsonSavePath()
     {
-        return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.seed}.json";
+        return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.slotname}_{aPSaveData.seed}.json";
     }
     public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getGdSavePath()); }
     public void Save(int saveSlotIndex)
