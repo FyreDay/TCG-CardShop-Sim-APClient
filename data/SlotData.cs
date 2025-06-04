@@ -7,6 +7,8 @@ namespace ApClient.data;
 
 public class SlotData
 {
+    internal List<int> startingItems;
+
     public int CardSanity { get; set; }
     public bool TradesAreNew { get; set; }
     public int Goal { get; set; }
@@ -24,8 +26,11 @@ public class SlotData
     public int NumberOfSellCardChecks { get; set; }
     public int SellCardsPerCheck { get; set; }
     public bool Deathlink { get; set; }
-    public List<int> pg1IndexMapping { get; set; }
-    public List<int> pg2IndexMapping { get; set; }
-    public List<int> pg3IndexMapping { get; set; }
-    public List<int> ttIndexMapping { get; set; }
+    public Dictionary<int, int> pg1IndexMapping { get; set; }
+    public Dictionary<int, int> pg2IndexMapping { get; set; }
+    public Dictionary<int, int> pg3IndexMapping { get; set; }
+    public Dictionary<int, int> ttIndexMapping { get; set; }
+    public int RequiredLicenses { get; set; }
+    public int CollectionGoalPercent { get; internal set; }
+    public int ExtraStartingItemChecks { get; internal set; }
 }

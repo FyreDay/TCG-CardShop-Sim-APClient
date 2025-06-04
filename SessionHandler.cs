@@ -7,6 +7,8 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
+using I2.Loc.SimpleJSON;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -76,6 +78,17 @@ public class SessionHandler
     private Queue<ItemCache> cachedItems = new Queue<ItemCache>();
     private LoginResult result = null;
 
+    private Dictionary<int, int> PgStrToDict(string str)
+    {
+        
+        var pgtemp = JsonConvert.DeserializeObject<Dictionary<string, int>>(str);
+
+        var pgIndexMapping = pgtemp.ToDictionary(
+            kvp => int.Parse(kvp.Key),
+            kvp => kvp.Value
+        );
+        return pgIndexMapping;
+    }
     private List<int> StrToList(string str)
     {
         return str.Trim('[', ']')                 // Remove square brackets
@@ -178,24 +191,28 @@ public class SessionHandler
                 Plugin.RunTitleInteractableSaveLogic();
             }
 
-            slotData.CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
+            
+            slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("MaxLevel").ToString());
+            slotData.RequiredLicenses = int.Parse(loginSuccess.SlotData.GetValueOrDefault("RequiredLicenses").ToString());
             slotData.Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
-            slotData.ShopExpansionGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ShopExpansionGoal").ToString());
-            slotData.ShopExpansionGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ShopExpansionGoal").ToString());
-            slotData.LevelGoal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("LevelGoal").ToString());
+            slotData.CollectionGoalPercent = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CollectionGoalPercent").ToString());
             slotData.GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
+
             slotData.TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
-            slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
-            slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
+            slotData.ExtraStartingItemChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ExtraStartingItemChecks").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
-            slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
-            slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("FinalLevelRequirement").ToString());
             slotData.ChecksPerPack = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ChecksPerPack").ToString());
             slotData.CardCollectPercentage = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardCollectPercentage").ToString());
-            slotData.NumberOfGameChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("NumberOfGameChecks").ToString());
-            slotData.GamesPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GamesPerCheck").ToString()); 
+            slotData.NumberOfGameChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("PlayTableChecks").ToString());
+            slotData.GamesPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GamesPerCheck").ToString());
             slotData.NumberOfSellCardChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("NumberOfSellCardChecks").ToString());
             slotData.SellCardsPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCardsPerCheck").ToString());
+
+            slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
+
+            slotData.CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
+            slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
+            slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
 
             if (slotData.Deathlink)
             {
@@ -214,17 +231,22 @@ public class SessionHandler
                     }
                 };
             }
-            
+            var pg1 = loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString();
+            var pg1temp = JsonConvert.DeserializeObject<Dictionary<string, int>>(pg1);
 
-            slotData.pg1IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
-            slotData.pg2IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
-            slotData.pg3IndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
-            slotData.ttIndexMapping = StrToList(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
+            var pg1IndexMapping = pg1temp.ToDictionary(
+                kvp => int.Parse(kvp.Key),
+                kvp => kvp.Value
+            );
 
+            slotData.pg1IndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
+
+            slotData.pg2IndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
+            slotData.pg3IndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
+            slotData.ttIndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
+
+            slotData.startingItems = StrToList(loginSuccess.SlotData.GetValueOrDefault("StartingIds").ToString());
             addStartingChecks(slotData.pg1IndexMapping, LicenseMapping.locs1Starting);
-
-            addStartingChecks(slotData.pg2IndexMapping, LicenseMapping.locs2Starting);
-            addStartingChecks(slotData.pg3IndexMapping, LicenseMapping.locs3Starting);
 
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);
         }
