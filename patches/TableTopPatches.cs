@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ public class TableTopPatches
     static bool Prefix(RestockItemBoardGameScreen __instance, int pageIndex)
     {
         __instance.m_CurrentRestockDataIndexList.Clear();
-        __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().ttIndexMapping);
+        __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().ttIndexMapping.Keys.Cast<EItemType>().ToList().Select(i => (int)i));
         __instance.m_CurrentRestockDataIndexList.AddRange([-1, -1, -1]);
 
 

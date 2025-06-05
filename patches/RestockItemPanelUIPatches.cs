@@ -1,8 +1,9 @@
 ﻿using ApClient.mapping;
 using HarmonyLib;
-using I2.Loc;
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -25,35 +26,27 @@ public class RestockItemPanelUIPatches
         [HarmonyPostfix]
         static void Postfix(RestockItemPanelUI __instance, RestockItemScreen restockItemScreen, int index)
         {
-            List<EItemType> list = new List<EItemType>();
-            List<int> index_to_id = new List<int>();
-            int[] origionalItems = LicenseMapping.pg1_ids;
+            //index
+
+            OrderedDictionary orderedDictionary = new OrderedDictionary();
 
             switch (restockItemScreen.m_PageIndex)
             {
                 case 0:
-                    list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownItemType;
-                    index_to_id = Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping;
-                    origionalItems = LicenseMapping.pg1_ids;
+                    orderedDictionary = Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping;
                     break;
                 case 1:
-                    list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownAccessoryItemType;
-                    index_to_id = Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping;
-                    origionalItems = LicenseMapping.pg2_ids;
+                    orderedDictionary = Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping;
                     break;
                 case 2:
-                    list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownFigurineItemType;
-                    index_to_id = Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping;
-                    origionalItems = LicenseMapping.pg3_ids;
+                    orderedDictionary = Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping;
                     break;
             }
 
             if(restockItemScreen is RestockItemBoardGameScreen)
             {
-                list = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownBoardGameItemType;
-                index_to_id = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
-                origionalItems = LicenseMapping.tt_ids;
-                if(index == -1)
+                orderedDictionary = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
+                if (index == -1)
                 {
                     return;
                 }
@@ -63,33 +56,34 @@ public class RestockItemPanelUIPatches
                 return;
             }
 
-            RestockData restockData = InventoryBase.GetRestockData(origionalItems[index_to_id.IndexOf(index)]);
+            List<EItemType> list = orderedDictionary.Keys.Cast<EItemType>().ToList();
+
+            List<RestockData> restockDataList = InventoryBase.GetRestockDataUsingItemType((EItemType)orderedDictionary.Cast<DictionaryEntry>().ElementAt(index).Key);
+            RestockData restockData;
+
+
+            bool hastwoprogressions = false;
+            if (hastwoprogressions)
+            {
+                restockData = restockDataList[1];
+            }
+            else
+            {
+                restockData = restockDataList[0];
+            }
             //Plugin.Log($"index {index} is at {restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index)} which was {origionalItems[restockItemScreen.m_SortedRestockDataIndexList.IndexOf(index)]}");
-            __instance.m_LevelRequired = restockData.licenseShopLevelRequired;
+            __instance.m_LevelRequired = (int)orderedDictionary[index];
+
             __instance.m_LicensePriceText.text = GameInstance.GetPriceString(0);
 
-            if (index == Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping[0])
-            {
-                __instance.m_LevelRequired = 0;
-            }
-            if (index == Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping[0])
-            {
-                __instance.m_LevelRequired = 0;
-            }
-            if (index == Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping[0])
+            if (Plugin.m_SessionHandler.GetSlotData().startingItems.Contains((int)restockDataList[0].itemType))
             {
                 __instance.m_LevelRequired = 0;
             }
 
+            int id = restockData.itemType == EItemType.BasicCardPack ? 190 : (int)restockData.itemType;
 
-            var value = LicenseMapping.getValueOrEmpty(index);
-            if (value.locid == -1)
-            {
-                Plugin.Log($"Failed to find index: {index}");
-                return;
-            }
-
-            runLicenseBtnLogic(__instance, Plugin.m_SessionHandler.hasItem(value.itemid), index);
+            runLicenseBtnLogic(__instance, Plugin.m_SessionHandler.hasItem(id), index);
 
         }
 
@@ -131,7 +125,7 @@ public class RestockItemPanelUIPatches
                 }
 
                 __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}/{goals.OrderBy(x => x.Value.count).FirstOrDefault().Value.count}";
-                __instance.m_UnitPriceText.color = Color.blue;
+                __instance.m_UnitPriceText.color = UnityEngine.Color.blue;
             }
             else
             {
@@ -146,7 +140,7 @@ public class RestockItemPanelUIPatches
                     }
                 }
                 __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}";
-                __instance.m_UnitPriceText.color = Color.green;
+                __instance.m_UnitPriceText.color = UnityEngine.Color.green;
             }
         }
         else if (hasItem)
@@ -206,6 +200,65 @@ public class RestockItemPanelUIPatches
 
 
     }
+
+    [HarmonyPatch(typeof(RestockItemScreen), "EvaluateRestockItemPanelUI")]
+    public class Evaluate
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(RestockItemScreen __instance, int pageIndex)
+        {
+            if (__instance.m_PageIndex == pageIndex)
+            {
+                return false;
+            }
+
+            __instance.m_PageIndex = pageIndex;
+            for (int i = 0; i < __instance.m_PageButtonHighlightList.Count; i++)
+            {
+                __instance.m_PageButtonHighlightList[i].SetActive(value: false);
+            }
+            __instance.m_PageButtonHighlightList[__instance.m_PageIndex].SetActive(value: true);
+
+            List<EItemType> list = new List<EItemType>();
+            switch (pageIndex)
+            {
+                case 0:
+                    list = Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping.Keys.Cast<EItemType>().ToList();
+                    break;
+                case 1:
+                    list = Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping.Keys.Cast<EItemType>().ToList();
+                    break;
+                case 2:
+                    list = Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping.Keys.Cast<EItemType>().ToList();
+                    break;
+                case 3:
+                    list = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping.Keys.Cast<EItemType>().ToList();
+                    break;
+            }
+
+            __instance.m_CurrentRestockDataIndexList.Clear();
+            for (int k = 0; k < list.Count; k++)
+            {
+                for (int l = 0; l < CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList.Count; l++)
+                {
+                    if (list[k] == CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType)
+                    {
+                        __instance.m_CurrentRestockDataIndexList.Add(l);
+                    }
+                }
+            }
+
+            __instance.EvaluateSorting();
+            for (int m = 0; m < __instance.m_SortedRestockDataIndexList.Count && m < __instance.m_RestockItemPanelUIList.Count; m++)
+            {
+                __instance.m_RestockItemPanelUIList[m].Init(__instance, __instance.m_SortedRestockDataIndexList[m]);
+                __instance. m_RestockItemPanelUIList[m].SetActive(isActive: true);
+                __instance.m_ScrollEndPosParent = __instance.m_RestockItemPanelUIList[m].gameObject;
+            }
+            return false;
+        }
+
+}
     [HarmonyPatch(typeof(RestockItemScreen), "OnPressChangePageButton")]
     public class OnPressChangePageButton
     {
@@ -228,15 +281,15 @@ public class RestockItemPanelUIPatches
             {
                 case 0:
                     __instance.m_CurrentRestockDataIndexList.Clear();
-                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping);
+                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping.Keys.Cast<EItemType>().ToList().Select(k => (int)k));
                     break;
                 case 1:
                     __instance.m_CurrentRestockDataIndexList.Clear();
-                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping);
+                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping.Keys.Cast<EItemType>().ToList().Select(k => (int)k));
                     break;
                 case 2:
                     __instance.m_CurrentRestockDataIndexList.Clear();
-                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping);
+                    __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping.Keys.Cast<EItemType>().ToList().Select(k => (int)k));
                     break;
             }
 

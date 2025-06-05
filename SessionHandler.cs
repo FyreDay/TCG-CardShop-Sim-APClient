@@ -9,9 +9,11 @@ using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
 using I2.Loc.SimpleJSON;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -56,16 +58,12 @@ public class SessionHandler
 
     public bool isStartingItem(int id)
     {
-        return id == Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping[0]
-            || id == Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping[0]
-            || id == Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping[0];
+        return Plugin.m_SessionHandler.GetSlotData().startingItems.Contains(id);
     }
 
     public int[] startingids()
     {
-        return [Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping[0],
-            Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping[0],
-            Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping[0]];
+        return Plugin.m_SessionHandler.GetSlotData().startingItems.ToArray();
     }
 
     private class ItemCache
@@ -78,16 +76,19 @@ public class SessionHandler
     private Queue<ItemCache> cachedItems = new Queue<ItemCache>();
     private LoginResult result = null;
 
-    private Dictionary<int, int> PgStrToDict(string str)
+    private OrderedDictionary PgStrToDict(string str)
     {
-        
-        var pgtemp = JsonConvert.DeserializeObject<Dictionary<string, int>>(str);
+        var jObj = JObject.Parse(str);
+        var ordered = new OrderedDictionary();
 
-        var pgIndexMapping = pgtemp.ToDictionary(
-            kvp => int.Parse(kvp.Key),
-            kvp => kvp.Value
-        );
-        return pgIndexMapping;
+        foreach (var prop in jObj.Properties())
+        {
+            EItemType key = (EItemType)int.Parse(prop.Name);
+            int value = (int)prop.Value;
+            ordered.Add(key, value);
+        }
+
+        return ordered;
     }
     private List<int> StrToList(string str)
     {
@@ -99,6 +100,7 @@ public class SessionHandler
                .ToList();
     }
 
+    //IDK what the fuck this does
     private int startingCounter = 200;
     private void addStartingChecks(List<int> mapping, int startingId)
     {
@@ -246,7 +248,6 @@ public class SessionHandler
             slotData.ttIndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
 
             slotData.startingItems = StrToList(loginSuccess.SlotData.GetValueOrDefault("StartingIds").ToString());
-            addStartingChecks(slotData.pg1IndexMapping, LicenseMapping.locs1Starting);
 
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);
         }
@@ -267,9 +268,10 @@ public class SessionHandler
 
     public void ProcessCachedItems()
     {
-        CPlayerData.SetUnlockItemLicense(slotData.pg1IndexMapping[0]);
-        CPlayerData.SetUnlockItemLicense(slotData.pg2IndexMapping[0]);
-        CPlayerData.SetUnlockItemLicense(slotData.pg3IndexMapping[0]);
+        foreach(int id in slotData.startingItems)
+        {
+            CPlayerData.SetUnlockItemLicense(id);
+        }
 
         while (cachedItems.Any())
         {

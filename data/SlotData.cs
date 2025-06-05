@@ -1,6 +1,7 @@
 ﻿using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Text;
 
 namespace ApClient.data;
@@ -26,10 +27,10 @@ public class SlotData
     public int NumberOfSellCardChecks { get; set; }
     public int SellCardsPerCheck { get; set; }
     public bool Deathlink { get; set; }
-    public Dictionary<int, int> pg1IndexMapping { get; set; }
-    public Dictionary<int, int> pg2IndexMapping { get; set; }
-    public Dictionary<int, int> pg3IndexMapping { get; set; }
-    public Dictionary<int, int> ttIndexMapping { get; set; }
+    public OrderedDictionary pg1IndexMapping { get; set; }
+    public OrderedDictionary pg2IndexMapping { get; set; }
+    public OrderedDictionary pg3IndexMapping { get; set; }
+    public OrderedDictionary ttIndexMapping { get; set; }
     public int RequiredLicenses { get; set; }
     public int CollectionGoalPercent { get; internal set; }
     public int ExtraStartingItemChecks { get; internal set; }
