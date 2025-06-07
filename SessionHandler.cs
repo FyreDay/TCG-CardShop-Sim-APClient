@@ -17,6 +17,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static UnityEngine.UIElements.StylePropertyAnimationSystem;
 
 namespace ApClient;
 
@@ -80,12 +81,21 @@ public class SessionHandler
     {
         var jObj = JObject.Parse(str);
         var ordered = new OrderedDictionary();
-
+        Plugin.Log("Start Dict");
         foreach (var prop in jObj.Properties())
         {
-            EItemType key = (EItemType)int.Parse(prop.Name);
-            int value = (int)prop.Value;
-            ordered.Add(key, value);
+            try
+            {
+                int name = int.Parse(prop.Name);
+                EItemType key = (EItemType)(name == 190 ? 0 : name);
+                int value = (int)prop.Value;
+                ordered.Add(key, value);
+                Plugin.Log($"{key} : {value}");
+            }
+            catch
+            {
+                Plugin.Log($" FAILED {prop.Name} : {prop.Value}");
+            }
         }
 
         return ordered;
@@ -233,20 +243,12 @@ public class SessionHandler
                     }
                 };
             }
-            var pg1 = loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString();
-            var pg1temp = JsonConvert.DeserializeObject<Dictionary<string, int>>(pg1);
-
-            var pg1IndexMapping = pg1temp.ToDictionary(
-                kvp => int.Parse(kvp.Key),
-                kvp => kvp.Value
-            );
 
             slotData.pg1IndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopPg1Mapping").ToString());
 
             slotData.pg2IndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopPg2Mapping").ToString());
             slotData.pg3IndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopPg3Mapping").ToString());
             slotData.ttIndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
-
             slotData.startingItems = StrToList(loginSuccess.SlotData.GetValueOrDefault("StartingIds").ToString());
 
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);

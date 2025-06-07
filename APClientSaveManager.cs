@@ -43,6 +43,10 @@ public class APClientSaveManager
         cachedEpicChecks = -1;
         cachedLegendaryChecks = -1;
         customersPlayedGames = 0;
+        aPSaveData.itemLevel = new Dictionary<EItemType, int>();
+        foreach(EItemType type in Enum.GetValues(typeof(EItemType))){
+            aPSaveData.itemLevel[type] = 0;
+        }
 }
     public void setConnectionData(string seed, string slot)
     {
@@ -63,6 +67,21 @@ public class APClientSaveManager
     {
         return aPSaveData.ProcessedIndex;
     }
+
+    public void IncreaseItemLevel(EItemType type)
+    {
+        aPSaveData.itemLevel[type] = aPSaveData.itemLevel[type] + 1;
+        if (aPSaveData.itemLevel[type] > 2)
+        {
+            aPSaveData.itemLevel[type] = 2;
+        }
+    }
+
+    public int GetItemLevel(EItemType type)
+    {
+        return aPSaveData.itemLevel[type];
+    }
+
     public void IncreaseMoneyMult()
     {
         aPSaveData.MoneyMultiplier = aPSaveData.MoneyMultiplier += 0.1f;
@@ -487,12 +506,13 @@ public class APClientSaveManager
             TetramonLegendaryChecksSold = aPSaveData.TetramonLegendaryChecksSold,
             DestinyLegendaryChecksSold = aPSaveData.DestinyLegendaryChecksSold,
             GhostCardsSold = aPSaveData.GhostCardsSold,
-            EventGamesPlayed = aPSaveData.EventGamesPlayed
+            EventGamesPlayed = aPSaveData.EventGamesPlayed,
+            itemLevel = aPSaveData.itemLevel
         };
 
         try
         {
-            string json = JsonUtility.ToJson(wrapper, true);
+            string json = JsonConvert.SerializeObject(wrapper, Formatting.Indented);
             File.WriteAllText(getJsonSavePath(), json);
         }
         catch (Exception ex)
@@ -538,6 +558,7 @@ public class APClientSaveManager
             aPSaveData.DestinyLegendaryChecksSold = wrapper.DestinyLegendaryChecksSold;
             aPSaveData.GhostCardsSold = wrapper.GhostCardsSold;
             aPSaveData.EventGamesPlayed = wrapper.EventGamesPlayed;
+            aPSaveData.itemLevel = wrapper.itemLevel;
 
             return true;
         }
@@ -574,6 +595,7 @@ public class APClientSaveManager
         public int DestinyLegendaryChecksSold;
         public int GhostCardsSold;
         public int EventGamesPlayed;
+        public Dictionary<EItemType, int> itemLevel;
     }
 
 }

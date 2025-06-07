@@ -31,5 +31,6 @@ namespace ApClient.data
         public List<EGameEventFormat> UnlockedGameEvents { get; set; }
         public int EventGamesPlayed { get; set; }
         public List<int> newCards { get; set; }
+        public Dictionary<EItemType, int> itemLevel { get; set; }
     }
 }

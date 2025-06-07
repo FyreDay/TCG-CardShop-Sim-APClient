@@ -176,7 +176,7 @@ public class ItemHandler
                 return;
             }
 
-            RestockItemPanelUIPatches.runLicenseBtnLogic(panel, true, itemMapping.Key);
+           // RestockItemPanelUIPatches.runLicenseBtnLogic(panel, true, itemMapping.Key);
             //Plugin.Log($"Recieved Item: {(int)itemReceived.ItemId} and {itemMapping.Key}");
             return;
         }
