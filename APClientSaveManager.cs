@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -507,12 +508,12 @@ public class APClientSaveManager
             DestinyLegendaryChecksSold = aPSaveData.DestinyLegendaryChecksSold,
             GhostCardsSold = aPSaveData.GhostCardsSold,
             EventGamesPlayed = aPSaveData.EventGamesPlayed,
-            itemLevel = aPSaveData.itemLevel
+            itemLevelList = aPSaveData.itemLevel.Select(kvp => new ItemLevelEntry { type = kvp.Key, level = kvp.Value }).ToList()
         };
 
         try
         {
-            string json = JsonConvert.SerializeObject(wrapper, Formatting.Indented);
+            string json = JsonUtility.ToJson(wrapper, true);
             File.WriteAllText(getJsonSavePath(), json);
         }
         catch (Exception ex)
@@ -558,7 +559,7 @@ public class APClientSaveManager
             aPSaveData.DestinyLegendaryChecksSold = wrapper.DestinyLegendaryChecksSold;
             aPSaveData.GhostCardsSold = wrapper.GhostCardsSold;
             aPSaveData.EventGamesPlayed = wrapper.EventGamesPlayed;
-            aPSaveData.itemLevel = wrapper.itemLevel;
+            aPSaveData.itemLevel = wrapper.itemLevelList.ToDictionary(entry => entry.type, entry => entry.level); ;
 
             return true;
         }
@@ -595,7 +596,13 @@ public class APClientSaveManager
         public int DestinyLegendaryChecksSold;
         public int GhostCardsSold;
         public int EventGamesPlayed;
-        public Dictionary<EItemType, int> itemLevel;
+        public List<ItemLevelEntry> itemLevelList;
     }
 
+    [Serializable]
+    public class ItemLevelEntry
+    {
+        public EItemType type;
+        public int level;
+    }
 }

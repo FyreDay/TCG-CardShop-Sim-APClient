@@ -81,43 +81,44 @@ public class RestockItemPanelUIPatches
             __instance.m_LicenseUIGrp.SetActive(value: false);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
 
-            //List<EItemType> list = orderedDictionary.Keys.Cast<EItemType>().ToList();
-            //    Plugin.Log("Start get data list");
-            //EItemType type = (EItemType)orderedDictionary.Cast<DictionaryEntry>().ElementAt(index).Key;
+            var goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]);
 
-            //var goals = LicenseMapping.GetLocations(type).Where(i => i.count > CPlayerData.m_StockSoldList[(int)type]);
+            if (goals.Any())
+            {
+                //Set Text
+                var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
+                if (targetRect != null)
+                {
+                    var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
+                    if (localizeComponent != null)
+                    {
+                        localizeComponent.SetTerm("Sold Check Progress");
+                        targetRect.anchoredPosition += new Vector2(-60, 0);
 
-            //if (goals.Any())
-            //{
-            //    //Set Text
-            //    var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
-            //    if (targetRect != null)
-            //    {
-            //        var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
-            //        if (localizeComponent != null)
-            //        {
-            //            localizeComponent.SetTerm("Sold Check Progress");
-            //        }
-            //    }
 
-            //    __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}/{goals.OrderBy(x => x.count).FirstOrDefault().count}";
-            //    __instance.m_UnitPriceText.color = UnityEngine.Color.blue;
-            //}
-            //else
-            //{
-            //    //Set Text
-            //    var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
-            //    if (targetRect != null)
-            //    {
-            //        var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
-            //        if (localizeComponent != null)
-            //        {
-            //            localizeComponent.SetTerm("Checks Completed. Total Sold:");
-            //        }
-            //    }
-            //    __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}";
-            //    __instance.m_UnitPriceText.color = UnityEngine.Color.green;
-            //}
+                    }
+                }
+
+                __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]} / {goals.OrderBy(x => x.count).FirstOrDefault().count} Checks Left: {goals.Count()}";
+                __instance.m_UnitPriceText.color = UnityEngine.Color.cyan;
+                __instance.m_UnitPriceText.outlineColor = UnityEngine.Color.black;
+                __instance.m_UnitPriceText.rectTransform.anchoredPosition += new Vector2(-60,0);
+            }
+            else
+            {
+                //Set Text
+                var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
+                if (targetRect != null)
+                {
+                    var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
+                    if (localizeComponent != null)
+                    {
+                        localizeComponent.SetTerm("Checks Completed. Total Sold:");
+                    }
+                }
+                __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]}";
+                __instance.m_UnitPriceText.color = UnityEngine.Color.green;
+            }
         }
         else if (hasItem)
         {

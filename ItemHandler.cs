@@ -70,7 +70,7 @@ public class ItemHandler
         }
         if (PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId) != EGameEventFormat.None)
         {
-            Plugin.m_SaveManager.setEventUnlocked(PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId));
+            //Plugin.m_SaveManager.setEventUnlocked(PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId));
             return;
         }
 
