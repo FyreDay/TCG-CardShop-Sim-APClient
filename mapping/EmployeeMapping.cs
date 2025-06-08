@@ -7,36 +7,26 @@ namespace ApClient.mapping
 {
     public class EmployeeMapping
     {
-        public static Dictionary<int, (int itemid, string name, int locid)> mapping = new Dictionary<int, (int itemid, string name, int locid)>
+        public static Dictionary<int, (int itemid, string name)> mapping = new Dictionary<int, (int itemid, string name)>
         {
-            {0, (0x1F2800B6, "Zachery", 0x1F280171) },
-            {1, (0x1F2800B7, "Terence", 0x1F280172) },
-            {2, (0x1F2800B8, "Dennis", 0x1F280173) },
-            {3, (0x1F2800B9, "Clark", 0x1F280174) },
-            {4, (0x1F2800BA, "Angus", 0x1F280175) },
-            {5, (0x1F2800BB, "Benji", 0x1F280176) },
-            {6, (0x1F2800BC, "Lauren", 0x1F280177) },
-            {7, (0x1F2800BD, "Axel", 0x1F280178) }
+            {0, (219, "Zachery") },
+            {1, (220, "Terence") },
+            {2, (221, "Dennis") },
+            {3, (222, "Clark") },
+            {4, (223, "Angus") },
+            {5, (224, "Benji") },
+            {6, (225, "Lauren") },
+            {7, (226, "Axel") }
         };
 
-        public static KeyValuePair<int, (int itemid, string name, int locid)> getKeyValue(int itemid)
+        public static int getindexFromId(int itemid)
         {
-            //Plugin.Log($"Employee id: {itemid}");
-            var result = mapping.FirstOrDefault(pair => pair.Value.itemid == itemid);
-
-            var defaultPair = new KeyValuePair<int, (int, string, int)>(-1, (-1, "", -1));
-
-            if (result.Equals(default(KeyValuePair<int, (int, string, int)>)))
+            foreach (var kvp in mapping)
             {
-                result = defaultPair;
+                if (kvp.Value.itemid == itemid)
+                    return kvp.Key;
             }
-            return result;
-        }
-
-        public static (int itemid, string name, int locid) getValueOrEmpty(int key)
-        {
-
-            return mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(key, (-1, "", -1));
+            return -1;
         }
     }
 }

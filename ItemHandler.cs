@@ -21,17 +21,6 @@ public class ItemHandler
     public void processNewItem(ItemInfo itemReceived)
     {
         //Plugin.Log(itemReceived.ItemName);
-
-        if ((int)itemReceived.ItemId == ExpansionMapping.warehouseKey)
-        {
-            CoroutineRunner.RunOnMainThread(() =>
-            {
-                CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
-            });
-
-            SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-            return;
-        }
         if ((int)itemReceived.ItemId == TrashMapping.smallMoney)
         {
             CEventManager.QueueEvent(new CEventPlayer_AddCoin(10 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
@@ -157,27 +146,11 @@ public class ItemHandler
             return;
         }
 
-        if (LicenseMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
+        if (itemReceived.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || (itemReceived.ItemId < (int)EItemType.Max && LicenseMapping.mapping.ContainsKey((EItemType)itemReceived.ItemId)))
         {
-            var itemMapping = LicenseMapping.getKeyValue((int)itemReceived.ItemId, Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId));
-            RestockItemPanelUI panel = null;
+            EItemType itemtype = (EItemType)(itemReceived.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? 0 : (int)itemReceived.ItemId);
+            Plugin.m_SaveManager.IncreaseItemLevel(itemtype);
             //update Restock ui
-            RestockItemPanelUI[] screen = UnityEngine.Object.FindObjectsOfType<RestockItemPanelUI>();
-            foreach (RestockItemPanelUI screenItem in screen)
-            {
-                if (screenItem.GetIndex() == itemMapping.Key)
-                {
-                    panel = screenItem;
-                    break;
-                }
-            }
-            if (panel == null)
-            {
-                return;
-            }
-
-           // RestockItemPanelUIPatches.runLicenseBtnLogic(panel, true, itemMapping.Key);
-            //Plugin.Log($"Recieved Item: {(int)itemReceived.ItemId} and {itemMapping.Key}");
             return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)
@@ -200,6 +173,16 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveB)
         {
+            if (Plugin.m_SessionHandler.itemCount(itemReceived.ItemId) == 1)
+            {
+                CoroutineRunner.RunOnMainThread(() =>
+                {
+                    CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
+                });
+
+                SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
+                return;
+            }
             ExpansionShopUIScreen screen = UnityEngine.Object.FindObjectOfType<ExpansionShopUIScreen>();
             if (screen != null)
             {
@@ -207,7 +190,7 @@ public class ItemHandler
                 bool isB = (bool)field.GetValue(screen);
                 if (isB)
                 {
-                    ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId) - 1];
+                    ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId) - 2];
                     FieldInfo fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fieldInfo == null)
                     {
@@ -231,9 +214,9 @@ public class ItemHandler
             return;
         }
         //Log($"Before Employee check: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
-        if (EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
+        if (EmployeeMapping.getindexFromId((int)itemReceived.ItemId) != -1)
         {
-            var itemMapping = EmployeeMapping.getKeyValue((int)itemReceived.ItemId);
+            int index = EmployeeMapping.getindexFromId((int)itemReceived.ItemId);
             //cannot run uless level fully loaded
             var screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
 
@@ -248,7 +231,7 @@ public class ItemHandler
                 }
 
                 int m_Index = (int)fieldInfo.GetValue(screenItem);
-                if (m_Index == itemMapping.Key)
+                if (m_Index == index)
                 {
                     panel = screenItem;
                     break;
@@ -271,9 +254,9 @@ public class ItemHandler
             return;
         }
 
-        if (FurnatureMapping.getKeyValue((int)itemReceived.ItemId).Key != -1)
+        if (FurnatureMapping.getindexFromId((int)itemReceived.ItemId) != -1)
         {
-            var itemMapping = FurnatureMapping.getKeyValue((int)itemReceived.ItemId, Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId));
+            int index = FurnatureMapping.getindexFromId((int)itemReceived.ItemId);
             FurnitureShopPanelUI panel = null;
             //update Restock ui
             FurnitureShopPanelUI[] screen = UnityEngine.Object.FindObjectsOfType<FurnitureShopPanelUI>();
@@ -286,7 +269,7 @@ public class ItemHandler
                 }
 
                 int m_Index = (int)fieldInfo.GetValue(screenItem);
-                if (m_Index == itemMapping.Key)
+                if (m_Index == index)
                 {
                     panel = screenItem;
                     break;
@@ -296,7 +279,7 @@ public class ItemHandler
             {
                 return;
             }
-            FurnaturePatches.EnableFurnature(panel, itemMapping.Key);
+            FurnaturePatches.EnableFurnature(panel, index);
             return;
         }
         if ((int)itemReceived.ItemId == CardMapping.oneghostcard)

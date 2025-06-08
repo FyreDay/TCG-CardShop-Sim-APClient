@@ -11,21 +11,21 @@ public class PlayTableMapping
     {
         return formatId switch
         {
-            0x1F2800FC => EGameEventFormat.Standard,
-            0x1F2800FD => EGameEventFormat.Pauper,
-            0x1F2800FE => EGameEventFormat.FireCup,
-            0x1F2800FF => EGameEventFormat.EarthCup,
-            0x1F280100 => EGameEventFormat.WaterCup,
-            0x1F280101 => EGameEventFormat.WindCup,
-            0x1F280102 => EGameEventFormat.FirstEditionVintage,
-            0x1F280103 => EGameEventFormat.SilverBorder,
-            0x1F280104 => EGameEventFormat.GoldBorder,
-            0x1F280105 => EGameEventFormat.ExBorder,
-            0x1F280106 => EGameEventFormat.FullArtBorder,
-            0x1F280107 => EGameEventFormat.Foil,
+            207 => EGameEventFormat.Standard,
+            208 => EGameEventFormat.Pauper,
+            209 => EGameEventFormat.FireCup,
+            210 => EGameEventFormat.EarthCup,
+            211 => EGameEventFormat.WaterCup,
+            212 => EGameEventFormat.WindCup,
+            213 => EGameEventFormat.FirstEditionVintage,
+            214 => EGameEventFormat.SilverBorder,
+            215 => EGameEventFormat.GoldBorder,
+            216 => EGameEventFormat.ExBorder,
+            217 => EGameEventFormat.FullArtBorder,
+            218 => EGameEventFormat.Foil,
             _ => EGameEventFormat.None
         };
     }
 
-    public static int PlayCheckStartingId = 0x1F280310;
+    public static int PlayCheckStartingId = 300;
 }

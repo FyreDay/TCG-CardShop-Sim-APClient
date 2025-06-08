@@ -81,42 +81,43 @@ public class RestockItemPanelUIPatches
             __instance.m_LicenseUIGrp.SetActive(value: false);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
 
-            //    List<EItemType> list = orderedDictionary.Keys.Cast<EItemType>().ToList();
+            //List<EItemType> list = orderedDictionary.Keys.Cast<EItemType>().ToList();
             //    Plugin.Log("Start get data list");
-            //    EItemType type = (EItemType)orderedDictionary.Cast<DictionaryEntry>().ElementAt(index).Key;
+            //EItemType type = (EItemType)orderedDictionary.Cast<DictionaryEntry>().ElementAt(index).Key;
 
-            //    //var goals = LicenseMapping.GetKeyValueFromType(type).Where(i => i.Value.count > CPlayerData.m_StockSoldList[(int)type]);
+            //var goals = LicenseMapping.GetLocations(type).Where(i => i.count > CPlayerData.m_StockSoldList[(int)type]);
 
-            //    //if (goals.Any()) {
-            //    //    //Set Text
-            //    //    var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
-            //    //    if (targetRect != null)
-            //    //    {
-            //    //        var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
-            //    //        if (localizeComponent != null)
-            //    //        {
-            //    //            localizeComponent.SetTerm("Sold Check Progress");
-            //    //        }
-            //    //    }
+            //if (goals.Any())
+            //{
+            //    //Set Text
+            //    var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
+            //    if (targetRect != null)
+            //    {
+            //        var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
+            //        if (localizeComponent != null)
+            //        {
+            //            localizeComponent.SetTerm("Sold Check Progress");
+            //        }
+            //    }
 
-            //    //    __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}/{goals.OrderBy(x => x.Value.count).FirstOrDefault().Value.count}";
-            //    //    __instance.m_UnitPriceText.color = UnityEngine.Color.blue;
-            //    //}
-            //    //else
-            //    //{
-            //    //    //Set Text
-            //    //    var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
-            //    //    if (targetRect != null)
-            //    //    {
-            //    //        var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
-            //    //        if (localizeComponent != null)
-            //    //        {
-            //    //            localizeComponent.SetTerm("Checks Completed. Total Sold:");
-            //    //        }
-            //    //    }
-            //    //    __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}";
-            //    //    __instance.m_UnitPriceText.color = UnityEngine.Color.green;
-            //    //}
+            //    __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}/{goals.OrderBy(x => x.count).FirstOrDefault().count}";
+            //    __instance.m_UnitPriceText.color = UnityEngine.Color.blue;
+            //}
+            //else
+            //{
+            //    //Set Text
+            //    var targetRect = __instance.m_UIGrp.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(rt => rt.name == "UnitPriceText");
+            //    if (targetRect != null)
+            //    {
+            //        var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
+            //        if (localizeComponent != null)
+            //        {
+            //            localizeComponent.SetTerm("Checks Completed. Total Sold:");
+            //        }
+            //    }
+            //    __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)type]}";
+            //    __instance.m_UnitPriceText.color = UnityEngine.Color.green;
+            //}
         }
         else if (hasItem)
         {

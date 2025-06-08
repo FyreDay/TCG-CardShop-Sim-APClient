@@ -14,10 +14,50 @@ public class TableTopPatches
     [HarmonyPrefix]
     static bool Prefix(RestockItemBoardGameScreen __instance, int pageIndex)
     {
-        __instance.m_CurrentRestockDataIndexList.Clear();
-        __instance.m_CurrentRestockDataIndexList.AddRange(Plugin.m_SessionHandler.GetSlotData().ttIndexMapping.Keys.Cast<EItemType>().ToList().Select(i => (int)i));
-        __instance.m_CurrentRestockDataIndexList.AddRange([-1, -1, -1]);
+        if (__instance.m_PageIndex == pageIndex)
+        {
+            return false;
+        }
 
+        __instance.m_PageIndex = pageIndex;
+
+        List<EItemType> list = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping.Keys.Cast<EItemType>().ToList();
+
+
+        for (int j = 0; j < __instance.m_RestockItemPanelUIList.Count; j++)
+        {
+            __instance.m_RestockItemPanelUIList[j].SetActive(isActive: false);
+        }
+
+        __instance.m_CurrentRestockDataIndexList.Clear();
+        for (int k = 0; k < list.Count; k++)
+        {
+            List<int> matches = new List<int>();
+            for (int l = 0; l < CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList.Count; l++)
+            {
+
+                if (list[k] == CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType)
+                {
+                    matches.Add(l);
+
+                }
+                else if (list[k] == EItemType.None)
+                {
+                    __instance.m_CurrentRestockDataIndexList.Add(-1);
+                    break;
+                }
+
+            }
+            if (Plugin.m_SaveManager.GetItemLevel(list[k]) < 2 || matches.Count < 2)
+            {
+                __instance.m_CurrentRestockDataIndexList.Add(matches[0]);
+            }
+            else
+            {
+                __instance.m_CurrentRestockDataIndexList.Add(matches[1]);
+            }
+
+        }
 
         for (int m = 0; m < __instance.m_CurrentRestockDataIndexList.Count && m < __instance.m_RestockItemPanelUIList.Count; m++)
         {

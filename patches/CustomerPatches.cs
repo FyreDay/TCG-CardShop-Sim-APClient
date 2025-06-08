@@ -36,11 +36,14 @@ public class CustomerPatches
         {
             CPlayerData.m_StockSoldList[(int)item.GetItemType()]++;
             //Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
-            var locations = LicenseMapping.GetKeyValueFromType(item.GetItemType()).Where(i => i.Value.count <= CPlayerData.m_StockSoldList[(int)item.GetItemType()]);
-            foreach (var Loc in locations)
+            var locations = LicenseMapping.GetLocations(item.GetItemType());
+            foreach (var loc in locations)
             {
-                //Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
-                Plugin.m_SessionHandler.CompleteLocationChecks(Loc.Value.locid);
+                if (loc.count <= CPlayerData.m_StockSoldList[(int)item.GetItemType()])
+                {
+                    //Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
+                    Plugin.m_SessionHandler.CompleteLocationChecks(loc.id);
+                }
             }
         }
     }
@@ -74,7 +77,7 @@ public class CustomerPatches
                     if (sold >= i * Plugin.m_SessionHandler.GetSlotData().SellCardsPerCheck)
                     {
                         
-                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getSellCheckId(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity, i-1));
+                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getSellCheckId(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, i-1));
                     }
                 }
             }

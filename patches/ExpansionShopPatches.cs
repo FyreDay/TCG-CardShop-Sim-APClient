@@ -123,13 +123,8 @@ public class ExpansionShopPatches
         [HarmonyPrefix]
         public static void Prefix(float totalCost, int index, bool isShopB)
         {
-            Plugin.m_SessionHandler.CompleteLocationChecks(ExpansionMapping.locstartval + index + (isShopB ? 30 : 0));
-            if (!isShopB && Plugin.m_SessionHandler.GetSlotData().Goal == 0 && index + 1 >= Plugin.m_SessionHandler.GetSlotData().ShopExpansionGoal)
-            {
-                Plugin.m_SessionHandler.SendGoalCompletion();
-                PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Expanded To Your Goal!");
-            }
-            //Plugin.Log("Prefix executed on EvaluateCartCheckout for Expansion");
+            //TODO: SETUP SHOP EXPANSION LOCATIONS
+            //Plugin.m_SessionHandler.CompleteLocationChecks(ExpansionMapping.locstartval + index + (isShopB ? 30 : 0));
         }
     }
     [HarmonyPatch]

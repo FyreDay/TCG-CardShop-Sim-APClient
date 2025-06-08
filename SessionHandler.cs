@@ -110,18 +110,6 @@ public class SessionHandler
                .ToList();
     }
 
-    //IDK what the fuck this does
-    private int startingCounter = 200;
-    private void addStartingChecks(List<int> mapping, int startingId)
-    {
-        var item = LicenseMapping.getValueOrEmpty(mapping[0]);
-        for (int i = 0; i < 8; i++)
-        {
-            var minAmount = LicenseMapping.GetKeyValueFromType(item.type).Min(kvp => kvp.Value.count);
-            LicenseMapping.mapping.Add(startingCounter + i, (-1, "Unknown", (i + 3) * minAmount, startingId + i, item.type));
-        }
-        startingCounter += 8;
-    }
     DeathLinkService deathLinkService = null;
     public void sendDeath()
     {

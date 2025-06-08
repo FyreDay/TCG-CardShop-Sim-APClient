@@ -19,15 +19,17 @@ namespace ApClient.mapping
             return 0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
         }
 
-        public static int oneghostcard = 0x1F280108;
-        public static int twoghostcard = 0x1F280109;
-        public static int threeghostcard = 0x1F28010A;
-        public static int fourghostcard = 0x1F28010B;
-        public static int fiveghostcard = 0x1F28010C;
+        public static int oneghostcard = 326;
+        public static int twoghostcard = 327;
+        public static int threeghostcard = 328;
+        public static int fourghostcard = 329;
+        public static int fiveghostcard = 330;
 
-        public static int getSellCheckId(ECardExpansionType expansionType, ERarity rarity, int check)
+        public static int CARD_SELL_START_ID = 500;
+        public static int CARD_OPEN_START_ID = 1000;
+        public static int getSellCheckId(ECardExpansionType expansionType, int check)
         {
-            return 0x1F280342 + check + (((int)rarity + ((int)expansionType * 4)) * 50);
+            return CARD_SELL_START_ID + check + (int)expansionType * 50;
         }
 
         public static int getCheckId(ECollectionPackType packType, int check)
@@ -70,7 +72,7 @@ namespace ApClient.mapping
                     break;
 
             }
-            return 0x1F280220 + check + (((rarityid - 1) + (expansionid * 4)) * 30);      
+            return CARD_OPEN_START_ID + check + (((rarityid - 1) + (expansionid * 4)) * 30);
         }
     }
 }

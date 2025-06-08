@@ -15,10 +15,10 @@ public class EmployeePatches
         static void Postfix(HireWorkerPanelUI __instance, HireWorkerScreen hireWorkerScreen, int index)
         {
             //Plugin.Log($"Employee Index: {index}");
-            var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
+            var val = EmployeeMapping.mapping[index];
             __instance.m_LevelRequirementText.text = $"Requires AP Worker Unlock";
 
-            if (val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid))
+            if (Plugin.m_SessionHandler.hasItem(val.itemid))
             {
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: false);
                 __instance.m_HireFeeText.gameObject.SetActive(value: true);
@@ -45,9 +45,9 @@ public class EmployeePatches
             }
 
             int index = (int)fieldInfo.GetValue(__instance);
-            var val = EmployeeMapping.mapping.GetValueOrDefault<int, (int itemid, string name, int locid)>(index, (-1, "", -1));
+            var val = EmployeeMapping.mapping[index];
             //Plugin.Log($"at employee hire {val.name} {val.itemid} {val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid)}");
-            if (val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid))
+            if (Plugin.m_SessionHandler.hasItem(val.itemid))
             {
                 HireEmployee(__instance, index);
             }

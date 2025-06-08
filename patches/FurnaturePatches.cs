@@ -29,7 +29,7 @@ public class FurnaturePatches
             }
             
             
-            var value = FurnatureMapping.getValueOrEmpty(__instance.m_Index);
+            var value = FurnatureMapping.mapping[__instance.m_Index];
             if (value.itemid == -1)
             {
                 Plugin.Log($"Failed to find index: {__instance.m_Index}");
