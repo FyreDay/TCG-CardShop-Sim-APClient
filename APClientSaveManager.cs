@@ -44,10 +44,6 @@ public class APClientSaveManager
         cachedEpicChecks = -1;
         cachedLegendaryChecks = -1;
         customersPlayedGames = 0;
-        aPSaveData.itemLevel = new Dictionary<EItemType, int>();
-        foreach(EItemType type in Enum.GetValues(typeof(EItemType))){
-            aPSaveData.itemLevel[type] = 0;
-        }
 }
     public void setConnectionData(string seed, string slot)
     {
@@ -69,18 +65,13 @@ public class APClientSaveManager
         return aPSaveData.ProcessedIndex;
     }
 
-    public void IncreaseItemLevel(EItemType type)
+    public void IncreaselicensesReceived()
     {
-        aPSaveData.itemLevel[type] = aPSaveData.itemLevel[type] + 1;
-        if (aPSaveData.itemLevel[type] > 2)
-        {
-            aPSaveData.itemLevel[type] = 2;
-        }
+        aPSaveData.LicensesReceived++;
     }
-
-    public int GetItemLevel(EItemType type)
+    public int GetlicensesReceived()
     {
-        return aPSaveData.itemLevel[type];
+        return aPSaveData.LicensesReceived;
     }
 
     public void IncreaseMoneyMult()
@@ -124,16 +115,6 @@ public class APClientSaveManager
         {
             aPSaveData.Luck--;
         }
-    }
-
-    public bool isEventUnlocked(EGameEventFormat format)
-    {
-        return aPSaveData.UnlockedGameEvents.Contains(format);
-    }
-
-    public void setEventUnlocked(EGameEventFormat format)
-    {
-        aPSaveData.UnlockedGameEvents.Add(format);
     }
 
     public void IncreaseCardChecks(ECollectionPackType packType)
@@ -465,6 +446,21 @@ public class APClientSaveManager
         return aPSaveData.GhostCardsSold;
     }
 
+    public int GetStoredXP(int maxToGrab)
+    {
+        if (aPSaveData.StoredXP > maxToGrab)
+        {
+            aPSaveData.StoredXP -= maxToGrab;
+            return maxToGrab;
+        }
+        return aPSaveData.StoredXP;
+    }
+
+    public void IncreaseStoredXP(int xp)
+    {
+        aPSaveData.StoredXP += xp;
+    }
+
     private string GetBaseDirectory()
     {
         return Path.GetDirectoryName(this.GetType().Assembly.Location);
@@ -508,7 +504,8 @@ public class APClientSaveManager
             DestinyLegendaryChecksSold = aPSaveData.DestinyLegendaryChecksSold,
             GhostCardsSold = aPSaveData.GhostCardsSold,
             EventGamesPlayed = aPSaveData.EventGamesPlayed,
-            itemLevelList = aPSaveData.itemLevel.Select(kvp => new ItemLevelEntry { type = kvp.Key, level = kvp.Value }).ToList()
+            LicensesReceived = aPSaveData.LicensesReceived,
+            StoredXP = aPSaveData.LicensesReceived
         };
 
         try
@@ -559,7 +556,8 @@ public class APClientSaveManager
             aPSaveData.DestinyLegendaryChecksSold = wrapper.DestinyLegendaryChecksSold;
             aPSaveData.GhostCardsSold = wrapper.GhostCardsSold;
             aPSaveData.EventGamesPlayed = wrapper.EventGamesPlayed;
-            aPSaveData.itemLevel = wrapper.itemLevelList.ToDictionary(entry => entry.type, entry => entry.level); ;
+            aPSaveData.LicensesReceived = wrapper.LicensesReceived;
+            aPSaveData.StoredXP = wrapper.StoredXP;
 
             return true;
         }
@@ -569,6 +567,8 @@ public class APClientSaveManager
         }
         return false;
     }
+
+    
 
     [Serializable]
     public class SaveDataWrapper
@@ -596,13 +596,7 @@ public class APClientSaveManager
         public int DestinyLegendaryChecksSold;
         public int GhostCardsSold;
         public int EventGamesPlayed;
-        public List<ItemLevelEntry> itemLevelList;
-    }
-
-    [Serializable]
-    public class ItemLevelEntry
-    {
-        public EItemType type;
-        public int level;
+        public int LicensesReceived;
+        public int StoredXP;
     }
 }

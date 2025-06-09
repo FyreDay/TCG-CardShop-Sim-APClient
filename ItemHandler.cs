@@ -149,8 +149,7 @@ public class ItemHandler
         if (itemReceived.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || (itemReceived.ItemId < (int)EItemType.Max && LicenseMapping.mapping.ContainsKey((EItemType)itemReceived.ItemId)))
         {
             EItemType itemtype = (EItemType)(itemReceived.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? 0 : (int)itemReceived.ItemId);
-            Plugin.m_SaveManager.IncreaseItemLevel(itemtype);
-            //update Restock ui
+            Plugin.m_SaveManager.IncreaselicensesReceived();
             return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)

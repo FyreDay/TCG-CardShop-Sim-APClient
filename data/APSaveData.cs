@@ -28,9 +28,9 @@ namespace ApClient.data
         public int DestinyEpicChecksSold { get; set; }
         public int DestinyLegendaryChecksSold { get; set; }
         public int GhostCardsSold { get; set; }
-        public List<EGameEventFormat> UnlockedGameEvents { get; set; }
         public int EventGamesPlayed { get; set; }
         public List<int> newCards { get; set; }
-        public Dictionary<EItemType, int> itemLevel { get; set; }
+        public int LicensesReceived { get; set; }
+        public int StoredXP { get; set; }
     }
 }

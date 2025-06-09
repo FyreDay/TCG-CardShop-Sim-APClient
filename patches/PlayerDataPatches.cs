@@ -96,7 +96,26 @@ class PlayerDataPatches
         static void Prefix(CEventPlayer_AddShopExp evt)
         {
             //Plugin.Log($"Before Level Up");
+            int maxLevel = (Plugin.m_SaveManager.GetlicensesReceived()/ Plugin.m_SessionHandler.GetSlotData().RequiredLicenses)*5;
+            if(maxLevel < 5)
+            {
+                maxLevel = 5;
+            }
+            Plugin.Log($"max level: {maxLevel}");
             oldLevel = CPlayerData.m_ShopLevel;
+            if (oldLevel + 1 >= maxLevel)
+            {
+                if (evt.m_ExpValue > CPlayerData.GetExpRequiredToLevelUp())
+                {
+                    Plugin.m_SaveManager.IncreaseStoredXP(evt.m_ExpValue - (CPlayerData.GetExpRequiredToLevelUp() - 1));
+                    evt.m_ExpValue = CPlayerData.GetExpRequiredToLevelUp() - 1;
+                }
+                
+            }
+            else
+            {
+                evt.m_ExpValue += Plugin.m_SaveManager.GetStoredXP(CPlayerData.GetExpRequiredToLevelUp() - evt.m_ExpValue);
+            }
         }
 
         [HarmonyPostfix]

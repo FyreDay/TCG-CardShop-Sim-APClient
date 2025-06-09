@@ -47,6 +47,11 @@ public class SessionHandler
         return itemCount(id) > 0;
     }
 
+    public bool isEventUnlocked(EGameEventFormat format)
+    {
+        return hasItem(PlayTableMapping.FormatStartingId + (int)format);
+    }
+
     public void SendGoalCompletion()
     {
         session.SetGoalAchieved();

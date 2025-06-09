@@ -28,4 +28,5 @@ public class PlayTableMapping
     }
 
     public static int PlayCheckStartingId = 300;
+    public static int FormatStartingId = 207;
 }

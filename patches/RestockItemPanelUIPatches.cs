@@ -68,14 +68,19 @@ public class RestockItemPanelUIPatches
         }
 
     }
+    private static Vector2 defaultAnchorText = new Vector2();
+    private static bool setdefaultAnchortext = false;
+    private static Vector2 defaultAnchorPrice = new Vector2();
+    private static bool setdefaultAnchorprice = false;
 
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index, OrderedDictionary orderedDictionary)
     {
 
         __instance.m_LevelRequirementText.text = LocalizationManager.GetTranslation(__instance.m_LevelRequirementString).Replace("XXX", __instance.m_LevelRequired.ToString());
+        int lrequired = (__instance.m_LevelRequired / 5) * Plugin.m_SessionHandler.GetSlotData().RequiredLicenses;
 
         //Plugin.Log($"Item Data: {index} : {__instance.m_LevelRequired}");
-        if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired)
+        if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && Plugin.m_SaveManager.GetlicensesReceived() >= lrequired)
         {
             __instance.m_UIGrp.SetActive(value: true);
             __instance.m_LicenseUIGrp.SetActive(value: false);
@@ -92,17 +97,44 @@ public class RestockItemPanelUIPatches
                     var localizeComponent = targetRect.GetComponent<I2.Loc.Localize>();
                     if (localizeComponent != null)
                     {
-                        localizeComponent.SetTerm("Sold Check Progress");
-                        targetRect.anchoredPosition += new Vector2(-60, 0);
-
-
+                        localizeComponent.SetTerm("Check Progress:");
+                        var textComponent = localizeComponent.GetComponent<TextMeshProUGUI>();
+                        if (textComponent != null)
+                        {
+                            if (!setdefaultAnchortext)
+                            {
+                                textComponent.rectTransform.anchoredPosition += new Vector2(-100, 0);
+                                defaultAnchorText = textComponent.rectTransform.anchoredPosition;
+                                setdefaultAnchortext = true;
+                            }
+                            else
+                            {
+                                textComponent.rectTransform.anchoredPosition = defaultAnchorText;
+                            }
+                            textComponent.enableWordWrapping = false;
+                            textComponent.overflowMode = TextOverflowModes.Overflow;
+                            textComponent.enableAutoSizing = false;
+                        }
                     }
                 }
 
-                __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]} / {goals.OrderBy(x => x.count).FirstOrDefault().count} Checks Left: {goals.Count()}";
+                __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]} / {goals.OrderBy(x => x.count).FirstOrDefault().count}   Checks Left: {goals.Count()}";
                 __instance.m_UnitPriceText.color = UnityEngine.Color.cyan;
                 __instance.m_UnitPriceText.outlineColor = UnityEngine.Color.black;
-                __instance.m_UnitPriceText.rectTransform.anchoredPosition += new Vector2(-60,0);
+                
+                __instance.m_UnitPriceText.enableWordWrapping = false;
+                __instance.m_UnitPriceText.overflowMode = TextOverflowModes.Overflow;
+                __instance.m_UnitPriceText.enableAutoSizing = false;
+                if (!setdefaultAnchorprice) {
+                    __instance.m_UnitPriceText.rectTransform.anchoredPosition += new Vector2(40, 0);
+                    defaultAnchorPrice = __instance.m_UnitPriceText.rectTransform.anchoredPosition;
+                    setdefaultAnchorprice = true;
+                }
+                else
+                {
+                    __instance.m_UnitPriceText.rectTransform.anchoredPosition = defaultAnchorPrice;
+                }
+
             }
             else
             {
@@ -120,13 +152,29 @@ public class RestockItemPanelUIPatches
                 __instance.m_UnitPriceText.color = UnityEngine.Color.green;
             }
         }
+        else if (Plugin.m_SaveManager.GetlicensesReceived() < lrequired)
+        {
+            int num = ((__instance.m_LevelRequired / 5) * Plugin.m_SessionHandler.GetSlotData().RequiredLicenses) - Plugin.m_SaveManager.GetlicensesReceived();
+            __instance.m_UIGrp.SetActive(value: false);
+            __instance.m_LicenseUIGrp.SetActive(value: true);
+            __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Requires {num} more Licenses";
+            __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+            __instance.m_LicensePriceText.text = "License Locked";
+
+            if (hasItem)
+            {
+                __instance.m_LicensePriceText.text = "License Found";
+            }
+        }
         else if (hasItem)
         {
             __instance.m_UIGrp.SetActive(value: false);
             __instance.m_LicenseUIGrp.SetActive(value: true);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required. License Found";
+            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required.";
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+            __instance.m_LicensePriceText.text = "License Found";
         }
         else if (CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired)
         {
@@ -134,15 +182,18 @@ public class RestockItemPanelUIPatches
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
             __instance.m_LicenseUIGrp.SetActive(value: true);
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-            __instance.m_LevelRequirementText.text = "Level Reached, License Locked by AP";
+            __instance.m_LevelRequirementText.text = "Level Reached";
+            __instance.m_LicensePriceText.text = "License Locked";
+
         }
         else
         {
             __instance.m_UIGrp.SetActive(value: false);
             __instance.m_LicenseUIGrp.SetActive(value: true);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required. License Locked by AP";
+            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required.";
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+            __instance.m_LicensePriceText.text = "License Locked";
         }
     }
 
@@ -228,7 +279,8 @@ public class RestockItemPanelUIPatches
                     }
                     
                 }
-                if(Plugin.m_SaveManager.GetItemLevel(list[k]) < 2 || matches.Count < 2)
+                long id = (long)list[k] == 0 ? 190 : (long)list[k];
+                if (Plugin.m_SessionHandler.itemCount(id) < 2 || matches.Count < 2)
                 {
                     __instance.m_CurrentRestockDataIndexList.Add(matches[0]);
                 }
