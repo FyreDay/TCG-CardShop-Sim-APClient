@@ -26,7 +26,6 @@ public class ExpansionShopPatches
             //Plugin.Log($"init expansion Shop {index} is B: {isShopB}");
             //Plugin.Log($"Count of progressive A: {Plugin.itemCount(ExpansionMapping.progressiveA)}");
 
-            int m_LevelRequired = __instance.m_LevelRequired;
             bool hasAPItem = false;
             if (isShopB)
             {
@@ -36,8 +35,8 @@ public class ExpansionShopPatches
             {
                 hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveA) > index;
             }
-            
-            bool atLevel = CPlayerData.m_ShopLevel + 1 >= m_LevelRequired;
+
+            bool atLevel = true;// CPlayerData.m_ShopLevel + 1 >= m_LevelRequired;
 
             if (!hasAPItem && atLevel)
             {
@@ -46,7 +45,7 @@ public class ExpansionShopPatches
             }
             else if (!hasAPItem)
             {
-                __instance.m_LevelRequirementText.text = $"{__instance.m_LevelRequirementText.text} and AP Progressive {(isShopB ? "B" : "A")}";
+                __instance.m_LevelRequirementText.text = $"AP Progressive {(isShopB ? "B" : "A")}";
             }
             if (isShopB && CPlayerData.m_UnlockWarehouseRoomCount > index)
             {
@@ -100,7 +99,7 @@ public class ExpansionShopPatches
             {
                 hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveA) > index;
             }
-            bool atLevel = (CPlayerData.m_ShopLevel + 1) >= m_LevelRequired;
+            bool atLevel = true; // (CPlayerData.m_ShopLevel + 1) >= m_LevelRequired;
             //Plugin.Log($"is B? {m_IsShopB} has progressive {hasAPItem} with count {Plugin.itemCount(ExpansionMapping.progressiveA)} at level {atLevel} required {m_LevelRequired}" );
             if (hasAPItem && atLevel)
             {

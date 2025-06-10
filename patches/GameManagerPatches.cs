@@ -1,7 +1,10 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace ApClient.patches;
@@ -24,5 +27,46 @@ public class CGameManagerPatches
         Plugin.Log("Processing cache Items");
         Plugin.onSceneLoadLogic();
 
+
     }
 }
+
+[HarmonyPatch(typeof(GameUIScreen))]
+public class GameUIScreenPatches
+{
+    private static TextMeshProUGUI LevelLocked;
+    
+    [HarmonyPatch("Awake")]
+    [HarmonyPostfix]
+    static void AwakePostFix(GameUIScreen __instance)
+    {
+        
+        LevelLocked = GameObject.Instantiate(__instance.m_ShopLevelText, __instance.m_ShopLevelText.transform.parent);
+        LevelLocked.rectTransform.anchoredPosition += new Vector2(-400, 0);
+        LevelLocked.color = Color.red;
+        LevelLocked.text = "";
+        LevelLocked.enableWordWrapping = false;
+        LevelLocked.overflowMode = TextOverflowModes.Overflow;
+        LevelLocked.enableAutoSizing = false;
+
+        
+
+    }
+
+    [HarmonyPatch("EvaluateShopLevelAndExp")]
+    [HarmonyPostfix]
+    static void EvaluatePostFix(GameUIScreen __instance)
+    {
+        int nextlevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) *5;
+        int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
+        if (licenses_required > 0 && CPlayerData.m_ShopLevel + 2 == nextlevel)
+        {
+            LevelLocked.text = $"Level Locked. Find {licenses_required} more Licenses to levelup";
+        }
+        else
+        {
+            LevelLocked.text = "";
+        }
+    }
+}
+

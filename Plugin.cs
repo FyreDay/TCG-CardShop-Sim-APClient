@@ -95,37 +95,46 @@ public class Plugin : BaseUnityPlugin
 
     public static CardData getNewCard()
     {
-        int expansion_limit = 8;
-        int border_sanity = 5;
-        bool foil_sanity = true;
-        if (m_SessionHandler.GetSlotData().CardSanity != 0)
+        try
         {
-            border_sanity = m_SessionHandler.GetSlotData().BorderInSanity;
-            foil_sanity = m_SessionHandler.GetSlotData().FoilInSanity;
-            expansion_limit = m_SessionHandler.GetSlotData().CardSanity;
-        }
-
-
-        ECardExpansionType expansion = UnityEngine.Random.Range(0, expansion_limit) > 4 ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
-
-        HashSet<ERarity> desiredRarities = new HashSet<ERarity>();
-
-        if (expansion == ECardExpansionType.Destiny)
-        {
-            for (int i = 0; i < expansion_limit - 4; i++)
+            int expansion_limit = 8;
+            int border_sanity = 5;
+            bool foil_sanity = true;
+            if (m_SessionHandler.GetSlotData().CardSanity != 0)
             {
-                desiredRarities.Add((ERarity)i);
+                border_sanity = m_SessionHandler.GetSlotData().BorderInSanity;
+                foil_sanity = m_SessionHandler.GetSlotData().FoilInSanity;
+                expansion_limit = m_SessionHandler.GetSlotData().CardSanity;
             }
-        }
 
-        if (expansion == ECardExpansionType.Tetramon)
-        {
-            for (int i = 0; i < expansion_limit && i < 4; i++)
+
+            ECardExpansionType expansion = UnityEngine.Random.Range(0, expansion_limit) > 4 ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
+
+            HashSet<ERarity> desiredRarities = new HashSet<ERarity>();
+
+            if (expansion == ECardExpansionType.Destiny)
             {
-                desiredRarities.Add((ERarity)i);
+                for (int i = 0; i < expansion_limit - 4; i++)
+                {
+                    desiredRarities.Add((ERarity)i);
+                }
             }
+
+            if (expansion == ECardExpansionType.Tetramon)
+            {
+                for (int i = 0; i < expansion_limit && i < 4; i++)
+                {
+                    desiredRarities.Add((ERarity)i);
+                }
+            }
+            return m_CardHelper.RandomNewCard(expansion, desiredRarities, border_sanity, foil_sanity);
         }
-        return m_CardHelper.RandomNewCard(expansion, desiredRarities, border_sanity, foil_sanity);
+        catch (Exception e)
+        {
+            Log(e.ToString());
+            APConsole.Instance.Log("Error in New Card Randomization");
+            return m_CardHelper.CardRoller(ECollectionPackType.DestinyLegendaryCardPack);
+        }
     }
 
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)

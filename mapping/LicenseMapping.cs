@@ -136,6 +136,6 @@ public class LicenseMapping
         return list;
     }
 
-    static int SELL_CHECK_START_ID = 2000;
+    static int SELL_CHECK_START_ID = 3000;
     public static int BASIC_CARD_PACK_ID = 190;
 }

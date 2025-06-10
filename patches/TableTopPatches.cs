@@ -48,8 +48,7 @@ public class TableTopPatches
                 }
 
             }
-            long id = (long)list[k == 0 ? 190 : k];
-            if (Plugin.m_SessionHandler.itemCount(id) < 2 || matches.Count < 2)
+            if (Plugin.m_SessionHandler.itemCount((long)list[k]) < 2 || matches.Count < 2)
             {
                 __instance.m_CurrentRestockDataIndexList.Add(matches[0]);
             }

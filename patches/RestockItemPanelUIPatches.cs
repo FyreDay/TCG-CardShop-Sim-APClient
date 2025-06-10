@@ -27,37 +27,28 @@ public class RestockItemPanelUIPatches
         [HarmonyPostfix]
         static void Postfix(RestockItemPanelUI __instance, RestockItemScreen restockItemScreen, int index)
         {
-            //index
-            Plugin.Log("Start PAnel Init");
-
             OrderedDictionary orderedDictionary = new OrderedDictionary();
 
             switch (restockItemScreen.m_PageIndex)
             {
                 case 0:
                     orderedDictionary = Plugin.m_SessionHandler.GetSlotData().pg1IndexMapping;
-                    Plugin.Log($"0: {orderedDictionary.Count}");
                     break;
                 case 1:
                     orderedDictionary = Plugin.m_SessionHandler.GetSlotData().pg2IndexMapping;
-                    Plugin.Log($"1 {orderedDictionary.Count}");
                     break;
                 case 2:
                     orderedDictionary = Plugin.m_SessionHandler.GetSlotData().pg3IndexMapping;
-                    Plugin.Log($"2 {orderedDictionary.Count}");
                     break;
             }
-            Plugin.Log("Check Board Game");
             if (restockItemScreen is RestockItemBoardGameScreen)
             {
                 orderedDictionary = Plugin.m_SessionHandler.GetSlotData().ttIndexMapping;
-                Plugin.Log($"tt {orderedDictionary.Count}");
                 if (index == -1)
                 {
                     return;
                 }
             }
-
 
             List<EItemType> list = orderedDictionary.Keys.Cast<EItemType>().ToList();
 
@@ -75,12 +66,9 @@ public class RestockItemPanelUIPatches
 
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index, OrderedDictionary orderedDictionary)
     {
-
-        __instance.m_LevelRequirementText.text = LocalizationManager.GetTranslation(__instance.m_LevelRequirementString).Replace("XXX", __instance.m_LevelRequired.ToString());
-        int lrequired = (__instance.m_LevelRequired / 5) * Plugin.m_SessionHandler.GetSlotData().RequiredLicenses;
-
+        int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(__instance.m_LevelRequired);
         //Plugin.Log($"Item Data: {index} : {__instance.m_LevelRequired}");
-        if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && Plugin.m_SaveManager.GetlicensesReceived() >= lrequired)
+        if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && licenses_required <= 0)
         {
             __instance.m_UIGrp.SetActive(value: true);
             __instance.m_LicenseUIGrp.SetActive(value: false);
@@ -126,7 +114,7 @@ public class RestockItemPanelUIPatches
                 __instance.m_UnitPriceText.overflowMode = TextOverflowModes.Overflow;
                 __instance.m_UnitPriceText.enableAutoSizing = false;
                 if (!setdefaultAnchorprice) {
-                    __instance.m_UnitPriceText.rectTransform.anchoredPosition += new Vector2(40, 0);
+                    __instance.m_UnitPriceText.rectTransform.anchoredPosition += new Vector2(20, 0);
                     defaultAnchorPrice = __instance.m_UnitPriceText.rectTransform.anchoredPosition;
                     setdefaultAnchorprice = true;
                 }
@@ -152,13 +140,12 @@ public class RestockItemPanelUIPatches
                 __instance.m_UnitPriceText.color = UnityEngine.Color.green;
             }
         }
-        else if (Plugin.m_SaveManager.GetlicensesReceived() < lrequired)
+        else if (0 < licenses_required)
         {
-            int num = ((__instance.m_LevelRequired / 5) * Plugin.m_SessionHandler.GetSlotData().RequiredLicenses) - Plugin.m_SaveManager.GetlicensesReceived();
             __instance.m_UIGrp.SetActive(value: false);
             __instance.m_LicenseUIGrp.SetActive(value: true);
             __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Requires {num} more Licenses";
+            __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Requires {licenses_required} more Licenses";
             __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
             __instance.m_LicensePriceText.text = "License Locked";
 

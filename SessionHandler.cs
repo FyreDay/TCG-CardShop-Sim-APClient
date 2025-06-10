@@ -44,6 +44,10 @@ public class SessionHandler
 
     public bool hasItem(long id)
     {
+        if(id == 0)
+        {
+            id = 190;
+        }
         return itemCount(id) > 0;
     }
 
@@ -64,12 +68,70 @@ public class SessionHandler
 
     public bool isStartingItem(int id)
     {
-        return Plugin.m_SessionHandler.GetSlotData().startingItems.Contains(id);
+        return slotData.startingItems.Contains(id);
     }
 
     public int[] startingids()
     {
-        return Plugin.m_SessionHandler.GetSlotData().startingItems.ToArray();
+        return slotData.startingItems.ToArray();
+    }
+
+    public int GetRemainingLicenses(int currentLevelStart)
+    {
+
+        var allLicenses = new Dictionary<EItemType, int>();
+        foreach (DictionaryEntry entry in slotData.pg1IndexMapping)
+        {
+            EItemType itemId = (EItemType)entry.Key;
+            int level = (int)entry.Value;
+
+            if (level < currentLevelStart && !allLicenses.ContainsKey(itemId))
+            {
+                allLicenses[itemId] = level;
+            }
+        }
+        foreach (DictionaryEntry entry in slotData.pg2IndexMapping)
+        {
+            EItemType itemId = (EItemType)entry.Key;
+            int level = (int)entry.Value;
+
+            if (level < currentLevelStart && !allLicenses.ContainsKey(itemId))
+            {
+                allLicenses[itemId] = level;
+            }
+        }
+        foreach (DictionaryEntry entry in slotData.pg3IndexMapping)
+        {
+            EItemType itemId = (EItemType)entry.Key;
+            int level = (int)entry.Value;
+
+            if (level < currentLevelStart && !allLicenses.ContainsKey(itemId))
+            {
+                allLicenses[itemId] = level;
+            }
+        }
+        foreach (DictionaryEntry entry in slotData.ttIndexMapping)
+        {
+            EItemType itemId = (EItemType)entry.Key;
+            int level = (int)entry.Value;
+
+            if (level < currentLevelStart && !allLicenses.ContainsKey(itemId))
+            {
+                allLicenses[itemId] = level;
+            }
+        }
+
+        if (allLicenses.Count == 0)
+            return 0; // no requirements, so zero remaining
+
+        // Calculate how many licenses are required at this level
+        int requiredCount = (currentLevelStart / 5) * slotData.RequiredLicenses;
+
+        // Count how many licenses the player currently owns
+        int ownedCount = allLicenses.Keys.Count(itemId => hasItem((int)itemId));
+
+        int remaining = requiredCount - ownedCount;
+        return remaining > 0 ? remaining : 0; // return 0 if none remaining
     }
 
     private class ItemCache
@@ -142,10 +204,10 @@ public class SessionHandler
             {
                 Plugin.Log($"Not In Scene");
                 cachedItems.Enqueue(new ItemCache() { info = receivedItemsHelper.DequeueItem(), index = receivedItemsHelper.Index });
-
+                Plugin.Log("Enqueue");
                 return;
             }
-            //Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
+            Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
             if (Plugin.m_SaveManager.GetProcessedIndex() > receivedItemsHelper.Index)
             {
                 return;
@@ -263,10 +325,6 @@ public class SessionHandler
 
     public void ProcessCachedItems()
     {
-        foreach(int id in slotData.startingItems)
-        {
-            CPlayerData.SetUnlockItemLicense(id);
-        }
 
         while (cachedItems.Any())
         {

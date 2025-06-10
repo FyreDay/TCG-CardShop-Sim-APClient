@@ -456,8 +456,14 @@ public class APClientSaveManager
         return aPSaveData.StoredXP;
     }
 
+    public int TotalStoredXP()
+    {
+        return aPSaveData.StoredXP;
+    }
+
     public void IncreaseStoredXP(int xp)
     {
+        Plugin.Log($"xp: {xp}");
         aPSaveData.StoredXP += xp;
     }
 

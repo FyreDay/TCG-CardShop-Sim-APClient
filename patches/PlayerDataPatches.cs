@@ -93,29 +93,35 @@ class PlayerDataPatches
 
         private static int oldLevel;
         [HarmonyPrefix]
-        static void Prefix(CEventPlayer_AddShopExp evt)
+        static bool Prefix(CEventPlayer_AddShopExp evt)
         {
             //Plugin.Log($"Before Level Up");
-            int maxLevel = (Plugin.m_SaveManager.GetlicensesReceived()/ Plugin.m_SessionHandler.GetSlotData().RequiredLicenses)*5;
-            if(maxLevel < 5)
+            int nextlevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5;
+            int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
+            int maxLevel = nextlevel;
+            if (licenses_required <= 0)
             {
-                maxLevel = 5;
+                maxLevel = nextlevel + 5;
             }
-            Plugin.Log($"max level: {maxLevel}");
             oldLevel = CPlayerData.m_ShopLevel;
-            if (oldLevel + 1 >= maxLevel)
+            if (oldLevel + 2 >= maxLevel)
             {
-                if (evt.m_ExpValue > CPlayerData.GetExpRequiredToLevelUp())
+                if (CPlayerData.m_ShopExpPoint + evt.m_ExpValue >= CPlayerData.GetExpRequiredToLevelUp())
                 {
-                    Plugin.m_SaveManager.IncreaseStoredXP(evt.m_ExpValue - (CPlayerData.GetExpRequiredToLevelUp() - 1));
-                    evt.m_ExpValue = CPlayerData.GetExpRequiredToLevelUp() - 1;
+                    int xptonext = CPlayerData.GetExpRequiredToLevelUp() - CPlayerData.m_ShopExpPoint;
+                    Plugin.m_SaveManager.IncreaseStoredXP(evt.m_ExpValue);
+                    CEventManager.QueueEvent(new CEventPlayer_AddShopExp(xptonext-1));
+                    return false;
                 }
+                return true;
                 
             }
-            else
+
+            if(Plugin.m_SaveManager.TotalStoredXP() > 1000)
             {
-                evt.m_ExpValue += Plugin.m_SaveManager.GetStoredXP(CPlayerData.GetExpRequiredToLevelUp() - evt.m_ExpValue);
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Plugin.m_SaveManager.GetStoredXP(CPlayerData.GetExpRequiredToLevelUp())));
             }
+            return true;
         }
 
         [HarmonyPostfix]
@@ -126,7 +132,7 @@ class PlayerDataPatches
             {
                 //Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
                 Plugin.m_SessionHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
-                if(Plugin.m_SessionHandler.GetSlotData().Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.m_SessionHandler.GetSlotData().LevelGoal)
+                if(Plugin.m_SessionHandler.GetSlotData().Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.m_SessionHandler.GetSlotData().MaxLevel)
                 {
                     Plugin.m_SessionHandler.SendGoalCompletion();
                     PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Leveled To Your Goal!");
