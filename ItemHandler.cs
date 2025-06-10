@@ -309,6 +309,7 @@ public class ItemHandler
         {
             for (int i = 0; i < 4; i++)
             {
+                Plugin.Log("Ghost");
                 addRandomGhost();
             }
             return;

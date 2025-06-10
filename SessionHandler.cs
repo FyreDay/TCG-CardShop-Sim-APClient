@@ -124,6 +124,16 @@ public class SessionHandler
         if (allLicenses.Count == 0)
             return 0; // no requirements, so zero remaining
 
+        int num_required = slotData.RequiredLicenses;
+        if (currentLevelStart > 30)
+        {
+            num_required = 3;
+        }
+
+        if (currentLevelStart > 60)
+        {
+            num_required = 2;
+        }
         // Calculate how many licenses are required at this level
         int requiredCount = (currentLevelStart / 5) * slotData.RequiredLicenses;
 
@@ -306,6 +316,8 @@ public class SessionHandler
             slotData.ttIndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
             slotData.startingItems = StrToList(loginSuccess.SlotData.GetValueOrDefault("StartingIds").ToString());
 
+            Plugin.Log($"required per 5: {slotData.RequiredLicenses}");
+
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);
         }
         else
@@ -331,6 +343,7 @@ public class SessionHandler
             var item = cachedItems.Dequeue();
             if (Plugin.m_SaveManager.GetProcessedIndex() > item.index)
             {
+                Plugin.Log($"Item Processed");
                 return;
             }
             Plugin.m_SaveManager.IncreaseProcessedIndex();

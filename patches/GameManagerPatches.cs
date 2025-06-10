@@ -24,14 +24,24 @@ public class CGameManagerPatches
             CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
             CPlayerData.m_HasFinishedTutorial = true;
         }
+    }
+    
+}
+
+[HarmonyPatch(typeof(InteractionPlayerController))]
+public class ControllerPatches
+{
+    [HarmonyPatch("OnFinishHideLoadingScreen")]
+    [HarmonyPostfix]
+    static void OnFinishPostFix(CEventPlayer_FinishHideLoadingScreen evt)
+    {
         Plugin.Log("Processing cache Items");
         Plugin.onSceneLoadLogic();
-
 
     }
 }
 
-[HarmonyPatch(typeof(GameUIScreen))]
+ [HarmonyPatch(typeof(GameUIScreen))]
 public class GameUIScreenPatches
 {
     private static TextMeshProUGUI LevelLocked;

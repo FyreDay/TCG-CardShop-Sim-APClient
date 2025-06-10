@@ -36,6 +36,7 @@ public class APClientSaveManager
         aPSaveData = new APSaveData();
         aPSaveData.ProcessedIndex = 0;
         aPSaveData.MoneyMultiplier = 1;
+        aPSaveData.StoredXP = 0;
 
         cachedTetramonCheckCount = -1;
         cachedDestinyCheckCount = -1;
@@ -44,6 +45,7 @@ public class APClientSaveManager
         cachedEpicChecks = -1;
         cachedLegendaryChecks = -1;
         customersPlayedGames = 0;
+
 }
     public void setConnectionData(string seed, string slot)
     {
