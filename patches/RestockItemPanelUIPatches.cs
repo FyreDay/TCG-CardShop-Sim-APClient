@@ -10,7 +10,9 @@ using System.Reflection;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
+using static System.Net.Mime.MediaTypeNames;
 using static UnityEngine.GraphicsBuffer;
 
 namespace ApClient.patches;
@@ -63,9 +65,28 @@ public class RestockItemPanelUIPatches
     private static bool setdefaultAnchortext = false;
     private static Vector2 defaultAnchorPrice = new Vector2();
     private static bool setdefaultAnchorprice = false;
+    private static TextMeshProUGUI[] cardCheckText = new TextMeshProUGUI[8];
+    private static TextMeshProUGUI[] cardProgressText = new TextMeshProUGUI[8];
+
+    private static readonly HashSet<EItemType> CardBoxes = new HashSet<EItemType>
+    {
+        EItemType.BasicCardBox,
+        EItemType.RareCardBox,
+        EItemType.EpicCardBox,
+        EItemType.LegendaryCardBox,
+        EItemType.DestinyBasicCardBox,
+        EItemType.DestinyRareCardBox,
+        EItemType.DestinyEpicCardBox,
+        EItemType.DestinyLegendaryCardBox,
+    };
+    public static bool IsCardBox(EItemType item)
+    {
+        return CardBoxes.Contains(item);
+    }
 
     public static void runLicenseBtnLogic(RestockItemPanelUI __instance, bool hasItem, int index, OrderedDictionary orderedDictionary)
     {
+        
         int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(__instance.m_LevelRequired);
         //Plugin.Log($"Item Data: {index} : {__instance.m_LevelRequired}");
         if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && licenses_required <= 0)
@@ -138,6 +159,45 @@ public class RestockItemPanelUIPatches
                 }
                 __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]}";
                 __instance.m_UnitPriceText.color = UnityEngine.Color.green;
+            }
+
+            if(IsCardBox(__instance.m_ItemType))
+            {
+                int packtype = ((int)__instance.m_ItemType / 2) - 1;
+                if (cardCheckText[packtype] == null)
+                {
+                    cardCheckText[packtype] = GameObject.Instantiate(__instance.m_UnitPriceText, __instance.m_UnitPriceText.transform.parent);
+                    cardCheckText[packtype].text = "Pack Checks:";
+                    cardCheckText[packtype].rectTransform.anchoredPosition += new Vector2(-230, 575);
+                    cardCheckText[packtype].enableWordWrapping = false;
+                    cardCheckText[packtype].overflowMode = TextOverflowModes.Overflow;
+                    cardCheckText[packtype].enableAutoSizing = false;
+                    cardCheckText[packtype].color = UnityEngine.Color.white;
+                }
+
+                if (cardProgressText[packtype] == null)
+                {
+                    cardProgressText[packtype] = GameObject.Instantiate(__instance.m_UnitPriceText, __instance.m_UnitPriceText.transform.parent);
+                    cardProgressText[packtype].text = "";
+                    cardProgressText[packtype].rectTransform.anchoredPosition += new Vector2(0, 575);
+                    cardProgressText[packtype].enableWordWrapping = false;
+                    cardProgressText[packtype].overflowMode = TextOverflowModes.Overflow;
+                    cardProgressText[packtype].enableAutoSizing = false;
+                    cardProgressText[packtype].color = UnityEngine.Color.cyan;
+                }
+
+                var cardgoals = LicenseMapping.GetLocations((EItemType) ((int)__instance.m_ItemType - 1)).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType-1]);
+
+                if (cardgoals.Any())
+                {
+                    cardProgressText[packtype].text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType-1]} / {cardgoals.OrderBy(x => x.count).FirstOrDefault().count}   Checks Left: {cardgoals.Count()}";
+                    cardCheckText[packtype].text = "Pack Checks:";
+                }
+                else
+                {
+                    cardProgressText[packtype].text = "";
+                    cardCheckText[packtype].text = "No Card Pack Checks";
+                }
             }
         }
         else if (0 < licenses_required)
@@ -225,6 +285,20 @@ public class RestockItemPanelUIPatches
             if (__instance.m_PageIndex == pageIndex)
             {
                 return false;
+            }
+            foreach(TextMeshProUGUI txt in cardCheckText)
+            {
+                if(txt != null)
+                {
+                    txt.text = "";
+                }
+            }
+            foreach (TextMeshProUGUI txt in cardProgressText)
+            {
+                if (txt != null)
+                {
+                    txt.text = "";
+                }
             }
 
             __instance.m_PageIndex = pageIndex;

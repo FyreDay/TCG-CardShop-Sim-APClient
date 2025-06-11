@@ -279,10 +279,10 @@ public class SessionHandler
             slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("MaxLevel").ToString());
             slotData.RequiredLicenses = int.Parse(loginSuccess.SlotData.GetValueOrDefault("RequiredLicenses").ToString());
             slotData.Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
-            slotData.CollectionGoalPercent = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CollectionGoalPercent").ToString());
+            //slotData.CollectionGoalPercent = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CollectionGoalPercent").ToString());
             slotData.GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
 
-            slotData.AutoRenovate = true;// loginSuccess.SlotData.GetValueOrDefault("AutoRenovate").ToString() == "1";
+            slotData.AutoRenovate = loginSuccess.SlotData.GetValueOrDefault("AutoRenovate").ToString() == "1";
             slotData.TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
             slotData.ExtraStartingItemChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ExtraStartingItemChecks").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
