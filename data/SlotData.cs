@@ -26,6 +26,7 @@ public class SlotData
     public int NumberOfSellCardChecks { get; set; }
     public int SellCardsPerCheck { get; set; }
     public bool Deathlink { get; set; }
+    public bool AutoRenovate { get; set; }
     public OrderedDictionary pg1IndexMapping { get; set; }
     public OrderedDictionary pg2IndexMapping { get; set; }
     public OrderedDictionary pg3IndexMapping { get; set; }
@@ -33,4 +34,5 @@ public class SlotData
     public int RequiredLicenses { get; set; }
     public int CollectionGoalPercent { get; internal set; }
     public int ExtraStartingItemChecks { get; internal set; }
+
 }

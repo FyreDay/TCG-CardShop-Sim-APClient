@@ -124,18 +124,25 @@ public class SessionHandler
         if (allLicenses.Count == 0)
             return 0; // no requirements, so zero remaining
 
-        int num_required = slotData.RequiredLicenses;
-        if (currentLevelStart > 30)
+        int required = slotData.RequiredLicenses;
+        int sect_1 = currentLevelStart;
+        int sect_2 = 0;
+        int sect_3 = 0;
+        if (currentLevelStart > 25)
         {
-            num_required = 3;
+            sect_1 = 25; 
+            sect_2 = currentLevelStart - 25;
         }
 
-        if (currentLevelStart > 60)
+        if (currentLevelStart > 50)
         {
-            num_required = 2;
+            sect_2 = 25;
+            sect_3 = currentLevelStart - 50;
         }
         // Calculate how many licenses are required at this level
-        int requiredCount = (currentLevelStart / 5) * slotData.RequiredLicenses;
+        int requiredCount = (sect_1 / 5) * slotData.RequiredLicenses;
+        requiredCount += (sect_2 / 5) * 3;
+        requiredCount += (sect_3 / 5) * 2;
 
         // Count how many licenses the player currently owns
         int ownedCount = allLicenses.Keys.Count(itemId => hasItem((int)itemId));
@@ -275,6 +282,7 @@ public class SessionHandler
             slotData.CollectionGoalPercent = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CollectionGoalPercent").ToString());
             slotData.GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
 
+            slotData.AutoRenovate = true;// loginSuccess.SlotData.GetValueOrDefault("AutoRenovate").ToString() == "1";
             slotData.TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
             slotData.ExtraStartingItemChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ExtraStartingItemChecks").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
@@ -337,14 +345,14 @@ public class SessionHandler
 
     public void ProcessCachedItems()
     {
-
+        Plugin.Log($"Cache {cachedItems.Count()}");
         while (cachedItems.Any())
         {
             var item = cachedItems.Dequeue();
             if (Plugin.m_SaveManager.GetProcessedIndex() > item.index)
             {
-                Plugin.Log($"Item Processed");
-                return;
+                Plugin.Log($"Item Processed previously");
+                continue;
             }
             Plugin.m_SaveManager.IncreaseProcessedIndex();
             Plugin.Log($"Item on load {item.info.ItemName}");
@@ -352,6 +360,6 @@ public class SessionHandler
         }
         cachedItems.Clear();
         CSingleton<CGameManager>.Instance.SaveGameData(3);
-
+        
     }
 }

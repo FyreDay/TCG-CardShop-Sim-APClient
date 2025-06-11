@@ -154,19 +154,12 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)
         {
-            ExpansionShopUIScreen screen = UnityEngine.Object.FindObjectOfType<ExpansionShopUIScreen>();
-            if (screen != null)
+            if (Plugin.m_SessionHandler.GetSlotData().AutoRenovate)
             {
-                FieldInfo field = typeof(ExpansionShopUIScreen).GetField("m_IsShopB", BindingFlags.NonPublic | BindingFlags.Instance);
-                bool isB = (bool)field.GetValue(screen);
-                if (!isB)
+                CoroutineRunner.RunOnMainThread(() =>
                 {
-                    ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId) - 1];
-                    panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
-                    panel.m_PurchasedBtn.gameObject.SetActive(value: false);
-                    //Log($"Recieved Progressive A While panel was open: {(int)itemReceived.ItemId}");
-                }
-
+                    CSingleton<UnlockRoomManager>.Instance.StartUnlockNextRoom();
+                });
             }
             return;
         }
@@ -182,33 +175,12 @@ public class ItemHandler
                 SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
                 return;
             }
-            ExpansionShopUIScreen screen = UnityEngine.Object.FindObjectOfType<ExpansionShopUIScreen>();
-            if (screen != null)
+            if (Plugin.m_SessionHandler.GetSlotData().AutoRenovate)
             {
-                FieldInfo field = typeof(ExpansionShopUIScreen).GetField("m_IsShopB", BindingFlags.NonPublic | BindingFlags.Instance);
-                bool isB = (bool)field.GetValue(screen);
-                if (isB)
+                CoroutineRunner.RunOnMainThread(() =>
                 {
-                    ExpansionShopPanelUI panel = screen.m_ExpansionShopPanelUIList[Plugin.m_SessionHandler.itemCount((int)itemReceived.ItemId) - 2];
-                    FieldInfo fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fieldInfo == null)
-                    {
-                        return;
-                    }
-
-                    int m_LevelRequired = (int)fieldInfo.GetValue(panel);
-                    bool atLevel = CPlayerData.m_ShopLevel + 1 < m_LevelRequired;
-                    if (atLevel)
-                    {
-                        panel.m_LockPurchaseBtn.gameObject.SetActive(value: false);
-                        panel.m_PurchasedBtn.gameObject.SetActive(value: false);
-                        panel.m_LevelRequirementText.gameObject.SetActive(value: false);
-                    }
-                    else
-                    {
-                        panel.m_LevelRequirementText.text = $"Shop Level {panel.m_LevelRequired} Required";
-                    }
-                }
+                    CSingleton<UnlockRoomManager>.Instance.StartUnlockNextWarehouseRoom();
+                });
             }
             return;
         }

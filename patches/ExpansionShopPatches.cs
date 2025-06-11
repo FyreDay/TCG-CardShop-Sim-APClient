@@ -18,6 +18,23 @@ public class ExpansionShopPatches
         [HarmonyPostfix]
         static void Postfix(ExpansionShopPanelUI __instance, ExpansionShopUIScreen expansionShopUIScreen, int index, bool isShopB)
         {
+            if (Plugin.m_SessionHandler.GetSlotData().AutoRenovate)
+            {
+                __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+                __instance.m_LevelRequirementText.text = $"Auto Renovate Only";
+                if(index < Plugin.m_SessionHandler.itemCount(isShopB ? ExpansionMapping.progressiveB : ExpansionMapping.progressiveA))
+                {
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: true);
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
+                }
+                else
+                {
+                    __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+                    __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+                }
+                return;
+            }
+
             if(!CPlayerData.m_IsWarehouseRoomUnlocked && isShopB)
             {
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
@@ -38,34 +55,40 @@ public class ExpansionShopPatches
 
             bool atLevel = true;// CPlayerData.m_ShopLevel + 1 >= m_LevelRequired;
 
-            if (!hasAPItem && atLevel)
+            if (!hasAPItem)
             {
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
                 __instance.m_LevelRequirementText.text = $"Needs Progressive Shop Expansion {(isShopB ? "B" : "A")}";
             }
-            else if (!hasAPItem)
+            else
             {
-                __instance.m_LevelRequirementText.text = $"AP Progressive {(isShopB ? "B" : "A")}";
+                __instance.m_LevelRequirementText.text = $"";
             }
+
+
             if (isShopB && CPlayerData.m_UnlockWarehouseRoomCount > index)
             {
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                 __instance.m_PurchasedBtn.gameObject.SetActive(value: true);
+
             }
             else if (!isShopB && CPlayerData.m_UnlockRoomCount > index)
             {
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                 __instance.m_PurchasedBtn.gameObject.SetActive(value: true);
+
             }
             else if (hasAPItem && atLevel)
             {
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
                 __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+
             }
             else
             {
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
                 __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
+
             }
             
             
