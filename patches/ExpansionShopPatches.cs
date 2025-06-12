@@ -18,6 +18,7 @@ public class ExpansionShopPatches
         [HarmonyPostfix]
         static void Postfix(ExpansionShopPanelUI __instance, ExpansionShopUIScreen expansionShopUIScreen, int index, bool isShopB)
         {
+
             if (Plugin.m_SessionHandler.GetSlotData().AutoRenovate)
             {
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
@@ -90,8 +91,8 @@ public class ExpansionShopPatches
                 __instance.m_PurchasedBtn.gameObject.SetActive(value: false);
 
             }
-            
-            
+
+            __instance.m_LevelRequired = 1;
         }
     }
 
@@ -100,27 +101,15 @@ public class ExpansionShopPatches
     {
         static bool Prefix(ExpansionShopPanelUI __instance)
         {
-            FieldInfo fieldInfo = typeof(ExpansionShopPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            int index = (int)fieldInfo.GetValue(__instance);
-
-            FieldInfo fieldInfo2 = typeof(ExpansionShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
-
-
-            int m_LevelRequired = (int)fieldInfo2.GetValue(__instance);
-
-            FieldInfo m_IsShopBinfo = AccessTools.Field(typeof(ExpansionShopPanelUI), "m_IsShopB");
-            
-            bool m_IsShopB = (bool)m_IsShopBinfo.GetValue(__instance);
 
             bool hasAPItem = false;
-            if (m_IsShopB)
+            if (__instance.m_IsShopB)
             {
-                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveB) > index;
+                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveB) > __instance.m_Index;
             }
             else
             {
-                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveA) > index;
+                hasAPItem = Plugin.m_SessionHandler.itemCount(ExpansionMapping.progressiveA) > __instance.m_Index;
             }
             bool atLevel = true; // (CPlayerData.m_ShopLevel + 1) >= m_LevelRequired;
             //Plugin.Log($"is B? {m_IsShopB} has progressive {hasAPItem} with count {Plugin.itemCount(ExpansionMapping.progressiveA)} at level {atLevel} required {m_LevelRequired}" );

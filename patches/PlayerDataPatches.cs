@@ -192,8 +192,6 @@ class PlayerDataPatches
             }
             if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
             {
-
-                Plugin.Log($"Is new: {CPlayerData.GetCardAmount(cardData) == 0} and Pack: {packtype.ToString()}");
                 if ((int)packtype < Plugin.m_SessionHandler.GetSlotData().CardSanity
                     && !CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)]
                     && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity

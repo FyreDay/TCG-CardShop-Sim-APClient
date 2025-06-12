@@ -155,6 +155,13 @@ public class RestockItemPanelUIPatches
                     if (localizeComponent != null)
                     {
                         localizeComponent.SetTerm("Checks Completed. Total Sold:");
+                        var textComponent = localizeComponent.GetComponent<TextMeshProUGUI>();
+                        if (textComponent != null)
+                        {
+                            textComponent.enableWordWrapping = true;
+                            textComponent.overflowMode = TextOverflowModes.Overflow;
+                            textComponent.enableAutoSizing = true;
+                        }
                     }
                 }
                 __instance.m_UnitPriceText.text = $"{CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]}";
@@ -163,7 +170,7 @@ public class RestockItemPanelUIPatches
 
             if(IsCardBox(__instance.m_ItemType))
             {
-                int packtype = ((int)__instance.m_ItemType / 2) - 1;
+                int packtype = ((int)__instance.m_ItemType / 2);
                 if (cardCheckText[packtype] == null)
                 {
                     cardCheckText[packtype] = GameObject.Instantiate(__instance.m_UnitPriceText, __instance.m_UnitPriceText.transform.parent);
@@ -196,7 +203,7 @@ public class RestockItemPanelUIPatches
                 else
                 {
                     cardProgressText[packtype].text = "";
-                    cardCheckText[packtype].text = "No Card Pack Checks";
+                    cardCheckText[packtype].text = "        No Card Pack Checks";
                 }
             }
         }

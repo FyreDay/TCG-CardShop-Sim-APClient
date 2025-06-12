@@ -16,7 +16,7 @@ namespace ApClient.mapping
             }
             //InventoryBase.GetMonsterData((EMonsterType)i).GetName();
             //Plugin.Log($"{$"{cardData.monsterType} {cardData.borderType} {(cardData.isFoil ? "Foil" :"NonFoil")} {cardData.expansionType}"} : {0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType}");
-            return 0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
+            return 0x10000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
         }
 
         public static int oneghostcard = 326;

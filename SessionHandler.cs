@@ -165,7 +165,6 @@ public class SessionHandler
     {
         var jObj = JObject.Parse(str);
         var ordered = new OrderedDictionary();
-        Plugin.Log("Start Dict");
         foreach (var prop in jObj.Properties())
         {
             try
@@ -174,7 +173,6 @@ public class SessionHandler
                 EItemType key = (EItemType)(name == 190 ? 0 : name);
                 int value = (int)prop.Value;
                 ordered.Add(key, value);
-                Plugin.Log($"{key} : {value}");
             }
             catch
             {
@@ -224,7 +222,7 @@ public class SessionHandler
                 Plugin.Log("Enqueue");
                 return;
             }
-            Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
+            //Plugin.Log($"{receivedItemsHelper.Index} : {Plugin.m_SaveManager.GetProcessedIndex()}");
             if (Plugin.m_SaveManager.GetProcessedIndex() > receivedItemsHelper.Index)
             {
                 return;
@@ -324,8 +322,6 @@ public class SessionHandler
             slotData.ttIndexMapping = PgStrToDict(loginSuccess.SlotData.GetValueOrDefault("ShopTTMapping").ToString());
             slotData.startingItems = StrToList(loginSuccess.SlotData.GetValueOrDefault("StartingIds").ToString());
 
-            Plugin.Log($"required per 5: {slotData.RequiredLicenses}");
-
             Settings.Instance.SaveNewConnectionInfo(ip, password, slot);
         }
         else
@@ -345,13 +341,13 @@ public class SessionHandler
 
     public void ProcessCachedItems()
     {
-        Plugin.Log($"Cache {cachedItems.Count()}");
+        //Plugin.Log($"Cache {cachedItems.Count()}");
         while (cachedItems.Any())
         {
             var item = cachedItems.Dequeue();
             if (Plugin.m_SaveManager.GetProcessedIndex() > item.index)
             {
-                Plugin.Log($"Item Processed previously");
+                //Plugin.Log($"Item Processed previously");
                 continue;
             }
             Plugin.m_SaveManager.IncreaseProcessedIndex();
