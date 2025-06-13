@@ -173,6 +173,7 @@ public class SessionHandler
                 EItemType key = (EItemType)(name == 190 ? 0 : name);
                 int value = (int)prop.Value;
                 ordered.Add(key, value);
+                //Plugin.Log($"{key} : {value}");
             }
             catch
             {

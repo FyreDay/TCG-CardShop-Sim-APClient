@@ -150,6 +150,10 @@ public class ItemHandler
         {
             EItemType itemtype = (EItemType)(itemReceived.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? 0 : (int)itemReceived.ItemId);
             Plugin.m_SaveManager.IncreaselicensesReceived();
+            CoroutineRunner.RunOnMainThread(() =>
+            {
+                CSingleton<GameUIScreen>.Instance.EvaluateShopLevelAndExp();
+            });
             return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)

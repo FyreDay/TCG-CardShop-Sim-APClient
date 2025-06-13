@@ -255,20 +255,20 @@ public class RestockItemPanelUIPatches
     [HarmonyPatch(typeof(RestockItemPanelUI), "OnPressPurchaseButton")]
     public class OnClick
     {
-        // Prefix: Runs before the method
-        //static bool Prefix(RestockItemPanelUI __instance)
-        //{
-        //    if (Plugin.m_SessionHandler.hasItem(LicenseMapping.getValueOrEmpty(__instance.m_Index).itemid))
-        //    {
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        PopupTextPatches.ShowCustomText("License Unowned");
-        //        return false;
-        //    }
-            
-        //}
+        static bool Prefix(RestockItemPanelUI __instance)
+        {
+            if (Plugin.m_SessionHandler.hasItem(__instance.m_ItemType == EItemType.BasicCardPack ? 190 : (long)__instance.m_ItemType) && 
+                CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired)
+            {
+                return true;
+            }
+            else
+            {
+                PopupTextPatches.ShowCustomText("Item Locked");
+                return false;
+            }
+
+        }
     }
     [HarmonyPatch(typeof(RestockItemScreen), "Init")]
     public class InitScreen
