@@ -132,7 +132,7 @@ class PlayerDataPatches
             {
                 //Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
                 Plugin.m_SessionHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
-                if(Plugin.m_SessionHandler.GetSlotData().Goal == 1 && CPlayerData.m_ShopLevel +1 >= Plugin.m_SessionHandler.GetSlotData().MaxLevel)
+                if(Plugin.m_SessionHandler.GetSlotData().Goal == 0 && CPlayerData.m_ShopLevel +1 >= Plugin.m_SessionHandler.GetSlotData().MaxLevel)
                 {
                     Plugin.m_SessionHandler.SendGoalCompletion();
                     PopupTextPatches.ShowCustomText("Congrats! Your Shop Has Leveled To Your Goal!");
