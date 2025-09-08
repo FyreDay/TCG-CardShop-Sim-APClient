@@ -249,7 +249,8 @@ public class CustomerPatches
                 for (int i = 0; i < InventoryBase.GetShownMonsterList(eCardExpansionType).Count * CPlayerData.GetCardAmountPerMonsterType(eCardExpansionType); i++)
                 {
                     num2 = i;
-                    float cardMarketPrice = CPlayerData.GetCardMarketPrice(num2, eCardExpansionType, flag);
+                    int grade = 0;
+                    float cardMarketPrice = CPlayerData.GetCardMarketPrice(num2, eCardExpansionType, flag, grade);
                     if (CPlayerData.GetCardAmountByIndex(num2, eCardExpansionType, flag) > 0 && cardMarketPrice >= num3 * 0.75f && cardMarketPrice < num3 * 1.5f && UnityEngine.Random.Range(0, 100) < 25 && num7 != num2)
                     {
                         flag2 = true;
@@ -266,7 +267,8 @@ public class CustomerPatches
                     for (int j = 0; j < InventoryBase.GetShownMonsterList(eCardExpansionType).Count * CPlayerData.GetCardAmountPerMonsterType(eCardExpansionType); j++)
                     {
                         num2 = j;
-                        float cardMarketPrice2 = CPlayerData.GetCardMarketPrice(num2, eCardExpansionType, flag);
+                        int grade = 0;
+                        float cardMarketPrice2 = CPlayerData.GetCardMarketPrice(num2, eCardExpansionType, flag, grade);
                         if (cardMarketPrice2 >= num3 * 0.75f && cardMarketPrice2 < num3 * 1.5f && UnityEngine.Random.Range(0, 100) < 15 && num7 != num2)
                         {
                             flag2 = true;

@@ -136,7 +136,6 @@ public class Plugin : BaseUnityPlugin
             return m_CardHelper.CardRoller(ECollectionPackType.DestinyLegendaryCardPack);
         }
     }
-
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         Log($" Scene Load: {scene.name}");

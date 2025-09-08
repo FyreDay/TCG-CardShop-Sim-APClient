@@ -169,7 +169,7 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveB)
         {
-            if (Plugin.m_SessionHandler.itemCount(itemReceived.ItemId) == 1)
+            if (!CPlayerData.m_IsWarehouseRoomUnlocked)
             {
                 CoroutineRunner.RunOnMainThread(() =>
                 {
