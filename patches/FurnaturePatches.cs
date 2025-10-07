@@ -15,32 +15,28 @@ public class FurnaturePatches
     [HarmonyPatch(typeof(FurnitureShopPanelUI), "Init")]
     public class Init
     {
-        [HarmonyPrefix]
-        static void Prefix(FurnitureShopPanelUI __instance, FurnitureShopUIScreen furnitureShopUIScreen, int index)
-        {
-            __instance.m_Index = FurnatureMapping.reorder[index];
-        }
+
         [HarmonyPostfix]
         static void Postfix(FurnitureShopPanelUI __instance, FurnitureShopUIScreen furnitureShopUIScreen, int index)
         {
-            if(index == 0)
+            if (index == 0)
             {
                 return;
             }
+
             
-            
-            var value = FurnatureMapping.mapping[__instance.m_Index];
-            if (value.itemid == -1)
+            try
+            {
+                var value = FurnatureMapping.mapping[__instance.m_Index];
+
+                bool hasAPItem = Plugin.m_SessionHandler.itemCount(value.itemid) >= value.count;
+
+                runFurnatureBtnLogic(__instance, hasAPItem, __instance.m_Index);
+            }
+            catch
             {
                 Plugin.Log($"Failed to find index: {__instance.m_Index}");
-                return;
             }
-
-            bool hasAPItem = Plugin.m_SessionHandler.itemCount(value.itemid) >= value.count;
-
-            runFurnatureBtnLogic(__instance, hasAPItem, __instance.m_Index );
-
-
         }
 
     }
@@ -69,14 +65,7 @@ public class FurnaturePatches
 
     public static void EnableFurnature(FurnitureShopPanelUI __instance, int index)
     {
-        FieldInfo fieldInfo = typeof(FurnitureShopPanelUI).GetField("m_LevelRequired", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (fieldInfo == null)
-        {
-            return;
-        }
-
-        int levelRequirement = (int)fieldInfo.GetValue(__instance);
-        fieldInfo.SetValue(__instance, 1);
+        __instance.m_LevelRequired = 1;
         __instance.m_LevelRequirementText.gameObject.SetActive(value: false);
         __instance.m_CompanyTitle.gameObject.SetActive(value: true);
         __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);

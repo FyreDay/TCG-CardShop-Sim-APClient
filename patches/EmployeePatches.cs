@@ -24,12 +24,13 @@ public class EmployeePatches
                 __instance.m_HireFeeText.gameObject.SetActive(value: true);
                 __instance.m_LockPurchaseBtn.SetActive(value: false);
             }
-            else {
+            else
+            {
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
                 __instance.m_HireFeeText.gameObject.SetActive(value: false);
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
             }
-            
+
         }
     }
 
@@ -49,6 +50,7 @@ public class EmployeePatches
             //Plugin.Log($"at employee hire {val.name} {val.itemid} {val.locid != -1 && Plugin.m_SessionHandler.hasItem(val.itemid)}");
             if (Plugin.m_SessionHandler.hasItem(val.itemid))
             {
+                __instance.m_LevelRequired = 1;
                 HireEmployee(__instance, index);
             }
             return true;

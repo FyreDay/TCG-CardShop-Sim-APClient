@@ -7,33 +7,57 @@ namespace ApClient.mapping;
 
 public class FurnatureMapping
 {
-    public static int[] reorder = [0, 5, 17,  4, 11,18,  1,6,12,  2, 10, 13,  8,14,20,  3,12,19, 7,15,21, 9];
     public static Dictionary<int, (int itemid, string name, int count)> mapping = new Dictionary<int, (int itemid, string name, int count)>
     {
         {0, (227, "Small Cabinet", 1) },
-        {1, (228, "Small Metal Rack", 1) },
+        {1, (227, "Small Metal Rack", 2) },
         {2, (232, "Play Table", 1) },
-        {3, (202, "Small Personal Shelf", 1) },
-        {4, (229, "Single Sided Shelf", 1) },
-        {5, (200, "Card Table",1) },
+
+        {3, (227, "2x2 Cabinet", 3) },
+        {4, (200, "Card Table",1) },
+        {5, (227, "Single Sided Shelf", 4) },
+
         {6, (204, "Small Warehouse Shelf",1) },
-        {7, (201, "Small Card Display",1) },
-        {8, (203, "Auto Scent M100",1) },
+        {7, (203, "Auto Scent M100",1) },
+        {8, (202, "Small Personal Shelf", 1) },
+
         {9, (233, "Workbench",1) },
         {10, (234, "Trash Bin",1) },
-        {11, (230, "Double Sided Shelf",1) },
-        {12, (204, "Big Warehouse Shelf",2) },
-        {13, (235, "Checkout Counter",1) },
-        {14, (203, "Auto Scent G500",2) },
-        {15, (201, "Card Display Table",2) },
-        {16, (202, "Big Personal Shelf",2) },
-        {17, (200, "Vintage Card Table",2) },
-        {18, (231, "Wide Shelf",1) },
-        {19, (202, "Huge Personal Shelf",3) },
-        {20, (203, "Auto Scent T100",3) },
-        {21, (201, "Big Card Display",3) },
-       
+        {11, (201, "Small Card Display",1) },
+
+        {12, (227, "Double Sided Shelf",5) },
+        {13, (228, "Wall Display Case",1) },
+        {14, (204, "Big Warehouse Shelf",2) },
+
+        {15, (229, "Card Projector S",1) },
+        {16, (235, "Checkout Counter",1) },
+        {17, (230, "Pack Opener Machine S",1) },
+
+        {18, (203, "Auto Scent G500",2) },
+        {19, (201, "Card Display Table",2) },
+        {20, (202, "Big Personal Shelf",2) },
+
+        {21, (200, "Vintage Card Table",2) },
+        {22, (228, "Wall Display Case 3x2",2) },
+        {23, (228, "Wall Display Case 5x2",3) },
+
+        {24, (227, "Wide Shelf",6) },
+        {25, (229, "Card Projector M",2) },
+        {26, (230, "Pack Opener Machine M",2) },
+
+        {27, (202, "Huge Personal Shelf",3) },
+        {28, (203, "Auto Scent T100",3) },
+        {29, (232, "Play Table Black", 2) },
+
+        {30, (232, "Play Table White", 3) },
+        {31, (201, "Big Card Display",3) },
+        {32, (228, "Wall Display Case 6x6 Black",4) },
+
+        {33, (228, "Wall Display Case 6x6 White",5) },
+        {34, (230, "Pack Opener Machine L",3) },
+        {35, (229, "Card Projector L",3) },
     };
+
 
     public static int getindexFromId(int itemid)
     {

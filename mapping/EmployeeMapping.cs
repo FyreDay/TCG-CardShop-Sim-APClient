@@ -16,7 +16,8 @@ namespace ApClient.mapping
             {4, (223, "Angus") },
             {5, (224, "Benji") },
             {6, (225, "Lauren") },
-            {7, (226, "Axel") }
+            {7, (226, "Axel") },
+            {8, (231, "Alexander") }
         };
 
         public static int getindexFromId(int itemid)

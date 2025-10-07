@@ -188,6 +188,14 @@ public class ItemHandler
             }
             return;
         }
+        if (CPlayerData.m_IsWarehouseRoomUnlocked)
+        {
+            CoroutineRunner.RunOnMainThread(() =>
+            {
+                CSingleton<UnlockRoomManager>.Instance.EvaluateWarehouseRoomOpenClose();
+            });
+        }
+
         //Log($"Before Employee check: {EmployeeMapping.getKeyValue((int)itemReceived.ItemId).Key}");
         if (EmployeeMapping.getindexFromId((int)itemReceived.ItemId) != -1)
         {

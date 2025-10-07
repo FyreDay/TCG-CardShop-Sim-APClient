@@ -170,7 +170,7 @@ public class ExpansionShopPatches
                 if (!CPlayerData.m_IsWarehouseRoomUnlocked)
                 {
                     __instance.m_ShopB_LevelRequirementText.enabled = true;
-                    __instance.m_ShopB_LevelRequirementText.text = "Needs AP Warehouse Key";
+                    __instance.m_ShopB_LevelRequirementText.text = "Needs Warehouse Expansion";
                     __instance.m_ShopB_LockPurchaseBtn.SetActive(value: true);
                 }
             }
