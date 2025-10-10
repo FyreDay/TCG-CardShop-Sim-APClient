@@ -1,163 +1,184 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-
+﻿
+namespace ApClient.ui;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
-namespace ApClient.ui;
 public class ConnectionMenu : MonoBehaviour
 {
-    private GameObject canvasObj;
-    private TMP_InputField ipPortInput;
-    private TMP_InputField passwordInput;
-    private TMP_InputField slotInput;
-    private TMP_Text statusText;
+    public static ConnectionMenu Instance; 
+    private Canvas canvas;
+    private RectTransform window;
+    private Vector2 dragOffset;
 
-    private bool isVisible = false;
+    private TMP_InputField ipField, passField, slotField;
+    private TMP_Text stateLabel;
 
+    public static bool showGUI = true;
+    public static string state = "Not Connected";
+    public static void setVisable(bool visable)
+    {
+        showGUI = visable;
+    }
     void Start()
     {
-        CreateUI();
+        // Create main Canvas
+        canvas = FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            GameObject cObj = new GameObject("ConnectionCanvas");
+            canvas = cObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 1000;
+
+            CanvasScaler scaler = cObj.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            cObj.AddComponent<GraphicRaycaster>();
+        }
+
+        // Background
+        GameObject bgObj = new GameObject("MenuBackground", typeof(Image));
+        bgObj.transform.SetParent(canvas.transform, false);
+        Image bgImage = bgObj.GetComponent<Image>();
+        bgImage.color = new Color(0.1f, 0.1f, 0.1f, 0.92f);
+        //bgImage.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
+        bgImage.type = Image.Type.Sliced;
+
+        Outline outline = bgObj.AddComponent<Outline>();
+        outline.effectColor = Color.black;
+        outline.effectDistance = new Vector2(2, -2);
+
+        window = bgObj.GetComponent<RectTransform>();
+        window.sizeDelta = new Vector2(320, 320);
+        window.anchorMin = new Vector2(0, 1);
+        window.anchorMax = new Vector2(0, 1);
+        window.pivot = new Vector2(0, 1);
+        window.anchoredPosition = new Vector2(20, -20);
+
+        // Title
+        TMP_Text title = CreateText("AP Client", new Vector2(0, 135), 20, bgObj.transform);
+        title.alignment = TextAlignmentOptions.Center;
+
+        // Address Input
+        CreateLabel("Address:Port", new Vector2(0, 100), bgObj.transform);
+        ipField = CreateInput(Settings.Instance.LastUsedIP.Value, new Vector2(0, 75), bgObj.transform);
+
+        // Password Input
+        CreateLabel("Password", new Vector2(0, 40), bgObj.transform);
+        passField = CreateInput(Settings.Instance.LastUsedPassword.Value, new Vector2(0, 15), bgObj.transform);
+
+        // Slot Input
+        CreateLabel("Slot", new Vector2(0, -20), bgObj.transform);
+        slotField = CreateInput(Settings.Instance.LastUsedSlot.Value, new Vector2(0, -45), bgObj.transform);
+
+        // Connect Button
+        GameObject buttonObj = new GameObject("ConnectButton", typeof(Image), typeof(Button));
+        buttonObj.transform.SetParent(bgObj.transform, false);
+        Image btnImage = buttonObj.GetComponent<Image>();
+        //btnImage.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
+        btnImage.type = Image.Type.Sliced;
+        btnImage.color = new Color(0.2f, 0.4f, 0.8f, 0.9f);
+
+        RectTransform btnRect = buttonObj.GetComponent<RectTransform>();
+        btnRect.sizeDelta = new Vector2(160, 35);
+        btnRect.anchoredPosition = new Vector2(0, -80);
+
+        TMP_Text btnText = CreateText("Connect", Vector2.zero, 18, buttonObj.transform);
+        btnText.alignment = TextAlignmentOptions.Center;
+
+        Button button = buttonObj.GetComponent<Button>();
+        button.onClick.AddListener(OnConnectPressed);
+
+        // State label
+        stateLabel = CreateText("Not Connected", new Vector2(0, -120), 14, bgObj.transform);
+        stateLabel.alignment = TextAlignmentOptions.Center;
     }
 
     void Update()
     {
+        // Toggle with hotkey
         if (Input.GetKeyDown(Settings.Instance.MyHotkey.Value))
         {
-            isVisible = !isVisible;
-            canvasObj.SetActive(isVisible);
-        }
-    }
-
-    void CreateUI()
-    {
-        // Root Canvas
-        canvasObj = new GameObject("APMenuCanvas");
-        var canvas = canvasObj.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        canvasObj.AddComponent<GraphicRaycaster>();
-
-        // EventSystem required for buttons/inputs
-        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
-        {
-            var es = new GameObject("EventSystem");
-            es.AddComponent<UnityEngine.EventSystems.EventSystem>();
-            es.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+            showGUI = !showGUI;
+            if (window != null)
+                window.gameObject.SetActive(showGUI);
         }
 
-        // Background Panel
-        var panel = new GameObject("Panel");
-        panel.transform.SetParent(canvasObj.transform);
-        var img = panel.AddComponent<Image>();
-        img.color = new Color(0, 0, 0, 0.85f);
-        var rt = panel.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.sizeDelta = new Vector2(300, 300);
-        rt.anchoredPosition = Vector2.zero;
-
-        // Address Input
-        ipPortInput = CreateInput(panel.transform, "Address:Port", Settings.Instance.LastUsedIP.Value, 80);
-        // Password Input
-        passwordInput = CreateInput(panel.transform, "Password", Settings.Instance.LastUsedPassword.Value, 30);
-        // Slot Input
-        slotInput = CreateInput(panel.transform, "Slot", Settings.Instance.LastUsedSlot.Value, -20);
-
-        // Connect Button
-        var buttonObj = CreateButton(panel.transform, "Connect", -70);
-        buttonObj.onClick.AddListener(OnConnectPressed);
-
-        // Status Text
-        var statusObj = new GameObject("StatusText");
-        statusObj.transform.SetParent(panel.transform);
-        statusText = statusObj.AddComponent<TextMeshProUGUI>();
-        var srt = statusText.GetComponent<RectTransform>();
-        srt.sizeDelta = new Vector2(280, 40);
-        srt.anchoredPosition = new Vector2(0, -120);
-        statusText.alignment = TextAlignmentOptions.Center;
-        statusText.color = Color.white;
-        statusText.fontSize = 16;
-        statusText.text = "Not Connected";
-
-        canvasObj.SetActive(false);
+        stateLabel.text = state;
     }
 
-    TMP_InputField CreateInput(Transform parent, string placeholder, string defaultText, float yOffset)
+    private void OnConnectPressed()
     {
-        var go = new GameObject(placeholder + "Input");
-        go.transform.SetParent(parent);
-        var rt = go.AddComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(260, 30);
-        rt.anchoredPosition = new Vector2(0, yOffset);
+        Debug.Log("Connect pressed!");
+        Plugin.m_SessionHandler.connect(ipField.text, passField.text, slotField.text);
+    }
 
-        var bg = go.AddComponent<Image>();
-        bg.color = new Color(1, 1, 1, 0.1f);
+    // --- Helpers ---
+    private TMP_Text CreateText(string text, Vector2 pos, int size, Transform parent)
+    {
+        GameObject obj = new GameObject(text, typeof(TextMeshProUGUI));
+        obj.transform.SetParent(parent, false);
+        var tmp = obj.GetComponent<TextMeshProUGUI>();
+        tmp.text = text;
+        tmp.fontSize = size;
+        tmp.color = Color.white;
+        tmp.alignment = TextAlignmentOptions.Left;
+        RectTransform rect = tmp.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(280, 30);
+        rect.anchoredPosition = pos;
+        return tmp;
+    }
 
-        var input = go.AddComponent<TMP_InputField>();
+    private TMP_Text CreateLabel(string text, Vector2 pos, Transform parent)
+    {
+        TMP_Text tmp = CreateText(text, pos, 14, parent);
+        tmp.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        tmp.alignment = TextAlignmentOptions.MidlineLeft;
+        return tmp;
+    }
 
-        var text = new GameObject("Text").AddComponent<TextMeshProUGUI>();
-        text.transform.SetParent(go.transform);
-        text.rectTransform.anchorMin = new Vector2(0, 0);
-        text.rectTransform.anchorMax = new Vector2(1, 1);
-        text.rectTransform.offsetMin = new Vector2(10, 5);
-        text.rectTransform.offsetMax = new Vector2(-10, -5);
-        text.text = defaultText;
-        text.fontSize = 16;
-        text.color = Color.white;
-        input.textComponent = text;
+    private TMP_InputField CreateInput(string initial, Vector2 pos, Transform parent)
+    {
+        GameObject inputObj = new GameObject("InputField", typeof(Image), typeof(TMP_InputField));
+        inputObj.transform.SetParent(parent, false);
 
-        var ph = new GameObject("Placeholder").AddComponent<TextMeshProUGUI>();
-        ph.transform.SetParent(go.transform);
-        ph.rectTransform.anchorMin = new Vector2(0, 0);
-        ph.rectTransform.anchorMax = new Vector2(1, 1);
-        ph.rectTransform.offsetMin = new Vector2(10, 5);
-        ph.rectTransform.offsetMax = new Vector2(-10, -5);
-        ph.text = placeholder;
-        ph.fontSize = 16;
-        ph.color = new Color(1, 1, 1, 0.5f);
-        input.placeholder = ph;
+        Image bg = inputObj.GetComponent<Image>();
+        //bg.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/InputFieldBackground.psd");
+        bg.type = Image.Type.Sliced;
+        bg.color = new Color(0.2f, 0.2f, 0.2f, 1f);
 
-        input.text = defaultText;
+        RectTransform rect = inputObj.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(200, 25);
+        rect.anchoredPosition = pos;
+
+        GameObject textArea = new GameObject("TextArea", typeof(RectMask2D));
+        textArea.transform.SetParent(inputObj.transform, false);
+        RectTransform textRect = textArea.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = new Vector2(5, 5);
+        textRect.offsetMax = new Vector2(-5, -5);
+
+        TMP_Text textComp = new GameObject("Text", typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
+        textComp.transform.SetParent(textArea.transform, false);
+        textComp.text = initial;
+        textComp.fontSize = 14;
+        textComp.color = Color.white;
+        textComp.alignment = TextAlignmentOptions.Left;
+
+        RectTransform textCompRect = textComp.GetComponent<RectTransform>();
+        textCompRect.anchorMin = Vector2.zero;
+        textCompRect.anchorMax = Vector2.one;
+        textCompRect.offsetMin = Vector2.zero;
+        textCompRect.offsetMax = Vector2.zero;
+
+        TMP_InputField input = inputObj.GetComponent<TMP_InputField>();
+        input.textViewport = textRect;
+        input.textComponent = textComp;
+        input.text = initial;
+
         return input;
-    }
-
-    Button CreateButton(Transform parent, string label, float yOffset)
-    {
-        var go = new GameObject(label + "Button");
-        go.transform.SetParent(parent);
-        var rt = go.AddComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(180, 40);
-        rt.anchoredPosition = new Vector2(0, yOffset);
-
-        var img = go.AddComponent<Image>();
-        img.color = new Color(0.3f, 0.3f, 0.3f, 1);
-
-        var btn = go.AddComponent<Button>();
-        var txt = new GameObject("Label").AddComponent<TextMeshProUGUI>();
-        txt.transform.SetParent(go.transform);
-        txt.text = label;
-        txt.alignment = TextAlignmentOptions.Center;
-        txt.color = Color.white;
-        txt.fontSize = 16;
-        txt.rectTransform.anchorMin = new Vector2(0, 0);
-        txt.rectTransform.anchorMax = new Vector2(1, 1);
-        txt.rectTransform.offsetMin = txt.rectTransform.offsetMax = Vector2.zero;
-
-        return btn;
-    }
-
-    void OnConnectPressed()
-    {
-        string ip = ipPortInput.text;
-        string pwd = passwordInput.text;
-        string slot = slotInput.text;
-
-        statusText.text = $"Connecting to {ip}...";
-        Plugin.m_SessionHandler.connect(ip, pwd, slot);
     }
 }

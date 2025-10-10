@@ -1,7 +1,7 @@
 ﻿using ApClient.data;
 using ApClient.mapping;
 using ApClient.patches;
-using ApClientl;
+using ApClient.ui;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
@@ -209,7 +209,7 @@ public class SessionHandler
     }
     public void connect(string ip, string password, string slot)
     {
-        APGui.state = "Connecting";
+        ConnectionMenu.state = "Connecting";
         session = ArchipelagoSessionFactory.CreateSession(ip);
 
         
@@ -242,7 +242,7 @@ public class SessionHandler
         }
         catch (Exception e)
         {
-            APGui.state = "Connection Failed";
+            ConnectionMenu.state = "Connection Failed";
             result = new LoginFailure(e.GetBaseException().Message);
             Plugin.Log(e.GetBaseException().Message);
         }
@@ -255,8 +255,8 @@ public class SessionHandler
             //callback for item retrieval
             session.Socket.SocketClosed += (reason) => {
                 isConnected = false;
-                APGui.showGUI = true;
-                APGui.state = "AP Disconnected";
+                ConnectionMenu.setVisable(true);
+                ConnectionMenu.state = "AP Disconnected";
                 APConsole.Instance.Log("Connection Closed");
             };
 
@@ -265,11 +265,11 @@ public class SessionHandler
             string modversion = loginSuccess.SlotData.GetValueOrDefault("ModVersion").ToString();
             if (!modversion.Equals(MyPluginInfo.PLUGIN_VERSION))
             {
-                APGui.state = $"AP Expects Mod v{modversion}";
+                ConnectionMenu.state = $"AP Expects Mod v{modversion}";
             }
             else
             {
-                APGui.state = "Connected";
+                ConnectionMenu.state = "Connected";
                 
                 Plugin.RunTitleInteractableSaveLogic();
             }

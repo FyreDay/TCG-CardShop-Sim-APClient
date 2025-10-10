@@ -1,7 +1,6 @@
 ﻿using ApClient.mapping;
 using ApClient.patches;
 using ApClient.ui;
-using ApClientl;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
@@ -56,11 +55,8 @@ public class Plugin : BaseUnityPlugin
     }
     void Start()
     {
-        var go = new GameObject("MyGUI");
-        go.AddComponent<APGui>();
-        DontDestroyOnLoad(go);
         APConsole.Create();
-
+        
         GameObject ui = new GameObject("ConnectionMenu");
         ui.AddComponent<ConnectionMenu>();
         DontDestroyOnLoad(ui);
@@ -161,7 +157,10 @@ public class Plugin : BaseUnityPlugin
         {
             
             //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
-            APGui.showGUI = false;
+            ConnectionMenu.setVisable(false);
+            GameObject menuObj = new GameObject("APinfoMenu");
+            APinfoMenu menu = menuObj.AddComponent<APinfoMenu>();
+            DontDestroyOnLoad(menuObj);
         }
     }
     public static void RunTitleInteractableSaveLogic()
@@ -217,14 +216,13 @@ public class Plugin : BaseUnityPlugin
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            //for (int i = 1; i < (int)EMonsterType.MAX; i++)
+            //foreach (UI_PhoneScreen.)
             //{
-            //    var name = InventoryBase.GetMonsterData((EMonsterType)i).GetName();
-            //    Log($"{(EMonsterType)i} : {name}");
+            //    PhoneManager
+
             //}
         }
-
-        if (Input.GetKeyDown(KeyCode.H))
+            if (Input.GetKeyDown(KeyCode.H))
         {
         }
     }
