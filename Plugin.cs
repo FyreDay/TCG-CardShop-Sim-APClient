@@ -155,12 +155,12 @@ public class Plugin : BaseUnityPlugin
         }
         if (scene.name == "Start")
         {
-            
+
             //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
-            ConnectionMenu.setVisable(false);
-            GameObject menuObj = new GameObject("APinfoMenu");
-            APinfoMenu menu = menuObj.AddComponent<APinfoMenu>();
-            DontDestroyOnLoad(menuObj);
+            if (APinfoMenu.Instance == null)
+            {
+                
+            }
         }
     }
     public static void RunTitleInteractableSaveLogic()

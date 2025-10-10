@@ -17,6 +17,7 @@ public class PhonePatches
         [HarmonyPostfix]
         public static void Postfix(PhoneManager __instance)
         {
+            
             // Ensure UI is ready
             var phoneScreen = __instance.m_UI_PhoneScreen;
             if (phoneScreen == null)
@@ -25,8 +26,11 @@ public class PhonePatches
             // Reference an existing button as a template
             if (phoneScreen.m_PhoneButtonList.Count == 0)
                 return;
+            GameObject menuObj = new GameObject("APinfoMenu");
+            menuObj.AddComponent<APinfoMenu>();
+            menuObj.transform.SetParent(phoneScreen.transform, false);
+            UnityEngine.Object.DontDestroyOnLoad(menuObj);
 
-  
             Transform referenceGrp = phoneScreen.transform.Find("ScreenGrp/AnimGrp/PhoneButtonGrp_CustomerReview");
 
             // Instantiate as sibling, parent = the button container
