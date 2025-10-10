@@ -23,8 +23,11 @@ public class CustomerPatches
             if (Plugin.isCashOnly())
             {
                 __instance.m_CustomerCash.SetIsCard(false);
-                CSingleton<CustomerManager>.Instance.ResetCustomerExactChangeChance();
+                __instance.m_CustomerCash.gameObject.SetActive(value: true);
+                __instance.m_Anim.SetBool("HandingOverCash", value: true);
                 __instance.m_CurrentQueueCashierCounter.SetCustomerPaidAmount(false, __instance.GetRandomPayAmount(__instance.m_TotalScannedItemCost));
+                __instance.m_CurrentQueueCashierCounter.UpdateCashierCounterState(ECashierCounterState.TakingCash);
+                __instance.m_IsCheckScanItemOutOfBound = false;
 
             }
         }

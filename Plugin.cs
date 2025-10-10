@@ -1,5 +1,6 @@
 ﻿using ApClient.mapping;
 using ApClient.patches;
+using ApClient.ui;
 using ApClientl;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
@@ -40,6 +41,7 @@ public class Plugin : BaseUnityPlugin
 
     private Plugin()
     {
+        
         this.m_Harmony.PatchAll();
     }
 
@@ -50,8 +52,7 @@ public class Plugin : BaseUnityPlugin
         Settings.Instance.Load(this);
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.sceneLoaded += this.OnSceneLoad;
-        
-
+       
     }
     void Start()
     {
@@ -59,6 +60,10 @@ public class Plugin : BaseUnityPlugin
         go.AddComponent<APGui>();
         DontDestroyOnLoad(go);
         APConsole.Create();
+
+        GameObject ui = new GameObject("ConnectionMenu");
+        ui.AddComponent<ConnectionMenu>();
+        DontDestroyOnLoad(ui);
     }
 
     private void OnDestroy()

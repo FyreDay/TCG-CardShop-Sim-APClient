@@ -100,7 +100,7 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.CurrencyTrap)
         {
-            CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.RandomRangeInt(0, 8);
+            CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.Range(0, 8);
             return;
         }
 
