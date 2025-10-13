@@ -31,10 +31,10 @@ public class CardOpeningPatches
             }
 
             List<EMonsterType> list = new List<EMonsterType>();
-            List<EMonsterType> list2 = new List<EMonsterType>();
-            List<EMonsterType> list3 = new List<EMonsterType>();
-            List<EMonsterType> list4 = new List<EMonsterType>();
-            List<EMonsterType> list5 = new List<EMonsterType>();
+            List<EMonsterType> BasicMonsters = new List<EMonsterType>();
+            List<EMonsterType> RareMonsters = new List<EMonsterType>();
+            List<EMonsterType> EpicMonsters = new List<EMonsterType>();
+            List<EMonsterType> legendaryMonsters = new List<EMonsterType>();
             ECardExpansionType cardExpansionType = InventoryBase.GetCardExpansionType(__instance.m_CollectionPackType);
             if (isSecondaryRolledData)
             {
@@ -51,16 +51,16 @@ public class CardOpeningPatches
                 switch (rarity)
                 {
                     case ERarity.Legendary:
-                        list5.Add(monsterType);
+                        legendaryMonsters.Add(monsterType);
                         break;
                     case ERarity.Epic:
-                        list4.Add(monsterType);
+                        EpicMonsters.Add(monsterType);
                         break;
                     case ERarity.Rare:
-                        list3.Add(monsterType);
+                        RareMonsters.Add(monsterType);
                         break;
                     default:
-                        list2.Add(monsterType);
+                        BasicMonsters.Add(monsterType);
                         break;
                 }
             }
@@ -76,13 +76,13 @@ public class CardOpeningPatches
             float num10 = 10f;
             float num11 = 2f;
             float num12 = 0.1f;
-            float num13 = 5f + .45f * Plugin.getNumLuckItems();
+            float foilPullRate = 5f + .45f * Plugin.getNumLuckItems();
             ECardBorderType borderType = ECardBorderType.Base;
-            float num14 = 20f;
-            float num15 = 8f + .12f * Plugin.getNumLuckItems(); ;
-            float num16 = 4f + .26f * Plugin.getNumLuckItems(); ;
-            float num17 = 1f + .29f * Plugin.getNumLuckItems(); ;
-            float num18 = 0.25f + .5f * Plugin.getNumLuckItems(); ;
+            float FirstEdPullRate = 20f;
+            float SilverEdPullRate = 8f + .12f * Plugin.getNumLuckItems(); ;
+            float GoldEdPullRate = 4f + .26f * Plugin.getNumLuckItems(); ;
+            float EXPullRate = 1f + .29f * Plugin.getNumLuckItems(); ;
+            float FullArtPullRate = 0.25f + .5f * Plugin.getNumLuckItems(); ;
             ERarity eRarity = ERarity.Common;
             int num19 = 7;
             if (__instance.m_CollectionPackType == ECollectionPackType.RareCardPack || __instance.m_CollectionPackType == ECollectionPackType.DestinyRareCardPack)
@@ -123,56 +123,56 @@ public class CardOpeningPatches
 
             if (godPackRollIndex > 0)
             {
-                num13 = 0f;
-                num14 = 0f;
-                num15 = 0f;
-                num16 = 0f;
-                num17 = 0f;
-                num18 = 0f;
+                foilPullRate = 0f;
+                FirstEdPullRate = 0f;
+                SilverEdPullRate = 0f;
+                GoldEdPullRate = 0f;
+                EXPullRate = 0f;
+                FullArtPullRate = 0f;
             }
 
             switch (godPackRollIndex)
             {
                 case 1:
-                    num14 = 100f;
+                    FirstEdPullRate = 100f;
                     break;
                 case 2:
-                    num15 = 100f;
+                    SilverEdPullRate = 100f;
                     break;
                 case 3:
-                    num16 = 100f;
+                    GoldEdPullRate = 100f;
                     break;
                 case 4:
-                    num17 = 100f;
+                    EXPullRate = 100f;
                     break;
                 case 5:
-                    num18 = 100f;
+                    FullArtPullRate = 100f;
                     break;
                 case 6:
-                    num13 = 10000f;
-                    num14 = 100f;
+                    foilPullRate = 10000f;
+                    FirstEdPullRate = 100f;
                     break;
                 case 7:
-                    num13 = 10000f;
-                    num15 = 100f;
+                    foilPullRate = 10000f;
+                    SilverEdPullRate = 100f;
                     break;
                 case 8:
-                    num13 = 10000f;
-                    num16 = 100f;
+                    foilPullRate = 10000f;
+                    GoldEdPullRate = 100f;
                     break;
                 case 9:
-                    num13 = 10000f;
-                    num17 = 100f;
+                    foilPullRate = 10000f;
+                    EXPullRate = 100f;
                     break;
                 case 10:
-                    num13 = 10000f;
-                    num18 = 100f;
+                    foilPullRate = 10000f;
+                    FullArtPullRate = 100f;
                     break;
                 case 12:
-                    num13 = 10000f;
+                    foilPullRate = 10000f;
                     break;
                 case 13:
-                    num13 = 10000f;
+                    foilPullRate = 10000f;
                     break;
             }
 
@@ -184,22 +184,22 @@ public class CardOpeningPatches
                 }
 
                 int num20 = UnityEngine.Random.Range(0, list.Count);
-                if (num9 - num5 > 0 && list5.Count > 0)
+                if (num9 - num5 > 0 && legendaryMonsters.Count > 0)
                 {
                     eRarity = ERarity.Legendary;
                     num5++;
                 }
-                else if (num8 - num4 > 0 && list4.Count > 0)
+                else if (num8 - num4 > 0 && EpicMonsters.Count > 0)
                 {
                     eRarity = ERarity.Epic;
                     num4++;
                 }
-                else if (num7 - num3 > 0 && list3.Count > 0)
+                else if (num7 - num3 > 0 && RareMonsters.Count > 0)
                 {
                     eRarity = ERarity.Rare;
                     num3++;
                 }
-                else if (num6 - num2 > 0 && list2.Count > 0)
+                else if (num6 - num2 > 0 && BasicMonsters.Count > 0)
                 {
                     eRarity = ERarity.Common;
                     num2++;
@@ -212,7 +212,7 @@ public class CardOpeningPatches
                     int num24 = 4 - num4;
                     int num25 = 4 - num5;
                     bool flag = false;
-                    if (!flag && num12 > 0f && list5.Count > 0 && num25 > 0)
+                    if (!flag && num12 > 0f && legendaryMonsters.Count > 0 && num25 > 0)
                     {
                         num22 = Mathf.RoundToInt(num12 * 100f);
                         if (num21 < num22)
@@ -223,7 +223,7 @@ public class CardOpeningPatches
                         }
                     }
 
-                    if (!flag && num11 > 0f && list4.Count > 0 && num24 > 0)
+                    if (!flag && num11 > 0f && EpicMonsters.Count > 0 && num24 > 0)
                     {
                         num22 = Mathf.RoundToInt(num11 * 100f);
                         if (num21 < num22)
@@ -234,7 +234,7 @@ public class CardOpeningPatches
                         }
                     }
 
-                    if (!flag && num10 > 0f && list3.Count > 0 && num23 > 0)
+                    if (!flag && num10 > 0f && RareMonsters.Count > 0 && num23 > 0)
                     {
                         num22 = Mathf.RoundToInt(num10 * 100f);
                         if (num21 < num22)
@@ -258,38 +258,38 @@ public class CardOpeningPatches
                     switch (eRarity)
                     {
                         case ERarity.Legendary:
-                            num20 = UnityEngine.Random.Range(0, list5.Count);
-                            num = (int)list5[num20];
+                            num20 = UnityEngine.Random.Range(0, legendaryMonsters.Count);
+                            num = (int)legendaryMonsters[num20];
                             if (!openPackCanHaveDuplicate)
                             {
-                                list5.RemoveAt(num20);
+                                legendaryMonsters.RemoveAt(num20);
                             }
 
                             break;
                         case ERarity.Epic:
-                            num20 = UnityEngine.Random.Range(0, list4.Count);
-                            num = (int)list4[num20];
+                            num20 = UnityEngine.Random.Range(0, EpicMonsters.Count);
+                            num = (int)EpicMonsters[num20];
                             if (!openPackCanHaveDuplicate)
                             {
-                                list4.RemoveAt(num20);
+                                EpicMonsters.RemoveAt(num20);
                             }
 
                             break;
                         case ERarity.Rare:
-                            num20 = UnityEngine.Random.Range(0, list3.Count);
-                            num = (int)list3[num20];
+                            num20 = UnityEngine.Random.Range(0, RareMonsters.Count);
+                            num = (int)RareMonsters[num20];
                             if (!openPackCanHaveDuplicate)
                             {
-                                list3.RemoveAt(num20);
+                                RareMonsters.RemoveAt(num20);
                             }
 
                             break;
                         default:
-                            num20 = UnityEngine.Random.Range(0, list2.Count);
-                            num = (int)list2[num20];
+                            num20 = UnityEngine.Random.Range(0, BasicMonsters.Count);
+                            num = (int)BasicMonsters[num20];
                             if (!openPackCanHaveDuplicate)
                             {
-                                list2.RemoveAt(num20);
+                                BasicMonsters.RemoveAt(num20);
                             }
 
                             break;
@@ -312,7 +312,7 @@ public class CardOpeningPatches
                 }
 
                 cardData.monsterType = (EMonsterType)num;
-                if (UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(num13 * 100f))
+                if (UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(foilPullRate * 100f))
                 {
                     cardData.isFoil = true;
                     __instance.m_HasFoilCard = true;
@@ -329,31 +329,31 @@ public class CardOpeningPatches
                 }
 
                 bool flag2 = false;
-                if (UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(num18 * 100f))
+                if (UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(FullArtPullRate * 100f))
                 {
                     borderType = ECardBorderType.FullArt;
                     flag2 = true;
                 }
 
-                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(num17 * 100f))
+                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(EXPullRate * 100f))
                 {
                     borderType = ECardBorderType.EX;
                     flag2 = true;
                 }
 
-                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(num16 * 100f))
+                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(GoldEdPullRate * 100f))
                 {
                     borderType = ECardBorderType.Gold;
                     flag2 = true;
                 }
 
-                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(num15 * 100f))
+                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(SilverEdPullRate * 100f))
                 {
                     borderType = ECardBorderType.Silver;
                     flag2 = true;
                 }
 
-                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(num14 * 100f))
+                if (!flag2 && UnityEngine.Random.Range(0, 10000) < Mathf.RoundToInt(FirstEdPullRate * 100f))
                 {
                     borderType = ECardBorderType.FirstEdition;
                     flag2 = true;
@@ -395,10 +395,10 @@ public class CardOpeningPatches
             }
 
             list.Clear();
-            list2.Clear();
-            list3.Clear();
-            list4.Clear();
-            list5.Clear();
+            BasicMonsters.Clear();
+            RareMonsters.Clear();
+            EpicMonsters.Clear();
+            legendaryMonsters.Clear();
             __instance.m_GCCollectCount++;
             if (__instance.m_GCCollectCount >= 100)
             {

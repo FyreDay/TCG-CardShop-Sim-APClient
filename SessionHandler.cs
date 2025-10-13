@@ -337,6 +337,25 @@ public class SessionHandler
 
     static void OnMessageReceived(LogMessage message)
     {
+        switch (message)
+        {
+            case HintItemSendLogMessage hintLogMessage:
+                if (!hintLogMessage.IsReceiverTheActivePlayer)
+                {
+                    break;
+                }
+                var hintreceiver = hintLogMessage.Receiver;
+                var hintsender = hintLogMessage.Sender;
+                var hintnetworkItem = hintLogMessage.Item;
+                var hintfound = hintLogMessage.IsFound;
+                APConsole.Instance.Log("OH WOW THIS IS RELATED TO ME!!!!");
+                break;
+            case ItemSendLogMessage itemSendLogMessage:
+                var receiver = itemSendLogMessage.Receiver;
+                var sender = itemSendLogMessage.Sender;
+                var networkItem = itemSendLogMessage.Item;
+                break;
+        }
         APConsole.Instance.Log(message.ToString() ?? string.Empty);
     }
 
