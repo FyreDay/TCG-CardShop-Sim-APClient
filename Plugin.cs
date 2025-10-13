@@ -58,8 +58,13 @@ public class Plugin : BaseUnityPlugin
         APConsole.Create();
         
         GameObject ui = new GameObject("ConnectionMenu");
-        ui.AddComponent<ConnectionMenu>();
+        ConnectionMenu menu = ui.AddComponent<ConnectionMenu>();
         DontDestroyOnLoad(ui);
+
+        Log("Setting up infomenu");
+        GameObject infoui = new GameObject("APinfoMenu");
+        APinfoMenu infomenu = infoui.AddComponent<APinfoMenu>();
+        DontDestroyOnLoad(infoui);
     }
 
     private void OnDestroy()
@@ -157,10 +162,7 @@ public class Plugin : BaseUnityPlugin
         {
 
             //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
-            if (APinfoMenu.Instance == null)
-            {
-                
-            }
+            
         }
     }
     public static void RunTitleInteractableSaveLogic()

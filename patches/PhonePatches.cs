@@ -26,10 +26,6 @@ public class PhonePatches
             // Reference an existing button as a template
             if (phoneScreen.m_PhoneButtonList.Count == 0)
                 return;
-            GameObject menuObj = new GameObject("APinfoMenu");
-            menuObj.AddComponent<APinfoMenu>();
-            menuObj.transform.SetParent(phoneScreen.transform, false);
-            UnityEngine.Object.DontDestroyOnLoad(menuObj);
 
             Transform referenceGrp = phoneScreen.transform.Find("ScreenGrp/AnimGrp/PhoneButtonGrp_CustomerReview");
 
@@ -53,15 +49,17 @@ public class PhonePatches
             tmpText.color = Color.cyan;
 
 
-            Button newButton = newButtonObj.GetComponent<Button>();
+            ControllerButton controllerButton = newButtonObj.GetComponent<ControllerButton>();
+            Button newButton = controllerButton.m_Button;
             if (newButton != null)
             {
+                Plugin.Log("button not null");
                 newButton.onClick.AddListener(() =>
                 {
                     if (APinfoMenu.Instance != null)
                     {
-                        APinfoMenu.Instance.gameObject.SetActive(true);
-                        APinfoMenu.Instance.Show(); // UIScreenBase logic
+                        Plugin.Log("ap info open!!!");
+                        APinfoMenu.Instance.setVisable(true);
                     }
                     else
                     {
@@ -69,6 +67,10 @@ public class PhonePatches
                     }
 
                 });
+            }
+            else
+            {
+                Plugin.Log("button is nullllllllllllllllllll");
             }
         }
     }

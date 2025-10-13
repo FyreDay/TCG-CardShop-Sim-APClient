@@ -7,100 +7,115 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class APinfoMenu : UIScreenBase
+public class APinfoMenu : MonoBehaviour
 {
     public static APinfoMenu Instance;
 
-    private RectTransform window;
+    private bool showGUI = false;
 
-    public void Awake()
+    public void setVisable(bool visable)
     {
-        Instance = this;
-
-        // Parent to phone screen container
-        var phoneScreen = PhoneManager.m_Instance?.m_UI_PhoneScreen;
-        if (phoneScreen != null)
+        Plugin.Log("toggle Ap info");
+        showGUI = visable;
+        if (window != null)
         {
-            transform.SetParent(phoneScreen.transform, false);
+            Plugin.Log("instance not null");
+            window.gameObject.SetActive(showGUI);
         }
 
-        // Create UI
-        CreateUI();
-
-        // Start hidden
-        base.CloseScreen();
     }
 
-    private void CreateUI()
+    public void toggleVisability()
     {
-        Canvas canvas = GetComponentInParent<Canvas>();
+        setVisable(!showGUI);
+    }
+
+    private Canvas canvas;
+    private RectTransform window;
+    void Start()
+    {
+        Instance = this;
+        // Create main Canvas
+        canvas = FindObjectOfType<Canvas>();
         if (canvas == null)
         {
-            Debug.LogWarning("APinfoMenu: No parent canvas found!");
-            return;
+            GameObject cObj = new GameObject("InfoConnectionCanvas");
+            canvas = cObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 1000;
+
+            CanvasScaler scaler = cObj.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            cObj.AddComponent<GraphicRaycaster>();
         }
 
-        // Background panel
-        GameObject bgObj = new GameObject("MenuBackground", typeof(Image));
-        bgObj.transform.SetParent(transform, false);
+        // Background
+        GameObject bgObj = new GameObject("InfoMenuBackground", typeof(Image));
+        bgObj.transform.SetParent(canvas.transform, false);
         Image bgImage = bgObj.GetComponent<Image>();
         bgImage.color = new Color(0.1f, 0.1f, 0.1f, 0.92f);
+        //bgImage.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
         bgImage.type = Image.Type.Sliced;
 
-        // Outline
         Outline outline = bgObj.AddComponent<Outline>();
         outline.effectColor = Color.black;
         outline.effectDistance = new Vector2(2, -2);
 
-        // RectTransform
         window = bgObj.GetComponent<RectTransform>();
-        window.sizeDelta = new Vector2(Screen.width / 2f, Screen.height);
-        window.anchorMin = new Vector2(0.5f, 0.5f);
-        window.anchorMax = new Vector2(0.5f, 0.5f);
-        window.pivot = new Vector2(0.5f, 0.5f);
-        window.anchoredPosition = Vector2.zero;
+        window.sizeDelta = new Vector2(320, 320);
+        window.pivot = new Vector2(0, 1);
+        window.anchoredPosition = new Vector2(20, -20);
 
         // Title
-        GameObject titleObj = new GameObject("Title", typeof(TextMeshProUGUI));
-        titleObj.transform.SetParent(bgObj.transform, false);
-        TextMeshProUGUI titleText = titleObj.GetComponent<TextMeshProUGUI>();
-        titleText.text = "AP Info";
-        titleText.fontSize = 36;
-        titleText.color = Color.cyan;
-        titleText.alignment = TextAlignmentOptions.Center;
-        RectTransform titleRT = titleObj.GetComponent<RectTransform>();
-        titleRT.anchorMin = new Vector2(0.5f, 1f);
-        titleRT.anchorMax = new Vector2(0.5f, 1f);
-        titleRT.pivot = new Vector2(0.5f, 1f);
-        titleRT.anchoredPosition = new Vector2(0, -20);
-        titleRT.sizeDelta = new Vector2(window.sizeDelta.x, 50);
+        TMP_Text title = CreateText("AP Info", new Vector2(0, 135), 20, bgObj.transform);
+        title.alignment = TextAlignmentOptions.Center;
+    }
 
-        // X Button
-        GameObject closeBtnObj = new GameObject("CloseButton", typeof(Button), typeof(Image));
-        closeBtnObj.transform.SetParent(bgObj.transform, false);
-        Image closeImg = closeBtnObj.GetComponent<Image>();
-        closeImg.color = Color.red;
-        RectTransform closeRT = closeBtnObj.GetComponent<RectTransform>();
-        closeRT.anchorMin = new Vector2(1f, 1f);
-        closeRT.anchorMax = new Vector2(1f, 1f);
-        closeRT.pivot = new Vector2(1f, 1f);
-        closeRT.anchoredPosition = new Vector2(-10, -10);
-        closeRT.sizeDelta = new Vector2(40, 40);
-
-        Button closeBtn = closeBtnObj.GetComponent<Button>();
-        closeBtn.onClick.AddListener(() =>
+    void Update()
+    {
+        // Toggle with hotkey
+        if (Input.GetKeyDown(KeyCode.F7))
         {
-            Hide();
-        });
+            showGUI = !showGUI;
+            if (window != null)
+                window.gameObject.SetActive(showGUI);
+        }
+
+        //// Toggle with hotkey
+        //if (showGUI &&
+        //    CSingleton<PhoneManager>.Instance.m_UI_PhoneScreen.m_IsScreenOpen &&
+        //    Input.GetKeyDown(KeyCode.Tab))
+        //{
+        //    Plugin.Log("close custom window");
+        //    setVisable(false);
+
+        //}
     }
 
-    public void Show()
+
+    // --- Helpers ---
+    private TMP_Text CreateText(string text, Vector2 pos, int size, Transform parent)
     {
-        base.OnOpenScreen();
+        GameObject obj = new GameObject(text, typeof(TextMeshProUGUI));
+        obj.transform.SetParent(parent, false);
+        var tmp = obj.GetComponent<TextMeshProUGUI>();
+        tmp.text = text;
+        tmp.fontSize = size;
+        tmp.color = Color.white;
+        tmp.alignment = TextAlignmentOptions.Left;
+        RectTransform rect = tmp.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(280, 30);
+        rect.anchoredPosition = pos;
+        return tmp;
     }
 
-    public void Hide()
+    private TMP_Text CreateLabel(string text, Vector2 pos, Transform parent)
     {
-        base.CloseScreen();
+        TMP_Text tmp = CreateText(text, pos, 14, parent);
+        tmp.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        tmp.alignment = TextAlignmentOptions.MidlineLeft;
+        return tmp;
     }
+  
 }

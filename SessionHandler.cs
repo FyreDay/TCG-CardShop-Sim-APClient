@@ -255,7 +255,7 @@ public class SessionHandler
             //callback for item retrieval
             session.Socket.SocketClosed += (reason) => {
                 isConnected = false;
-                ConnectionMenu.setVisable(true);
+                ConnectionMenu.Instance.setVisable(true);
                 ConnectionMenu.state = "AP Disconnected";
                 APConsole.Instance.Log("Connection Closed");
             };

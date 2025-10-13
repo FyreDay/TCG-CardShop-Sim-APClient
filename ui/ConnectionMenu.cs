@@ -10,19 +10,26 @@ public class ConnectionMenu : MonoBehaviour
     public static ConnectionMenu Instance; 
     private Canvas canvas;
     private RectTransform window;
-    private Vector2 dragOffset;
 
     private TMP_InputField ipField, passField, slotField;
     private TMP_Text stateLabel;
 
-    public static bool showGUI = true;
+    public bool showGUI = true;
     public static string state = "Not Connected";
-    public static void setVisable(bool visable)
+    public void setVisable(bool visable)
     {
         showGUI = visable;
+        if (window != null)
+            window.gameObject.SetActive(showGUI);
+    }
+
+    public void toggleVisability()
+    {
+        setVisable(!showGUI);
     }
     void Start()
     {
+        Instance = this;
         // Create main Canvas
         canvas = FindObjectOfType<Canvas>();
         if (canvas == null)
