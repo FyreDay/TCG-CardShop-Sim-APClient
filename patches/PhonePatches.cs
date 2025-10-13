@@ -1,8 +1,5 @@
 ﻿using ApClient.ui;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,19 +33,48 @@ public class PhonePatches
             newButtonObj.name = "PhoneButtonGrp_APInfo";
 
             RectTransform rt = newButtonObj.GetComponent<RectTransform>();
-            rt.anchoredPosition += new Vector2(0, 8);
+            rt.anchoredPosition += new Vector2(0, 7);
 
             Image bg = newButtonObj.transform.Find("BG").GetComponent<Image>();
             Image border = newButtonObj.transform.Find("BG2").GetComponent<Image>();
 
-            bg.color = Color.green;
-            border.color = Color.black;
+            //bg.color = Color.green;
+            border.color = Color.white;
 
             TextMeshProUGUI tmpText = newButtonObj.transform.Find("Text").GetComponent<TextMeshProUGUI>();
             tmpText.text = "AP Info";
-            tmpText.color = Color.cyan;
+            //tmpText.color = Color.cyan;
 
+            Transform iconRoot = newButtonObj.transform.Find("Icon");
 
+            Transform icon1 = iconRoot.Find("Icon (1)");
+            Transform icon2 = iconRoot.Find("Icon (2)");
+            icon1.gameObject.SetActive(false);
+            icon2.gameObject.SetActive(false);
+
+            Texture2D tex = EmbeddedResources.LoadTexture("ApClient.assets.color-icon.png");
+            if (tex == null)
+            {
+                Debug.LogError("Failed to load embedded icon texture!");
+            }
+            else
+            {
+
+                Transform icon = iconRoot.Find("Icon");
+                if (icon != null)
+                {
+                    Image img = icon.GetComponent<Image>();
+                    RectTransform rect = icon.GetComponent<RectTransform>();
+                    rect.anchoredPosition += new Vector2(0, -2F);
+                    Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+                    img.sprite = sprite;
+                    img.preserveAspect = true; // keeps proportions clean
+                }
+                else
+                {
+                    Debug.LogWarning("Could not find Icon child on button!");
+                }
+            }
             ControllerButton controllerButton = newButtonObj.GetComponent<ControllerButton>();
             Button newButton = controllerButton.m_Button;
             if (newButton != null)

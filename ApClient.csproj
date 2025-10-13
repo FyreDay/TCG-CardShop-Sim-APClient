@@ -49,6 +49,10 @@
     </Reference>
   </ItemGroup>
   
+  <ItemGroup>
+    <EmbeddedResource Include="assets\color-icon.png" />
+  </ItemGroup>
+  
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="echo outfile: &quot;$(ProjectDir)$(OutDir)$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)$(OutDir)$(TargetFileName)&quot; &quot;E:\Applications\Steam\steamapps\common\TCG Card Shop Simulator\BepInEx\plugins\ApClient\BepInEx\plugins\$(TargetFileName)&quot;" />
   </Target>

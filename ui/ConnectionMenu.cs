@@ -58,27 +58,44 @@ public class ConnectionMenu : MonoBehaviour
         outline.effectDistance = new Vector2(2, -2);
 
         window = bgObj.GetComponent<RectTransform>();
-        window.sizeDelta = new Vector2(320, 320);
+        window.sizeDelta = new Vector2(320, 350);
         window.anchorMin = new Vector2(0, 1);
         window.anchorMax = new Vector2(0, 1);
         window.pivot = new Vector2(0, 1);
         window.anchoredPosition = new Vector2(20, -20);
 
         // Title
-        TMP_Text title = CreateText("AP Client", new Vector2(0, 135), 20, bgObj.transform);
+        TMP_Text title = CreateText("AP Client", new Vector2(0, 150), 20, bgObj.transform);
         title.alignment = TextAlignmentOptions.Center;
 
+        Texture2D logoTex = EmbeddedResources.LoadTexture("ApClient.assets.color-icon.png");
+        if (logoTex != null)
+        {
+            GameObject logoObj = new GameObject("Logo", typeof(Image));
+            logoObj.transform.SetParent(bgObj.transform, false);
+
+            Image logoImage = logoObj.GetComponent<Image>();
+            Sprite logoSprite = Sprite.Create(logoTex,
+                new Rect(0, 0, logoTex.width, logoTex.height),
+                new Vector2(0.5f, 0.5f));
+            logoImage.sprite = logoSprite;
+
+            RectTransform logoRect = logoObj.GetComponent<RectTransform>();
+            logoRect.sizeDelta = new Vector2(50, 50); // adjust as needed
+            logoRect.anchoredPosition = new Vector2(0, 110); // just below the title
+        }
+
         // Address Input
-        CreateLabel("Address:Port", new Vector2(0, 100), bgObj.transform);
-        ipField = CreateInput(Settings.Instance.LastUsedIP.Value, new Vector2(0, 75), bgObj.transform);
+        CreateLabel("Address:Port", new Vector2(0, 80), bgObj.transform);
+        ipField = CreateInput(Settings.Instance.LastUsedIP.Value, new Vector2(0, 55), bgObj.transform);
 
         // Password Input
-        CreateLabel("Password", new Vector2(0, 40), bgObj.transform);
-        passField = CreateInput(Settings.Instance.LastUsedPassword.Value, new Vector2(0, 15), bgObj.transform);
+        CreateLabel("Password", new Vector2(0, 20), bgObj.transform);
+        passField = CreateInput(Settings.Instance.LastUsedPassword.Value, new Vector2(0, -5), bgObj.transform);
 
         // Slot Input
-        CreateLabel("Slot", new Vector2(0, -20), bgObj.transform);
-        slotField = CreateInput(Settings.Instance.LastUsedSlot.Value, new Vector2(0, -45), bgObj.transform);
+        CreateLabel("Slot", new Vector2(0, -40), bgObj.transform);
+        slotField = CreateInput(Settings.Instance.LastUsedSlot.Value, new Vector2(0, -65), bgObj.transform);
 
         // Connect Button
         GameObject buttonObj = new GameObject("ConnectButton", typeof(Image), typeof(Button));
@@ -90,7 +107,7 @@ public class ConnectionMenu : MonoBehaviour
 
         RectTransform btnRect = buttonObj.GetComponent<RectTransform>();
         btnRect.sizeDelta = new Vector2(160, 35);
-        btnRect.anchoredPosition = new Vector2(0, -80);
+        btnRect.anchoredPosition = new Vector2(0, -100);
 
         TMP_Text btnText = CreateText("Connect", Vector2.zero, 18, buttonObj.transform);
         btnText.alignment = TextAlignmentOptions.Center;
@@ -99,7 +116,7 @@ public class ConnectionMenu : MonoBehaviour
         button.onClick.AddListener(OnConnectPressed);
 
         // State label
-        stateLabel = CreateText("Not Connected", new Vector2(0, -120), 14, bgObj.transform);
+        stateLabel = CreateText("Not Connected", new Vector2(0, -140), 14, bgObj.transform);
         stateLabel.alignment = TextAlignmentOptions.Center;
     }
 

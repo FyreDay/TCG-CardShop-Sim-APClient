@@ -65,6 +65,7 @@ public class Plugin : BaseUnityPlugin
         GameObject infoui = new GameObject("APinfoMenu");
         APinfoMenu infomenu = infoui.AddComponent<APinfoMenu>();
         DontDestroyOnLoad(infoui);
+        infomenu.setVisable(false);
     }
 
     private void OnDestroy()

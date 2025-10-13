@@ -6,12 +6,13 @@ namespace ApClient.ui;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class APinfoMenu : MonoBehaviour
 {
     public static APinfoMenu Instance;
 
-    private bool showGUI = false;
+    private bool showGUI = true;
 
     public void setVisable(bool visable)
     {
@@ -28,6 +29,30 @@ public class APinfoMenu : MonoBehaviour
     public void toggleVisability()
     {
         setVisable(!showGUI);
+    }
+
+    public void DelaySetVisable(bool visible)
+    {
+        Plugin.Log($"Toggle AP Info: {visible}");
+        showGUI = visible;
+
+        if (window == null)
+            return;
+
+        StopAllCoroutines(); // cancel any previous hide coroutine
+
+
+        StartCoroutine(DelayedHide(0.3f, visible)); // delay 0.5 seconds; adjust as needed
+    }
+
+    private IEnumerator DelayedHide(float delay, bool visable)
+    {
+        yield return new WaitForSeconds(delay);
+        if (!showGUI) // confirm it's still meant to be hidden
+        {
+            Plugin.Log("Hiding info screen after delay");
+            window.gameObject.SetActive(false);
+        }
     }
 
     private Canvas canvas;
@@ -63,10 +88,11 @@ public class APinfoMenu : MonoBehaviour
         outline.effectDistance = new Vector2(2, -2);
 
         window = bgObj.GetComponent<RectTransform>();
-        window.sizeDelta = new Vector2(320, 320);
-        window.pivot = new Vector2(0, 1);
-        window.anchoredPosition = new Vector2(20, -20);
-
+        window.anchorMin = new Vector2(0.25f, 0f); // start 25% from left
+        window.anchorMax = new Vector2(0.75f, 1f); // end 75% from left (half screen width)
+        window.offsetMin = Vector2.zero;
+        window.offsetMax = Vector2.zero;
+        window.pivot = new Vector2(0.5f, 0.5f);
         // Title
         TMP_Text title = CreateText("AP Info", new Vector2(0, 135), 20, bgObj.transform);
         title.alignment = TextAlignmentOptions.Center;
@@ -82,15 +108,13 @@ public class APinfoMenu : MonoBehaviour
                 window.gameObject.SetActive(showGUI);
         }
 
-        //// Toggle with hotkey
-        //if (showGUI &&
-        //    CSingleton<PhoneManager>.Instance.m_UI_PhoneScreen.m_IsScreenOpen &&
-        //    Input.GetKeyDown(KeyCode.Tab))
-        //{
-        //    Plugin.Log("close custom window");
-        //    setVisable(false);
+        // Toggle with hotkey
+        if (showGUI && (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)))
+        {
+            Plugin.Log("close custom window");
+            DelaySetVisable(false);
 
-        //}
+        }
     }
 
 
