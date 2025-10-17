@@ -127,7 +127,7 @@ public class LicenseMapping
     {
         int id = type == EItemType.BasicCardPack ? 190 : (int)type;
         int baseAmount = Plugin.m_SessionHandler.GetSlotData().SellCheckAmount;
-        int startingAmount = Plugin.m_SessionHandler.GetSlotData().startingItems.Contains((int)type) ? Plugin.m_SessionHandler.GetSlotData().ExtraStartingItemChecks : 0;
+        int startingAmount = Plugin.m_SessionHandler.GetSlotData().startingItems.Contains(id) ? Plugin.m_SessionHandler.GetSlotData().ExtraStartingItemChecks : 0;
         var list = new List<(int id, int count)>();
         for (int i = 1; i <= baseAmount + startingAmount; i++)
         {

@@ -96,17 +96,18 @@ public class APinfoMenu : MonoBehaviour
         // Title
         TMP_Text title = CreateText("AP Info", new Vector2(0, 135), 20, bgObj.transform);
         title.alignment = TextAlignmentOptions.Center;
+        setVisable(false);
     }
 
     void Update()
     {
-        // Toggle with hotkey
-        if (Input.GetKeyDown(KeyCode.F7))
-        {
-            showGUI = !showGUI;
-            if (window != null)
-                window.gameObject.SetActive(showGUI);
-        }
+        //// Toggle with hotkey
+        //if (Input.GetKeyDown(KeyCode.F7))
+        //{
+        //    showGUI = !showGUI;
+        //    if (window != null)
+        //        window.gameObject.SetActive(showGUI);
+        //}
 
         // Toggle with hotkey
         if (showGUI && (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)))
