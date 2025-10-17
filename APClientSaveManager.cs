@@ -471,21 +471,21 @@ public class APClientSaveManager
 
     private string GetBaseDirectory()
     {
-        return Path.GetDirectoryName(this.GetType().Assembly.Location);
+        return Application.persistentDataPath;
     }
     private string getGdSavePath()
     {
-        return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.slotname}_{aPSaveData.seed}.gd";
+        return $"{this.GetBaseDirectory()}/APSaves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.slotname}_{aPSaveData.seed}.gd";
     }
 
     private string getJsonSavePath()
     {
-        return $"{this.GetBaseDirectory()}/Saves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.slotname}_{aPSaveData.seed}.json";
+        return $"{this.GetBaseDirectory()}/APSaves/{MyPluginInfo.PLUGIN_GUID}_{aPSaveData.slotname}_{aPSaveData.seed}.json";
     }
     public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getGdSavePath()); }
     public void Save(int saveSlotIndex)
     {
-        System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/Saves/");
+        System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/APSaves/");
         CSaveLoad.m_SavedGame = CGameData.instance;
 
         var wrapper = new SaveDataWrapper
