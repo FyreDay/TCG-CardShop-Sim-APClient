@@ -174,7 +174,7 @@ public class ConnectionMenu : MonoBehaviour
         bg.color = new Color(0.2f, 0.2f, 0.2f, 1f);
 
         RectTransform rect = inputObj.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(200, 25);
+        rect.sizeDelta = new Vector2(200, 35);
         rect.anchoredPosition = pos;
 
         GameObject textArea = new GameObject("TextArea", typeof(RectMask2D));
