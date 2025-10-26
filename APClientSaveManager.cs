@@ -148,19 +148,13 @@ public class APClientSaveManager
         if (dto == null)
             return;
 
-        Plugin.Log($"{card.monsterType.ToString()} : sanity? {Plugin.m_SessionHandler.GetSlotData().CardSanity > 0}; count: {dto.cardRecord.Opened}; maxborder: {Plugin.m_SessionHandler.maxBorder() >= (int)card.borderType}");
-        
-
         if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0
             && dto.cardRecord.Opened == 1
             && Plugin.m_SessionHandler.maxBorder() >= (int)card.borderType)
         {
 
             card.isFoil = Plugin.m_SessionHandler.GetSlotData().CardSanity == 2 ? card.isFoil : false;
-            Plugin.Log("sending check");
-
-            var id = CardMapping.getId(card);
-            Plugin.Log($"Attempting to send location check: {id} ({card.monsterType}) with name {Plugin.m_SessionHandler.getLocationName(id)}");
+            
             Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(card));
         }
         //
