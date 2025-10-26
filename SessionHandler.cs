@@ -31,15 +31,32 @@ public class SessionHandler
         return slotData;
     }
 
+    public int maxBorder()
+    {
+        int maxborder = 5;
+
+        switch (GetSlotData().CardOpeningCheckDifficulty)
+        {
+            case 1:
+                maxborder = 0;
+                break;
+            case 2:
+                maxborder = 2;
+                break;
+            case 3:
+                maxborder = 3;
+                break;
+            case 4:
+                break;
+        }
+
+        return maxborder;
+    }
+
     public int itemCount(long id)
     {
         return session.Items.AllItemsReceived.Where(i => i.ItemId == id).Count();
 
-    }
-
-    public bool ControlTrades()
-    {
-        return slotData.TradesAreNew;
     }
 
     public bool hasItem(long id)
@@ -64,6 +81,11 @@ public class SessionHandler
     public void CompleteLocationChecks(params long[] ids)
     {
         session.Locations.CompleteLocationChecks(ids);
+    }
+
+    public string getLocationName(long id)
+    {
+        return session.Locations.GetLocationNameFromId(id);
     }
 
     public bool isStartingItem(int id)
@@ -278,25 +300,38 @@ public class SessionHandler
             slotData.MaxLevel = int.Parse(loginSuccess.SlotData.GetValueOrDefault("MaxLevel").ToString());
             slotData.RequiredLicenses = int.Parse(loginSuccess.SlotData.GetValueOrDefault("RequiredLicenses").ToString());
             slotData.Goal = int.Parse(loginSuccess.SlotData.GetValueOrDefault("Goal").ToString());
-            //slotData.CollectionGoalPercent = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CollectionGoalPercent").ToString());
+            slotData.CollectionGoalPercent = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CollectionGoalPercent").ToString());
             slotData.GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
+            
+            slotData.OpenAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(loginSuccess.SlotData.GetValueOrDefault("OpenAchievements").ToString());
+            
+            foreach (var a in slotData.OpenAchievementData)
+            {
+                Plugin.Log($"Achievement: {a.name} with difficulty {a.difficulty}");
+            }
+
+            var cardLocations = slotData.OpenAchievementData.Select(ach => new CardLocation
+            {
+                IsHinted = false,
+                CurrentNum = 0,
+                Status = CardStatus.Unavailable,
+                AchievementData = ach
+            }).ToList();
+
+            APinfoMenu.Instance.cardOpenItems = cardLocations;
 
             slotData.AutoRenovate = loginSuccess.SlotData.GetValueOrDefault("AutoRenovate").ToString() == "1";
-            slotData.TradesAreNew = loginSuccess.SlotData.GetValueOrDefault("BetterTrades").ToString() == "1";
             slotData.ExtraStartingItemChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ExtraStartingItemChecks").ToString());
             slotData.SellCheckAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCheckAmount").ToString());
-            slotData.ChecksPerPack = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ChecksPerPack").ToString());
-            slotData.CardCollectPercentage = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardCollectPercentage").ToString());
-            slotData.NumberOfGameChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("PlayTableChecks").ToString());
-            slotData.GamesPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GamesPerCheck").ToString());
-            slotData.NumberOfSellCardChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("NumberOfSellCardChecks").ToString());
-            slotData.SellCardsPerCheck = int.Parse(loginSuccess.SlotData.GetValueOrDefault("SellCardsPerCheck").ToString());
+            slotData.CardOpeningCheckDifficulty = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardOpeningCheckDifficulty").ToString());
+            slotData.CardSellingCheckDifficulty = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSellingCheckDifficulty").ToString());
+            slotData.CardGradingCheckDifficulty = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardGradingCheckDifficulty").ToString());
+            slotData.PlayTableChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("PlayTableChecks").ToString());
+
 
             slotData.Deathlink = loginSuccess.SlotData.GetValueOrDefault("Deathlink").ToString() == "1";
 
             slotData.CardSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("CardSanity").ToString());
-            slotData.FoilInSanity = loginSuccess.SlotData.GetValueOrDefault("FoilInSanity").ToString() == "1";
-            slotData.BorderInSanity = int.Parse(loginSuccess.SlotData.GetValueOrDefault("BorderInSanity").ToString());
 
             if (slotData.Deathlink)
             {

@@ -15,7 +15,7 @@ namespace ApClient.mapping
                 return -1;
             }
             //InventoryBase.GetMonsterData((EMonsterType)i).GetName();
-            //Plugin.Log($"{$"{cardData.monsterType} {cardData.borderType} {(cardData.isFoil ? "Foil" :"NonFoil")} {cardData.expansionType}"} : {0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType}");
+            Plugin.Log($"{$"{cardData.monsterType} {cardData.borderType} {(cardData.isFoil ? "Foil" :"NonFoil")} {cardData.expansionType}"} : {0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType}");
             return 0x10000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
         }
 
@@ -27,6 +27,7 @@ namespace ApClient.mapping
 
         public static int CARD_SELL_START_ID = 500;
         public static int CARD_OPEN_START_ID = 1000;
+        public static int CARD_GRADE_START_ID = 2000;
         public static int getSellCheckId(ECardExpansionType expansionType, int check)
         {
             return CARD_SELL_START_ID + check + (int)expansionType * 50;

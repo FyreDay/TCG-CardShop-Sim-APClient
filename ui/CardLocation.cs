@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApClient.data;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,9 +14,8 @@ public enum CardStatus
 
 public class CardLocation
 {
-    public string Name { get; set; }
     public bool IsHinted { get; set; }
-    public int GoalNum { get; set; }
     public int CurrentNum { get; set; }
     public CardStatus Status { get; set; }
+    public AchievementData AchievementData { get; set; }
 }

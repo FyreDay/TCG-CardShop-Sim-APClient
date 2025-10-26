@@ -85,11 +85,6 @@ public class Plugin : BaseUnityPlugin
         m_SessionHandler.ProcessCachedItems();
     }
 
-    public static bool OverrideTrades()
-    {
-        return m_SessionHandler.GetSlotData().TradesAreNew;
-    }
-
     public static float getNumLuckItems()
     {
         return m_SaveManager.GetLuck();
@@ -100,49 +95,26 @@ public class Plugin : BaseUnityPlugin
         return m_ItemHandler.cashOnly;
     }
 
+    public static EGameEventFormat getFormat()
+    {
+        return CPlayerData.m_GameEventFormat;
+    }
+
     public static CardData getNewCard()
     {
-        try
+        int maxborder = 5;
+        bool uniqueFoil = true;
+        if (m_SessionHandler.GetSlotData().CardSanity > 0 && m_SessionHandler.GetSlotData().CardOpeningCheckDifficulty > 0)
         {
-            int expansion_limit = 8;
-            int border_sanity = 5;
-            bool foil_sanity = true;
-            if (m_SessionHandler.GetSlotData().CardSanity != 0)
-            {
-                border_sanity = m_SessionHandler.GetSlotData().BorderInSanity;
-                foil_sanity = m_SessionHandler.GetSlotData().FoilInSanity;
-                expansion_limit = m_SessionHandler.GetSlotData().CardSanity;
-            }
+            uniqueFoil = m_SessionHandler.GetSlotData().CardSanity == 2;
 
-
-            ECardExpansionType expansion = UnityEngine.Random.Range(0, expansion_limit) > 4 ? ECardExpansionType.Destiny : ECardExpansionType.Tetramon;
-
-            HashSet<ERarity> desiredRarities = new HashSet<ERarity>();
-
-            if (expansion == ECardExpansionType.Destiny)
-            {
-                for (int i = 0; i < expansion_limit - 4; i++)
-                {
-                    desiredRarities.Add((ERarity)i);
-                }
-            }
-
-            if (expansion == ECardExpansionType.Tetramon)
-            {
-                for (int i = 0; i < expansion_limit && i < 4; i++)
-                {
-                    desiredRarities.Add((ERarity)i);
-                }
-            }
-            return m_CardHelper.RandomNewCard(expansion, desiredRarities, border_sanity, foil_sanity);
+            maxborder = m_SessionHandler.maxBorder();
         }
-        catch (Exception e)
-        {
-            Log(e.ToString());
-            APConsole.Instance.Log("Error in New Card Randomization");
-            return m_CardHelper.CardRoller(ECollectionPackType.DestinyLegendaryCardPack);
-        }
+
+         return m_SaveManager.GenerateUnopenedCard(maxborder, uniqueFoil);
+           
     }
+
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         Log($" Scene Load: {scene.name}");

@@ -18,10 +18,28 @@ public class APinfoMenu : MonoBehaviour
     private Button cardSellButton;
     private Button cardGradeButton;
 
-    private List<CardLocation> cardOpenItems = new List<CardLocation>();
-    private List<CardLocation> cardSellItems = new List<CardLocation>();
-    private List<CardLocation> cardGradeItems = new List<CardLocation>();
+    public List<CardLocation> cardOpenItems = new List<CardLocation>();
+    public List<CardLocation> cardSellItems = new List<CardLocation>();
+    public List<CardLocation> cardGradeItems = new List<CardLocation>();
 
+
+    public void setCardOpenList(List<CardLocation> list)
+    {
+        cardOpenItems = list;
+        UpdateList(cardOpenItems);
+    }
+
+    public void setCardSellList(List<CardLocation> list)
+    {
+        cardSellItems = list;
+        UpdateList(cardSellItems);
+    }
+
+    public void setCardGradeList(List<CardLocation> list)
+    {
+        cardGradeItems = list;
+        UpdateList(cardGradeItems);
+    }
 
     public void setVisable(bool visable)
     {
@@ -144,7 +162,7 @@ public class APinfoMenu : MonoBehaviour
 
         // --- Create Right Side UI: Buttons and Scrollable List ---
         CreateRightPanel(bgObj.transform);
-        PopulateSampleData();
+        //PopulateSampleData();
         UpdateList(cardOpenItems);
 
         setVisable(false);
@@ -360,23 +378,6 @@ public class APinfoMenu : MonoBehaviour
         scrollRect.verticalScrollbarSpacing = -3; // Adjust spacing if needed
     }
 
-    private void PopulateSampleData()
-    {
-        cardOpenItems.Add(new CardLocation { Name = "Open 10 Rare Foils", IsHinted = true, GoalNum = 10, CurrentNum = 5, Status = CardStatus.Available });
-        cardOpenItems.Add(new CardLocation { Name = "Open 100 Rare Cards", IsHinted = false, GoalNum = 100, CurrentNum = 63, Status = CardStatus.Found });
-        cardOpenItems.Add(new CardLocation { Name = "Open 10 destiny rare full arts", IsHinted = true, GoalNum = 10, CurrentNum = 0, Status = CardStatus.Unavailable });
-        cardOpenItems.Add(new CardLocation { Name = "Open 200 basic cards", IsHinted = false, GoalNum = 200, CurrentNum = 200, Status = CardStatus.Found });
-        for (int i = 0; i < 13; i++)
-        {
-            cardOpenItems.Add(new CardLocation { Name = $"Open more cards", IsHinted = false, GoalNum = 20, CurrentNum = i + 1, Status = (i + 1 == 20) ? CardStatus.Found : CardStatus.Available });
-        }
-
-        cardSellItems.Add(new CardLocation { Name = "Sell Checks", IsHinted = false, GoalNum = 7, CurrentNum = 5, Status = CardStatus.Found });
-        cardSellItems.Add(new CardLocation { Name = "Has Pack", IsHinted = true, GoalNum = 2, CurrentNum = 0, Status = CardStatus.Unavailable });
-
-        cardGradeItems.Add(new CardLocation { Name = "Card Grading", IsHinted = false, GoalNum = 10, CurrentNum = 5, Status = CardStatus.Available });
-    }
-
     private void UpdateList(List<CardLocation> items)
     {
         foreach (Transform child in scrollContent)
@@ -416,12 +417,12 @@ public class APinfoMenu : MonoBehaviour
         hLayoutGroup.spacing = 100;
 
         // Name and Hinted Text
-        TMP_Text nameText = CreateText(card.Name, Vector2.zero, 14, panelObj.transform);
+        TMP_Text nameText = CreateText(card.AchievementData.name, Vector2.zero, 14, panelObj.transform);
         nameText.rectTransform.sizeDelta = new Vector2(240, 50); // Adjusted size to fit
         nameText.alignment = TextAlignmentOptions.Left;
 
         // Progress Text
-        string progressString = $"{card.CurrentNum}/{card.GoalNum}";
+        string progressString = $"{card.CurrentNum}/{card.AchievementData.threshold}";
         if (card.IsHinted)
         {
             progressString = $"Hinted {progressString}";

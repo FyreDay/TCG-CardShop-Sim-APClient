@@ -9,30 +9,31 @@ namespace ApClient.data;
 public class SlotData
 {
     internal List<int> startingItems;
-
-    public int CardSanity { get; set; }
-    public bool TradesAreNew { get; set; }
-    public int Goal { get; set; }
-    public int ShopExpansionGoal { get; set; }
-    public int MaxLevel { get; set; }
-    public int GhostGoalAmount { get; set; }
-    public bool FoilInSanity { get; set; }
-    public int BorderInSanity { get; set; }
-    public int SellCheckAmount { get; set; }
-    public int ChecksPerPack { get; set; }
-    public int CardCollectPercentage { get; set; } 
-    public int GamesPerCheck { get; set; }
-    public int NumberOfGameChecks { get; set; }
-    public int NumberOfSellCardChecks { get; set; }
-    public int SellCardsPerCheck { get; set; }
-    public bool Deathlink { get; set; }
-    public bool AutoRenovate { get; set; }
     public OrderedDictionary pg1IndexMapping { get; set; }
     public OrderedDictionary pg2IndexMapping { get; set; }
     public OrderedDictionary pg3IndexMapping { get; set; }
     public OrderedDictionary ttIndexMapping { get; set; }
+    public List<AchievementData> OpenAchievementData { get; set; }
+    public List<AchievementData> SellAchievementData { get; set; }
+    public List<AchievementData> GradeAchievementData { get; set; }
+
+    public int MaxLevel { get; set; }
     public int RequiredLicenses { get; set; }
+    public int Goal { get; set; }
+    public int GhostGoalAmount { get; set; }
     public int CollectionGoalPercent { get; internal set; }
+    public bool AutoRenovate { get; set; }
     public int ExtraStartingItemChecks { get; internal set; }
+    public int SellCheckAmount { get; set; }
+    public int CardOpeningCheckDifficulty { get; set; }
+    public int CardSellingCheckDifficulty { get; set; } 
+    public int CardGradingCheckDifficulty { get; set; }
+    public int PlayTableChecks { get; set; }
+    public int CardSanity { get; set; }
+    public bool Deathlink { get; set; }
+    
+    
+    
+    
 
 }

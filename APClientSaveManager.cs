@@ -19,16 +19,13 @@ namespace ApClient;
 public class APClientSaveManager
 {
     private APSaveData aPSaveData;
-    private int cachedTetramonCheckCount = -1;
-    private int cachedDestinyCheckCount = -1;
-    public int cachedCommonChecks = -1;
-    public int cachedRareChecks= -1;
-    public int cachedEpicChecks = -1;
-    public int cachedLegendaryChecks= -1;
-    public int customersPlayedGames = 0;
+    private APAchievementManager achievementManager;
+
+    public Dictionary<EGameEventFormat, int> customersPlayedGames;
 
     public APClientSaveManager() {
         Clear();
+        achievementManager = new APAchievementManager();
     }
 
     public void Clear()
@@ -38,13 +35,7 @@ public class APClientSaveManager
         aPSaveData.MoneyMultiplier = 1;
         aPSaveData.StoredXP = 0;
 
-        cachedTetramonCheckCount = -1;
-        cachedDestinyCheckCount = -1;
-        cachedCommonChecks = -1;
-        cachedRareChecks = -1;
-        cachedEpicChecks = -1;
-        cachedLegendaryChecks = -1;
-        customersPlayedGames = 0;
+        customersPlayedGames = new Dictionary<EGameEventFormat, int>();
 
 }
     public void setConnectionData(string seed, string slot)
@@ -103,13 +94,15 @@ public class APClientSaveManager
         return aPSaveData.EventGamesPlayed;
     }
 
-    public void IncreaseCustomersPlayed()
+    public int IncreaseCustomersPlayed(EGameEventFormat format)
     {
-        customersPlayedGames++;
-        if (customersPlayedGames % 2 == 0)
+        customersPlayedGames[format]++;
+
+        if (customersPlayedGames[format] % 2 == 0)
         {
-            aPSaveData.EventGamesPlayed++;
+            return customersPlayedGames[format] / 2;
         }
+        else return -1;
     }
     public void DecreaseLuck()
     {
@@ -119,329 +112,10 @@ public class APClientSaveManager
         }
     }
 
-    public void IncreaseCardChecks(ECollectionPackType packType)
-    {
-        switch (packType)
-        {
-            case ECollectionPackType.BasicCardPack:
-                aPSaveData.TetramonCommonChecksFound++;
-                break;
-            case ECollectionPackType.RareCardPack:
-                aPSaveData.TetramonRareChecksFound++;
-                break;
-            case ECollectionPackType.EpicCardPack:
-                aPSaveData.TetramonEpicChecksFound++;
-                break;
-            case ECollectionPackType.LegendaryCardPack:
-                aPSaveData.TetramonLegendaryChecksFound++;
-                break;
-            case ECollectionPackType.DestinyBasicCardPack:
-                aPSaveData.DestinyCommonChecksFound++;
-                break;
-            case ECollectionPackType.DestinyRareCardPack:
-                aPSaveData.DestinyRareChecksFound++;
-                break;
-            case ECollectionPackType.DestinyEpicCardPack:
-                aPSaveData.DestinyEpicChecksFound++;
-                break;
-            case ECollectionPackType.DestinyLegendaryCardPack:
-                aPSaveData.DestinyLegendaryChecksFound++;
-                break;
-
-        }
-    }
-
-    public void IncreaseCardSold(ECardExpansionType expansionType, ERarity rarity)
-    {
-        if (expansionType == ECardExpansionType.Tetramon)
-        {
-            switch (rarity)
-            {
-                case ERarity.Common:
-                    aPSaveData.TetramonCommonChecksSold++;
-                    break;
-                case ERarity.Rare:
-                    aPSaveData.TetramonRareChecksSold++;
-                    break;
-                case ERarity.Epic:
-                    aPSaveData.TetramonEpicChecksSold++;
-                    break;
-                case ERarity.Legendary:
-                    aPSaveData.TetramonLegendaryChecksSold++;
-                    break;
-            }
-        }
-        else
-        {
-            switch (rarity)
-            {
-                case ERarity.Common:
-                    aPSaveData.DestinyCommonChecksSold++;
-                    break;
-                case ERarity.Rare:
-                    aPSaveData.DestinyRareChecksSold++;
-                    break;
-                case ERarity.Epic:
-                    aPSaveData.DestinyEpicChecksSold++;
-                    break;
-                case ERarity.Legendary:
-                    aPSaveData.DestinyLegendaryChecksSold++;
-                    break;
-            }
-        }
-    }
-
-    public int GetCardsSold(ECardExpansionType expansionType, ERarity rarity)
-    {
-        if (expansionType == ECardExpansionType.Tetramon)
-        {
-            switch (rarity)
-            {
-                case ERarity.Common:
-                    return aPSaveData.TetramonCommonChecksSold;
-                case ERarity.Rare:
-                    return aPSaveData.TetramonRareChecksSold;
-                case ERarity.Epic:
-                    return aPSaveData.TetramonEpicChecksSold;
-                case ERarity.Legendary:
-                    return aPSaveData.TetramonLegendaryChecksSold;
-            }
-        }
-        else
-        {
-            switch (rarity)
-            {
-                case ERarity.Common:
-                    return aPSaveData.DestinyCommonChecksSold;
-                case ERarity.Rare:
-                    return aPSaveData.DestinyRareChecksSold;
-                case ERarity.Epic:
-                    return aPSaveData.DestinyEpicChecksSold;
-                case ERarity.Legendary:
-                    return aPSaveData.DestinyLegendaryChecksSold;
-            }
-        }
-        return -1;
-    }
-
     public void IncreaseGhostChecks()
     {
         aPSaveData.GhostCardsSold++;
-    }
-
-    public int getTotalExpansionChecks(ECardExpansionType cardExpansionType)
-    {
-        if(cardExpansionType == ECardExpansionType.Ghost)
-        {
-            if (Plugin.m_SessionHandler.GetSlotData().Goal == 2)
-            {
-                return Plugin.m_SessionHandler.GetSlotData().GhostGoalAmount;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        if (cardExpansionType != ECardExpansionType.Tetramon && cardExpansionType != ECardExpansionType.Destiny)
-        {
-            return 0;
-        }
-
-        if (cardExpansionType == ECardExpansionType.Tetramon && cachedTetramonCheckCount != -1)
-        {
-            Plugin.Log("-1");
-            return cachedTetramonCheckCount;
-        }
-
-        if (cardExpansionType == ECardExpansionType.Destiny && cachedDestinyCheckCount != -1)
-        {
-            Plugin.Log("-1");
-            return cachedDestinyCheckCount;
-        }
-        //if (Plugin.m_SessionHandler.GetSlotData().CardSanity == 0)
-        //{
-        //    cachedCommonChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
-        //    cachedRareChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
-        //    cachedEpicChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
-        //    cachedLegendaryChecks = Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
-        //    return Plugin.m_SessionHandler.GetSlotData().ChecksPerPack * 4;
-        //}
-        //else
-        //{
-        cachedCommonChecks = 0;
-        cachedRareChecks = 0;
-        cachedEpicChecks = 0;
-        cachedLegendaryChecks = 0;
-        int checkAmount = 0;
-        for (int i = 0; i < InventoryBase.GetShownMonsterList(cardExpansionType).Count; i++)
-        {
-            ERarity rarity = InventoryBase.GetMonsterData(InventoryBase.GetShownMonsterList(cardExpansionType)[i]).Rarity;
-
-            int packtype = cardExpansionType == ECardExpansionType.Destiny ? 4 : 0;
-
-            if (ERarity.Common == rarity)
-            {
-                Plugin.Log("common");
-                cachedCommonChecks += 12;
-
-
-                if (Plugin.m_SessionHandler.GetSlotData().CardSanity > packtype + (int)ERarity.Common)
-                {
-                    checkAmount += (Plugin.m_SessionHandler.GetSlotData().BorderInSanity + 1) * (Plugin.m_SessionHandler.GetSlotData().FoilInSanity ? 2 : 1);
-                }
-            }
-
-            if (ERarity.Rare == rarity)
-            {
-
-                cachedRareChecks += 12;
-                if (Plugin.m_SessionHandler.GetSlotData().CardSanity > packtype + (int)ERarity.Rare)
-                {
-                    checkAmount += (Plugin.m_SessionHandler.GetSlotData().BorderInSanity + 1) * (Plugin.m_SessionHandler.GetSlotData().FoilInSanity ? 2 : 1);
-
-                }
-            }
-
-            if (ERarity.Epic == rarity)
-            {
-
-                cachedEpicChecks += 12;
-
-                if (Plugin.m_SessionHandler.GetSlotData().CardSanity > packtype + (int)ERarity.Epic)
-                {
-                    checkAmount += (Plugin.m_SessionHandler.GetSlotData().BorderInSanity + 1) * (Plugin.m_SessionHandler.GetSlotData().FoilInSanity ? 2 : 1);
-                }
-            }
-
-            if (ERarity.Legendary == rarity)
-            {
-
-                cachedLegendaryChecks += 12;
-                if (Plugin.m_SessionHandler.GetSlotData().CardSanity > packtype + (int)ERarity.Legendary)
-                {
-                    checkAmount += (Plugin.m_SessionHandler.GetSlotData().BorderInSanity + 1) * (Plugin.m_SessionHandler.GetSlotData().FoilInSanity ? 2 : 1);
-                }
-            }
-        }
-
-        if (cardExpansionType == ECardExpansionType.Tetramon)
-        {
-            cachedTetramonCheckCount = checkAmount;
-        }
-
-        if (cardExpansionType == ECardExpansionType.Destiny)
-        {
-            cachedDestinyCheckCount = checkAmount;
-        }
-        return checkAmount;
-        //}
-    }
-
-    
-    public int GetTotalCountedCards(ECollectionPackType packType)
-    {
-        getTotalExpansionChecks(ECardExpansionType.Tetramon);
-        switch (packType)
-        {
-            case ECollectionPackType.BasicCardPack:
-                return cachedCommonChecks;
-            case ECollectionPackType.RareCardPack:
-                return cachedRareChecks;
-            case ECollectionPackType.EpicCardPack:
-                return cachedEpicChecks;
-            case ECollectionPackType.LegendaryCardPack:
-                return cachedLegendaryChecks;
-            case ECollectionPackType.DestinyBasicCardPack:
-                return cachedCommonChecks;
-            case ECollectionPackType.DestinyRareCardPack:
-                return cachedRareChecks;
-            case ECollectionPackType.DestinyEpicCardPack:
-                return cachedEpicChecks;
-            case ECollectionPackType.DestinyLegendaryCardPack:
-                return cachedLegendaryChecks;
-
-        }
-
-        return -1;
-    }
-
-    public int GetExpansionChecks(ECardExpansionType type)
-    {
-        switch(type)
-        {
-            case ECardExpansionType.Tetramon:
-                return GetTetramonChecks();
-            case ECardExpansionType.Destiny:
-                return GetDestinyChecks();
-            case ECardExpansionType.Ghost:
-                return GetGhostChecks();
-            default: return 0;
-        }
-    }
-    public int GetTetramonChecks()
-    {
-        return aPSaveData.TetramonCommonChecksFound + aPSaveData.TetramonRareChecksFound + aPSaveData.TetramonEpicChecksFound + aPSaveData.TetramonLegendaryChecksFound;
-    }
-
-    public int GetDestinyChecks()
-    {
-        return aPSaveData.DestinyCommonChecksFound + aPSaveData.DestinyRareChecksFound + aPSaveData.DestinyEpicChecksFound + aPSaveData.DestinyLegendaryChecksFound;
-    }
-
-    public int GetCardChecks(ECollectionPackType packType)
-    {
-        switch (packType)
-        {
-            case ECollectionPackType.BasicCardPack:
-                return aPSaveData.TetramonCommonChecksFound;
-            case ECollectionPackType.RareCardPack:
-                return aPSaveData.TetramonRareChecksFound;
-            case ECollectionPackType.EpicCardPack:
-                return aPSaveData.TetramonEpicChecksFound;
-            case ECollectionPackType.LegendaryCardPack:
-                return aPSaveData.TetramonLegendaryChecksFound;
-            case ECollectionPackType.DestinyBasicCardPack:
-                return aPSaveData.DestinyCommonChecksFound;
-            case ECollectionPackType.DestinyRareCardPack:
-                return aPSaveData.DestinyRareChecksFound;
-            case ECollectionPackType.DestinyEpicCardPack:
-                return aPSaveData.DestinyEpicChecksFound;
-            case ECollectionPackType.DestinyLegendaryCardPack:
-                return aPSaveData.DestinyLegendaryChecksFound;
-
-        }
-
-        return -1;
-    }
-    public int GetSentChecks(ECollectionPackType packType)
-    {
-        int totalcards = Plugin.m_SaveManager.GetTotalCountedCards(packType);
-        float maxcollect = (totalcards * (Plugin.m_SessionHandler.GetSlotData().CardCollectPercentage / 100f));
-        float numPercheck = maxcollect / Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
-        switch (packType)
-        {
-            case ECollectionPackType.BasicCardPack:
-                return (int)(aPSaveData.TetramonCommonChecksFound / numPercheck);
-            case ECollectionPackType.RareCardPack:
-                return (int)(aPSaveData.TetramonRareChecksFound / numPercheck);
-            case ECollectionPackType.EpicCardPack:
-                return (int)(aPSaveData.TetramonEpicChecksFound / numPercheck);
-            case ECollectionPackType.LegendaryCardPack:
-                return (int)(aPSaveData.TetramonLegendaryChecksFound / numPercheck);
-            case ECollectionPackType.DestinyBasicCardPack:
-                return (int)(aPSaveData.DestinyCommonChecksFound / numPercheck);
-            case ECollectionPackType.DestinyRareCardPack:
-                return (int)(aPSaveData.DestinyRareChecksFound / numPercheck);
-            case ECollectionPackType.DestinyEpicCardPack:
-                return (int)(aPSaveData.DestinyEpicChecksFound / numPercheck);
-            case ECollectionPackType.DestinyLegendaryCardPack:
-                return (int)(aPSaveData.DestinyLegendaryChecksFound / numPercheck);
-
-        }
-
-        return -1;
-    }
+    } 
 
     public int GetGhostChecks()
     {
@@ -468,6 +142,103 @@ public class APClientSaveManager
         Plugin.Log($"xp: {xp}");
         aPSaveData.StoredXP += xp;
     }
+    public void AddOpenedCard(CardData card)
+    {
+        var dto = achievementManager.AddOpenedCard(card);
+        if (dto == null)
+            return;
+
+        Plugin.Log($"{card.monsterType.ToString()} : sanity? {Plugin.m_SessionHandler.GetSlotData().CardSanity > 0}; count: {dto.cardRecord.Opened}; maxborder: {Plugin.m_SessionHandler.maxBorder() >= (int)card.borderType}");
+        
+
+        if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0
+            && dto.cardRecord.Opened == 1
+            && Plugin.m_SessionHandler.maxBorder() >= (int)card.borderType)
+        {
+
+            card.isFoil = Plugin.m_SessionHandler.GetSlotData().CardSanity == 2 ? card.isFoil : false;
+            Plugin.Log("sending check");
+
+            var id = CardMapping.getId(card);
+            Plugin.Log($"Attempting to send location check: {id} ({card.monsterType}) with name {Plugin.m_SessionHandler.getLocationName(id)}");
+            Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(card));
+        }
+        //
+
+        //send achiement
+        //Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getCheckId(packtype, i-1));
+    }
+
+    public void AddSoldCard(CardData card)
+    {
+        var achievements = achievementManager.AddSoldCard(card);
+        //send card sell achievements
+        //Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getSellCheckId(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, i-1));
+    }
+
+    public void AddGradedCard(CardData card)
+    {
+        var achievements = achievementManager.AddGradedCard(card);
+        //send card grade achievements
+    }
+
+    public CardData GenerateUnopenedCard(int maxBorderInclusive, bool uniqueFoil)
+    {
+        for (int monster = 1; monster < (int)EMonsterType.MAX; monster++)
+        {
+            for (int border = 0; border <= maxBorderInclusive; border++)
+            {
+                for (int destiny = 0; destiny < 2; destiny++)
+                {
+                    if (uniqueFoil)
+                    {
+                        for (int foil = 0; foil < 2; foil++)
+                        {
+                            var candidate = new CardData
+                            {
+                                monsterType = (EMonsterType)monster,
+                                borderType = (ECardBorderType)border,
+                                isDestiny = destiny == 1,
+                                isFoil = foil == 1,
+                                isChampionCard = false
+                            };
+
+                            int hash = candidate.GetUniqueHash();
+                            if (!achievementManager.HasCardOpened(hash))
+                                return candidate;
+                        }
+                    }
+                    else
+                    {
+                        var candidate1 = new CardData
+                        {
+                            monsterType = (EMonsterType)monster,
+                            borderType = (ECardBorderType)border,
+                            isDestiny = destiny == 1,
+                            isFoil = false,
+                            isChampionCard = false
+                        };
+
+                        var candidate2 = new CardData
+                        {
+                            monsterType = (EMonsterType)monster,
+                            borderType = (ECardBorderType)border,
+                            isDestiny = destiny == 1,
+                            isFoil = true,
+                            isChampionCard = false
+                        };
+                        //if I don't have BOTH the foil and non-foil
+                        if (!achievementManager.HasCardOpened(candidate1.GetUniqueHash()) && !achievementManager.HasCardOpened(candidate2.GetUniqueHash()))
+                        {
+                            return UnityEngine.Random.Range(0, 2) > 0 ? candidate1 : candidate2;
+                        }
+
+                    }
+                }
+            }
+        }
+        return CardHelper.CardRoller((ECollectionPackType)UnityEngine.Random.Range(0, 8));
+    }
 
     private string GetBaseDirectory()
     {
@@ -488,42 +259,36 @@ public class APClientSaveManager
         System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/APSaves/");
         CSaveLoad.m_SavedGame = CGameData.instance;
 
-        var wrapper = new SaveDataWrapper
+        string unityJson = JsonUtility.ToJson(CGameData.instance, true);
+
+        var modData = new SaveDataWrapper
         {
-            gameData = CGameData.instance,
+            CardProgress = achievementManager.Save(),
             ProcessedIndex = aPSaveData.ProcessedIndex,
             MoneyMultiplier = aPSaveData.MoneyMultiplier,
             Luck = aPSaveData.Luck,
-            TetramonCommonChecksFound = aPSaveData.TetramonCommonChecksFound,
-            DestinyCommonChecksFound = aPSaveData.DestinyCommonChecksFound,
-            TetramonRareChecksFound = aPSaveData.TetramonRareChecksFound,
-            DestinyRareChecksFound = aPSaveData.DestinyRareChecksFound,
-            TetramonEpicChecksFound = aPSaveData.TetramonEpicChecksFound,
-            DestinyEpicChecksFound = aPSaveData.DestinyEpicChecksFound,
-            TetramonLegendaryChecksFound = aPSaveData.TetramonLegendaryChecksFound,
-            DestinyLegendaryChecksFound = aPSaveData.DestinyLegendaryChecksFound,
-            TetramonCommonChecksSold = aPSaveData.TetramonCommonChecksSold,
-            DestinyCommonChecksSold = aPSaveData.DestinyCommonChecksSold,
-            TetramonRareChecksSold = aPSaveData.TetramonRareChecksSold,
-            DestinyRareChecksSold = aPSaveData.DestinyRareChecksSold,
-            TetramonEpicChecksSold = aPSaveData.TetramonEpicChecksSold,
-            DestinyEpicChecksSold = aPSaveData.DestinyEpicChecksSold,
-            TetramonLegendaryChecksSold = aPSaveData.TetramonLegendaryChecksSold,
-            DestinyLegendaryChecksSold = aPSaveData.DestinyLegendaryChecksSold,
             GhostCardsSold = aPSaveData.GhostCardsSold,
             EventGamesPlayed = aPSaveData.EventGamesPlayed,
             LicensesReceived = aPSaveData.LicensesReceived,
-            StoredXP = aPSaveData.LicensesReceived
+            StoredXP = aPSaveData.StoredXP
+        };
+
+        string modJson = JsonConvert.SerializeObject(modData, Formatting.Indented);
+
+        var combined = new CombinedSaveWrapper
+        {
+            UnityGameData = unityJson,
+            ModData = modData
         };
 
         try
         {
-            string json = JsonUtility.ToJson(wrapper, true);
-            File.WriteAllText(getJsonSavePath(), json);
+            string combinedJson = JsonConvert.SerializeObject(combined, Formatting.Indented);
+            File.WriteAllText(getJsonSavePath(), combinedJson);
         }
         catch (Exception ex)
         {
-            Plugin.Log("Error saving JSON: " + ex);
+            Plugin.Log("Error saving combined JSON: " + ex);
         }
     }
 
@@ -537,35 +302,33 @@ public class APClientSaveManager
         try
         {
             string text = File.ReadAllText(jsonpath);
-            var wrapper = JsonConvert.DeserializeObject<SaveDataWrapper>(text);
 
-            if (wrapper == null) return false;
+            var combined = JsonConvert.DeserializeObject<CombinedSaveWrapper>(text);
+            if (combined == null)
+            {
+                Plugin.Log("Combined save wrapper is null!");
+                return false;
+            }
 
-            CSaveLoad.m_SavedGame = wrapper.gameData;
+            if (!string.IsNullOrEmpty(combined.UnityGameData))
+            {
+                CGameData gameData = JsonUtility.FromJson<CGameData>(combined.UnityGameData);
+                CSaveLoad.m_SavedGame = gameData;
+            }
 
-            aPSaveData.ProcessedIndex = wrapper.ProcessedIndex;
-            aPSaveData.MoneyMultiplier = wrapper.MoneyMultiplier;
-            aPSaveData.Luck = wrapper.Luck;
-            aPSaveData.TetramonCommonChecksFound = wrapper.TetramonCommonChecksFound;
-            aPSaveData.DestinyCommonChecksFound = wrapper.DestinyCommonChecksFound;
-            aPSaveData.TetramonRareChecksFound = wrapper.TetramonRareChecksFound;
-            aPSaveData.DestinyRareChecksFound = wrapper.DestinyRareChecksFound;
-            aPSaveData.TetramonEpicChecksFound = wrapper.TetramonEpicChecksFound;
-            aPSaveData.DestinyEpicChecksFound = wrapper.DestinyEpicChecksFound;
-            aPSaveData.TetramonLegendaryChecksFound = wrapper.TetramonLegendaryChecksFound;
-            aPSaveData.DestinyLegendaryChecksFound = wrapper.DestinyLegendaryChecksFound;
-            aPSaveData.TetramonCommonChecksSold = wrapper.TetramonCommonChecksSold;
-            aPSaveData.DestinyCommonChecksSold = wrapper.DestinyCommonChecksSold;
-            aPSaveData.TetramonRareChecksSold = wrapper.TetramonRareChecksSold;
-            aPSaveData.DestinyRareChecksSold = wrapper.DestinyRareChecksSold;
-            aPSaveData.TetramonEpicChecksSold = wrapper.TetramonEpicChecksSold;
-            aPSaveData.DestinyEpicChecksSold = wrapper.DestinyEpicChecksSold;
-            aPSaveData.TetramonLegendaryChecksSold = wrapper.TetramonLegendaryChecksSold;
-            aPSaveData.DestinyLegendaryChecksSold = wrapper.DestinyLegendaryChecksSold;
-            aPSaveData.GhostCardsSold = wrapper.GhostCardsSold;
-            aPSaveData.EventGamesPlayed = wrapper.EventGamesPlayed;
-            aPSaveData.LicensesReceived = wrapper.LicensesReceived;
-            aPSaveData.StoredXP = wrapper.StoredXP;
+            if (combined.ModData != null)
+            {
+                var mod = combined.ModData;
+                achievementManager.Load(mod.CardProgress ?? new PlayerCardProgress());
+
+                aPSaveData.ProcessedIndex = mod.ProcessedIndex;
+                aPSaveData.MoneyMultiplier = mod.MoneyMultiplier;
+                aPSaveData.Luck = mod.Luck;
+                aPSaveData.GhostCardsSold = mod.GhostCardsSold;
+                aPSaveData.EventGamesPlayed = mod.EventGamesPlayed;
+                aPSaveData.LicensesReceived = mod.LicensesReceived;
+                aPSaveData.StoredXP = mod.StoredXP;
+            }
 
             return true;
         }
@@ -576,32 +339,19 @@ public class APClientSaveManager
         return false;
     }
 
-    
+    public class CombinedSaveWrapper
+    {
+        public string UnityGameData { get; set; }
+        public SaveDataWrapper ModData { get; set; }
+    }
 
     [Serializable]
     public class SaveDataWrapper
     {
-        public CGameData gameData;
+        public PlayerCardProgress CardProgress;
         public int ProcessedIndex;
-        public List<int> newCards = new();
         public float MoneyMultiplier;
         public int Luck;
-        public int TetramonCommonChecksFound;
-        public int DestinyCommonChecksFound;
-        public int TetramonRareChecksFound;
-        public int DestinyRareChecksFound;
-        public int TetramonEpicChecksFound;
-        public int DestinyEpicChecksFound;
-        public int TetramonLegendaryChecksFound;
-        public int DestinyLegendaryChecksFound;
-        public int TetramonCommonChecksSold;
-        public int DestinyCommonChecksSold;
-        public int TetramonRareChecksSold;
-        public int DestinyRareChecksSold;
-        public int TetramonEpicChecksSold;
-        public int DestinyEpicChecksSold;
-        public int TetramonLegendaryChecksSold;
-        public int DestinyLegendaryChecksSold;
         public int GhostCardsSold;
         public int EventGamesPlayed;
         public int LicensesReceived;

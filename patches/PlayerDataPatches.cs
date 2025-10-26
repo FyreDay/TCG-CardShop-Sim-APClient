@@ -176,6 +176,7 @@ class PlayerDataPatches
             return method;
         }
 
+
         // Prefix: Runs before the method
         static void Prefix(CardData cardData, int addAmount)
         {
@@ -183,43 +184,7 @@ class PlayerDataPatches
             {
                 return;
             }
-
-            ECollectionPackType packtype = CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType;
-            if (packtype == ECollectionPackType.None)
-            {
-                ERarity rarity = InventoryBase.GetMonsterData(cardData.monsterType).Rarity;
-                packtype = (ECollectionPackType)(((int)cardData.expansionType * 4) + (int)rarity);
-            }
-            if (Plugin.m_SessionHandler.GetSlotData().CardSanity != 0)
-            {
-                if ((int)packtype < Plugin.m_SessionHandler.GetSlotData().CardSanity
-                    && !CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)]
-                    && (int)cardData.borderType <= Plugin.m_SessionHandler.GetSlotData().BorderInSanity
-                    && (!cardData.isFoil || Plugin.m_SessionHandler.GetSlotData().FoilInSanity))
-                {
-                    Plugin.m_SaveManager.IncreaseCardChecks(packtype);
-                    Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getId(cardData));
-                }
-            }
-            else if(!CPlayerData.GetIsCardCollectedList(cardData.expansionType, false)[CPlayerData.GetCardSaveIndex(cardData)])
-            {
-
-                Plugin.m_SaveManager.IncreaseCardChecks(packtype);
-
-                int found = Plugin.m_SaveManager.GetCardChecks(packtype);
-                int totalcards = Plugin.m_SaveManager.GetTotalCountedCards(packtype);
-                float maxcollect = (totalcards * (Plugin.m_SessionHandler.GetSlotData().CardCollectPercentage / 100f));
-                float numPercheck =  maxcollect / Plugin.m_SessionHandler.GetSlotData().ChecksPerPack;
-
-                for (int i = 1; i <= Plugin.m_SessionHandler.GetSlotData().ChecksPerPack; i++)
-                {
-                    if(found >= i * numPercheck)
-                    {
-                        //Plugin.Log($"Send Card Check {i} {CardMapping.getCheckId(CSingleton<CardOpeningSequence>.Instance.m_CollectionPackType, i-1)}");
-                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getCheckId(packtype, i-1));
-                    }
-                }
-            }
+            Plugin.m_SaveManager.AddOpenedCard(cardData);
         }
 
         // Postfix: Runs after the method

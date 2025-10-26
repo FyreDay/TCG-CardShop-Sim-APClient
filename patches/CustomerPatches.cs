@@ -71,21 +71,8 @@ public class CustomerPatches
                 }
             }
 
-            if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Tetramon || card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Destiny)
-            {
-                Plugin.m_SaveManager.IncreaseCardSold(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity);
-                
-                int sold = Plugin.m_SaveManager.GetCardsSold(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, card.m_Card3dUI.m_CardUI.m_MonsterData.Rarity);
+            Plugin.m_SaveManager.AddSoldCard(card.m_Card3dUI.m_CardUI.GetCardData());
 
-                for (int i = 1; i <= Plugin.m_SessionHandler.GetSlotData().NumberOfSellCardChecks; i++)
-                {
-                    if (sold >= i * Plugin.m_SessionHandler.GetSlotData().SellCardsPerCheck)
-                    {
-                        
-                        Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getSellCheckId(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, i-1));
-                    }
-                }
-            }
         }
     }
 
@@ -110,14 +97,12 @@ public class CustomerPatches
         {
             if (totalPlayTime > 0f)
             {
-                Plugin.m_SaveManager.IncreaseCustomersPlayed();
+                
+                int checknum = Plugin.m_SaveManager.IncreaseCustomersPlayed(Plugin.getFormat());
 
-                for (int i = 0; i < Plugin.m_SessionHandler.GetSlotData().NumberOfGameChecks; i++)
+                if (checknum != -1)
                 {
-                    if (Plugin.m_SaveManager.GetEventGamesPlayed() >= (i+1) * Plugin.m_SessionHandler.GetSlotData().GamesPerCheck)
-                    {
-                        Plugin.m_SessionHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + i);
-                    }
+                    Plugin.m_SessionHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + (int)Plugin.getFormat() * 15 + checknum);
                 }
             }
         }
@@ -130,10 +115,6 @@ public class CustomerPatches
         [HarmonyPrefix]
         public static bool Prefix(CustomerTradeCardScreen __instance, Customer customer, CustomerTradeData customerTradeData)
         {
-            if (!Plugin.OverrideTrades())
-            {
-                return true;
-            }
             Plugin.Log("Starting override");
             CSingleton<CustomerManager>.Instance.m_IsPlayerTrading = true;
             __instance.m_CurrentCustomer = customer;

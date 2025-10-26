@@ -53,21 +53,10 @@ public class ItemHandler
         }
         if ((int)itemReceived.ItemId == TrashMapping.randomcard)
         {
-            var packlist = Enum.GetValues(typeof(ECollectionPackType));
-            var packType = (ECollectionPackType)packlist.GetValue(UnityEngine.Random.Range(0, Plugin.m_SessionHandler.GetSlotData().CardSanity == 0 ? 8 : Plugin.m_SessionHandler.GetSlotData().CardSanity));
-            CardData card = Plugin.m_CardHelper.CardRoller(packType);
-            //Plugin.Log($"Card is: {card.monsterType} and {card.expansionType} with {card.borderType} and isFoil {card.isFoil}");
-            CPlayerData.AddCard(card, 1);
+            CPlayerData.AddCard(Plugin.getNewCard(), 1);
             return;
         }
-        if ((int)itemReceived.ItemId == TrashMapping.randomNewCard)
-        {
-            CardData card = Plugin.getNewCard();
-            //Plugin.Log($"Card is: {card.monsterType} and {card.expansionType} with {card.borderType} and isFoil {card.isFoil}");
-            CPlayerData.AddCard(card, 1);
-            return;
 
-        }
         if (PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId) != EGameEventFormat.None)
         {
             //Plugin.m_SaveManager.setEventUnlocked(PlayTableMapping.GetFormatFromInt((int)itemReceived.ItemId));
