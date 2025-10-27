@@ -5,6 +5,7 @@ using System.Text;
 
 namespace ApClient.ui;
 
+[Serializable]
 public enum CardStatus
 {
     Available,
@@ -12,6 +13,7 @@ public enum CardStatus
     Found
 }
 
+[Serializable]
 public class CardLocation
 {
     public bool IsHinted { get; set; }

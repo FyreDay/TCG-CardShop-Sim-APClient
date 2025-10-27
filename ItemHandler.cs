@@ -1,6 +1,7 @@
 ﻿using ApClient.data;
 using ApClient.mapping;
 using ApClient.patches;
+using ApClient.ui;
 using Archipelago.MultiClient.Net.Models;
 using System;
 using System.Collections;
@@ -143,6 +144,14 @@ public class ItemHandler
             {
                 CSingleton<GameUIScreen>.Instance.EvaluateShopLevelAndExp();
             });
+            if((int)itemtype <= (int)EItemType.DestinyLegendaryCardBox)
+            {
+                Plugin.Log($"recieved Item {itemtype}");
+                ERarity rarity =  (ERarity) (((int)itemtype / 2) % 4);
+                bool isDestiny = (int)itemtype > (int)EItemType.LegendaryCardBox;
+                APinfoMenu.Instance.UpdateAvailableAchievements(rarity, isDestiny);
+            }
+            
             return;
         }
         if ((int)itemReceived.ItemId == ExpansionMapping.progressiveA)

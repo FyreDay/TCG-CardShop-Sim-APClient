@@ -1,5 +1,6 @@
 ﻿using ApClient.data;
 using ApClient.mapping;
+using ApClient.ui;
 using I2.Loc.SimpleJSON;
 using Newtonsoft.Json;
 using System;
@@ -144,12 +145,10 @@ public class APClientSaveManager
     }
     public void AddOpenedCard(CardData card)
     {
-        var dto = achievementManager.AddOpenedCard(card);
-        if (dto == null)
-            return;
-
+        var cardRecord = achievementManager.AddOpenedCard(card);
+    
         if (Plugin.m_SessionHandler.GetSlotData().CardSanity > 0
-            && dto.cardRecord.Opened == 1
+            && cardRecord.Opened == 1
             && Plugin.m_SessionHandler.maxBorder() >= (int)card.borderType)
         {
 
@@ -258,13 +257,16 @@ public class APClientSaveManager
         var modData = new SaveDataWrapper
         {
             CardProgress = achievementManager.Save(),
+            OpenAchievements = APinfoMenu.Instance.cardOpenItems,
+            SellAchievements = APinfoMenu.Instance.cardSellItems,
+            GradeAchievements = APinfoMenu.Instance.cardGradeItems,
             ProcessedIndex = aPSaveData.ProcessedIndex,
             MoneyMultiplier = aPSaveData.MoneyMultiplier,
             Luck = aPSaveData.Luck,
             GhostCardsSold = aPSaveData.GhostCardsSold,
             EventGamesPlayed = aPSaveData.EventGamesPlayed,
             LicensesReceived = aPSaveData.LicensesReceived,
-            StoredXP = aPSaveData.StoredXP
+            StoredXP = aPSaveData.StoredXP,
         };
 
         string modJson = JsonConvert.SerializeObject(modData, Formatting.Indented);
@@ -314,7 +316,9 @@ public class APClientSaveManager
             {
                 var mod = combined.ModData;
                 achievementManager.Load(mod.CardProgress ?? new PlayerCardProgress());
-
+                APinfoMenu.Instance.setCardOpenList(mod.OpenAchievements);
+                APinfoMenu.Instance.setCardSellList(mod.SellAchievements);
+                APinfoMenu.Instance.setCardGradeList(mod.GradeAchievements);
                 aPSaveData.ProcessedIndex = mod.ProcessedIndex;
                 aPSaveData.MoneyMultiplier = mod.MoneyMultiplier;
                 aPSaveData.Luck = mod.Luck;
@@ -350,5 +354,8 @@ public class APClientSaveManager
         public int EventGamesPlayed;
         public int LicensesReceived;
         public int StoredXP;
+        public List<CardLocation> OpenAchievements;
+        public List<CardLocation> SellAchievements;
+        public List<CardLocation> GradeAchievements;
     }
 }

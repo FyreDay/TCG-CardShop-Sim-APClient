@@ -310,7 +310,7 @@ public class SessionHandler
                 Plugin.Log($"Achievement: {a.name} with difficulty {a.difficulty}");
             }
 
-            var cardLocations = slotData.OpenAchievementData.Select(ach => new CardLocation
+            APinfoMenu.Instance.cardSellItems = (slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
             {
                 IsHinted = false,
                 CurrentNum = 0,
@@ -318,7 +318,23 @@ public class SessionHandler
                 AchievementData = ach
             }).ToList();
 
-            APinfoMenu.Instance.cardOpenItems = cardLocations;
+            var cardLocations = 
+
+            APinfoMenu.Instance.cardGradeItems = (slotData.GradeAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+            {
+                IsHinted = false,
+                CurrentNum = 0,
+                Status = CardStatus.Unavailable,
+                AchievementData = ach
+            }).ToList();
+
+            APinfoMenu.Instance.setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+            {
+                IsHinted = false,
+                CurrentNum = 0,
+                Status = CardStatus.Unavailable,
+                AchievementData = ach
+            }).ToList());
 
             slotData.AutoRenovate = loginSuccess.SlotData.GetValueOrDefault("AutoRenovate").ToString() == "1";
             slotData.ExtraStartingItemChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ExtraStartingItemChecks").ToString());
@@ -384,6 +400,7 @@ public class SessionHandler
                 var hintnetworkItem = hintLogMessage.Item;
                 var hintfound = hintLogMessage.IsFound;
                 APConsole.Instance.Log("OH WOW THIS IS RELATED TO ME!!!!");
+                //APinfoMenu.Instance.HintAchievement(Plugin.m_SessionHandler.getLocationName(hintLogMessage.Item.LocationId));
                 break;
             case ItemSendLogMessage itemSendLogMessage:
                 var receiver = itemSendLogMessage.Receiver;
@@ -412,5 +429,10 @@ public class SessionHandler
         cachedItems.Clear();
         CSingleton<CGameManager>.Instance.SaveGameData(3);
         
+    }
+
+    public long GetLocationId(string name)
+    {
+        return session.Locations.GetLocationIdFromName(session.ConnectionInfo.Game, name);
     }
 }

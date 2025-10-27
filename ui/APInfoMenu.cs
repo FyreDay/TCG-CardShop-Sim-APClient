@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 namespace ApClient.ui;
 public class APinfoMenu : MonoBehaviour
 {
@@ -41,6 +42,93 @@ public class APinfoMenu : MonoBehaviour
         UpdateList(cardGradeItems);
     }
 
+    //returns complete location ids
+    public long[] UpdateOpenLocationValues(CardData cardData)
+    {
+        return UpdateLocationValues(cardData, cardOpenItems);
+    }
+
+    public long[] UpdateSellLocationValues(CardData cardData)
+    {
+        return UpdateLocationValues(cardData, cardSellItems);
+    }
+
+    public long[] UpdateGradeLocationValues(CardData cardData, int grade)
+    {
+        //todo:use grade for logic
+        return UpdateLocationValues(cardData, cardGradeItems);
+    }
+
+
+    public long[] UpdateLocationValues(CardData cardData, List<CardLocation> list)
+    {
+        List<long> ach = new List<long>();
+
+        foreach (CardLocation c in list)
+        {
+            if (c.Status != CardStatus.Available)
+            {
+                continue;
+            }
+            var monsterData = InventoryBase.GetMonsterData(cardData.monsterType);
+
+            //Plugin.Log($"Rarity: {c.AchievementData.rarity} : {(int)monsterData.Rarity + 1}");
+            //Plugin.Log($"Border: {c.AchievementData.border} : {(int)cardData.borderType}");
+            //Plugin.Log($"Expansion: {c.AchievementData.expansion} : {(int)cardData.expansionType}");
+            //Plugin.Log($"Foil: {c.AchievementData.foil} : {cardData.isFoil}");
+            //Plugin.Log(" ");
+            if (c.AchievementData.rarity.Contains((int)monsterData.Rarity + 1)
+                && c.AchievementData.border.Contains((int)cardData.borderType)
+                && c.AchievementData.expansion.Contains((int)cardData.expansionType)
+                && c.AchievementData.foil.Contains(cardData.isFoil ? 1 : 0)
+                )
+            {
+                Plugin.Log($"Matched card with {c.AchievementData.name}");
+                c.CurrentNum++;
+                if (c.CurrentNum >= c.AchievementData.threshold)
+                {
+                    c.Status = CardStatus.Found;
+                    ach.Add(Plugin.m_SessionHandler.GetLocationId(c.AchievementData.name));
+                }
+            }
+        }
+        return ach.ToArray();
+    }
+
+    private void CheckAvailable(CardLocation c, ERarity rarity, bool isDestiny)
+    {
+        if (c.Status == CardStatus.Unavailable
+                && c.AchievementData.rarity.Contains((int)rarity + 1)
+                && c.AchievementData.expansion.Contains(isDestiny ? 1 : 0))
+        {
+            c.Status = CardStatus.Available;
+        }
+    }
+
+    public void UpdateAvailableAchievements(ERarity rarity, bool isDestiny)
+    {
+        foreach (CardLocation c in cardOpenItems)
+        {
+            CheckAvailable(c, rarity, isDestiny);
+        }
+
+        foreach (CardLocation c in cardSellItems)
+        {
+            CheckAvailable(c, rarity, isDestiny);
+        }
+
+        foreach (CardLocation c in cardGradeItems)
+        {
+            CheckAvailable(c, rarity, isDestiny);
+        }
+    }
+
+
+    public void HintAchievement(string v)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public void setVisable(bool visable)
     {
         Plugin.Log("toggle Ap info");
@@ -49,6 +137,7 @@ public class APinfoMenu : MonoBehaviour
         {
             Plugin.Log("instance not null");
             window.gameObject.SetActive(showGUI);
+            UpdateList(cardOpenItems);
         }
 
     }
@@ -138,10 +227,10 @@ public class APinfoMenu : MonoBehaviour
         vLayoutGroup.childControlHeight = false; // Allow manual height control
         vLayoutGroup.spacing = 10; // Space between the logo and text
 
-        // --- Create and parent the Title to the header container ---
-        TMP_Text title = CreateText("AP Client", Vector2.zero, 20, headerContainer.transform);
-        title.alignment = TextAlignmentOptions.Center;
-        title.rectTransform.sizeDelta = new Vector2(150, 30); // Give it a specific size
+        //// --- Create and parent the Title to the header container ---
+        //TMP_Text title = CreateText("AP Client", Vector2.zero, 20, headerContainer.transform);
+        //title.alignment = TextAlignmentOptions.Center;
+        //title.rectTransform.sizeDelta = new Vector2(150, 30); // Give it a specific size
 
         // --- Create and parent the Logo to the header container ---
         Texture2D logoTex = EmbeddedResources.LoadTexture("ApClient.assets.color-icon.png");
@@ -157,7 +246,7 @@ public class APinfoMenu : MonoBehaviour
             logoImage.sprite = logoSprite;
 
             RectTransform logoRect = logoObj.GetComponent<RectTransform>();
-            logoRect.sizeDelta = new Vector2(50, 50); // Adjust as needed
+            logoRect.sizeDelta = new Vector2(50, 65); // Adjust as needed
         }
 
         // --- Create Right Side UI: Buttons and Scrollable List ---
@@ -425,10 +514,11 @@ public class APinfoMenu : MonoBehaviour
         string progressString = $"{card.CurrentNum}/{card.AchievementData.threshold}";
         if (card.IsHinted)
         {
-            progressString = $"Hinted {progressString}";
+            progressString = $"{progressString}";
         }
         TMP_Text progressText = CreateText(progressString, Vector2.zero, 14, panelObj.transform);
-        progressText.rectTransform.sizeDelta = new Vector2(100, 50);
+        progressText.rectTransform.sizeDelta = new Vector2(150, 50);
         progressText.alignment = TextAlignmentOptions.Right;
     }
+
 }

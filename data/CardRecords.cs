@@ -26,5 +26,5 @@ public class PlayerCardProgress
 public class CardAddedDTO
 {
     public CardRecord cardRecord { get; set; }
-    public List<string> newAchievements { get; set; }
+    public long[] newAchievements { get; set; }
 }

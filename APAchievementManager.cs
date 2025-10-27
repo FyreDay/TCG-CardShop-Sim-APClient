@@ -1,4 +1,5 @@
 ﻿using ApClient.data;
+using ApClient.ui;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ public class APAchievementManager
     }
 
 
-    public CardAddedDTO AddOpenedCard(CardData card)
+    public CardRecord AddOpenedCard(CardData card)
     {
         if (card == null)
         {
@@ -40,22 +41,23 @@ public class APAchievementManager
 
         Plugin.Log("adding new card to achievement manager");
         record.Opened++;
-       
-        return new CardAddedDTO { cardRecord = record, newAchievements = EvaluateAchievements() };
+
+        Plugin.m_SessionHandler.CompleteLocationChecks(APinfoMenu.Instance.UpdateOpenLocationValues(card));
+        return record;
     }
 
-    public List<string> AddSoldCard(CardData card)
+    public CardRecord AddSoldCard(CardData card)
     {
         int id = card.GetUniqueHash();
         if (!_progress.Cards.TryGetValue(id, out var record))
             _progress.Cards[id] = record = new CardRecord();
 
         record.Sold++;
-
-        return EvaluateAchievements();
+        Plugin.m_SessionHandler.CompleteLocationChecks(APinfoMenu.Instance.UpdateSellLocationValues(card));
+        return record;
     }
 
-    public List<string> AddGradedCard(CardData card)
+    public CardRecord AddGradedCard(CardData card)
     {
         int id = card.GetUniqueHash();
         if (!_progress.Cards.TryGetValue(id, out var record))
@@ -63,7 +65,8 @@ public class APAchievementManager
 
         record.Grades.Add(card.cardGrade);
 
-        return EvaluateAchievements();
+        Plugin.m_SessionHandler.CompleteLocationChecks(APinfoMenu.Instance.UpdateGradeLocationValues(card, card.cardGrade));
+        return record;
     }
 
     public bool HasCardOpened(int id)
@@ -73,11 +76,8 @@ public class APAchievementManager
 
     public IEnumerable<string> GetCompletedAchievements()
         => _progress.CompletedAchievements;
-
-    private List<string> EvaluateAchievements()
-    {
-
-
-        return null;
-    }
 }
+
+//for each card in dictionary, check if they match each achievement. increment count for achievement.
+
+//when a card is added, for each achievement see if they match and increment
