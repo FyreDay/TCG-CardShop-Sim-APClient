@@ -142,24 +142,6 @@ class PlayerDataPatches
     }
 
     [HarmonyPatch]
-    class ReduceCoin
-    {
-        static MethodBase TargetMethod()
-        {
-            return AccessTools.Method(typeof(CPlayerData), "CPlayer_OnReduceCoin", null, null);
-        }
-        [HarmonyPrefix]
-        static void CPlayer_OnReduceCoin(CEventPlayer_ReduceCoin evt)
-        {
-            //if(CPlayerData.m_CoinAmount >= 0 && CPlayerData.m_CoinAmount - evt.m_CoinValue < 0)
-            //{
-            //    Plugin.m_SessionHandler.sendDeath();
-            //    Plugin.Log("Died to negative money");
-            //}
-        }
-    }
-
-    [HarmonyPatch]
     class AddCard
     {
         // Dynamically target the method since 'S' might be a static instance
@@ -191,6 +173,21 @@ class PlayerDataPatches
         static void Postfix(CardData cardData, int addAmount)
         {
             //Plugin.Log($"After adding card: {cardData.monsterType},{cardData.expansionType},{cardData.isDestiny}, Amount: {addAmount}");
+        }
+    }
+
+
+
+    [HarmonyPatch(typeof(CPlayerData))]
+    public class ItemLicenseUnlocked
+    {
+        [HarmonyPatch("GetIsItemLicenseUnlocked")]
+        [HarmonyPostfix]
+        static void PostFix(ref bool __result, int index)
+        {
+
+            int key = (int)LicenseMapping.mapping.Where(l => (l.Value.oldindex == index)).First().Key;
+            __result = Plugin.m_SessionHandler.hasItem(key == LicenseMapping.BASIC_CARD_PACK_ID ? 0 : key);
         }
     }
 }

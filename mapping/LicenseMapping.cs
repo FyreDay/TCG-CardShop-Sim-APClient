@@ -123,7 +123,7 @@ public class LicenseMapping
         {EItemType.UP_SemiRigidCardHolder ,("Card Holder", 8, 122) },
         {EItemType.UP_Album,("Collectors Album", 8, 129) },
     };
-    public static List<(int id,int count)> GetLocations(EItemType type)
+    public static List<(int id, int count)> GetLocations(EItemType type)
     {
         int id = type == EItemType.BasicCardPack ? 190 : (int)type;
         int baseAmount = Plugin.m_SessionHandler.GetSlotData().SellCheckAmount;
@@ -138,4 +138,5 @@ public class LicenseMapping
 
     static int SELL_CHECK_START_ID = 3000;
     public static int BASIC_CARD_PACK_ID = 190;
+    public static int SCANNER_ID = 238;
 }

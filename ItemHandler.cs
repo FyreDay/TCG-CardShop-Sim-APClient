@@ -263,6 +263,12 @@ public class ItemHandler
             FurnaturePatches.EnableFurnature(panel, index);
             return;
         }
+        if ((int)itemReceived.ItemId == LicenseMapping.SCANNER_ID)
+        {
+            CPlayerData.m_IsScannerRestockUnlocked = true;
+
+            CEventManager.QueueEvent(new CEventPlayer_ScannerRestockUnlocked());
+        }
         if ((int)itemReceived.ItemId == CardMapping.oneghostcard)
         {
             

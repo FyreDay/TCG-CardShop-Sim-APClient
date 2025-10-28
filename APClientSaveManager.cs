@@ -165,8 +165,6 @@ public class APClientSaveManager
     public void AddSoldCard(CardData card)
     {
         var achievements = achievementManager.AddSoldCard(card);
-        //send card sell achievements
-        //Plugin.m_SessionHandler.CompleteLocationChecks(CardMapping.getSellCheckId(card.m_Card3dUI.m_CardUI.GetCardData().expansionType, i-1));
     }
 
     public void AddGradedCard(CardData card)

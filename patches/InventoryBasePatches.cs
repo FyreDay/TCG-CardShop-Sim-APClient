@@ -17,4 +17,14 @@ public class InventoryBasePatches
             __result.unlockPlayCountRequired = 0;
         }
     }
+
+    [HarmonyPatch(typeof(InventoryBase), nameof(InventoryBase.GetRestockData))]
+    public static class GetRestockData
+    {
+        static void Prefix(ref RestockData __result, int index)
+        {
+            // Modify the returned list
+            __result = CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[index];
+        }
+    }
 }
