@@ -304,29 +304,33 @@ public class SessionHandler
             slotData.GhostGoalAmount = int.Parse(loginSuccess.SlotData.GetValueOrDefault("GhostGoalAmount").ToString());
             
             slotData.OpenAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(loginSuccess.SlotData.GetValueOrDefault("OpenAchievements").ToString());
-            
+            slotData.SellAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(loginSuccess.SlotData.GetValueOrDefault("SellAchievements").ToString());
+            slotData.GradeAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(loginSuccess.SlotData.GetValueOrDefault("GradeAchievements").ToString());
             foreach (var a in slotData.OpenAchievementData)
             {
                 Plugin.Log($"Achievement: {a.name} with difficulty {a.difficulty}");
             }
 
-            APinfoMenu.Instance.cardSellItems = (slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+            foreach (var a in slotData.SellAchievementData)
+            {
+                Plugin.Log($"Achievement: {a.name} with difficulty {a.difficulty}");
+            }
+
+            APinfoMenu.Instance.setCardSellList((slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
             {
                 IsHinted = false,
                 CurrentNum = 0,
                 Status = CardStatus.Unavailable,
                 AchievementData = ach
-            }).ToList();
+            }).ToList());
 
-            var cardLocations = 
-
-            APinfoMenu.Instance.cardGradeItems = (slotData.GradeAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+            APinfoMenu.Instance.setCardGradeList((slotData.GradeAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
             {
                 IsHinted = false,
                 CurrentNum = 0,
                 Status = CardStatus.Unavailable,
                 AchievementData = ach
-            }).ToList();
+            }).ToList());
 
             APinfoMenu.Instance.setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
             {

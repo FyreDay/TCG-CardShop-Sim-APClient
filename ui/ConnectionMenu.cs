@@ -169,7 +169,6 @@ public class ConnectionMenu : MonoBehaviour
         inputObj.transform.SetParent(parent, false);
 
         Image bg = inputObj.GetComponent<Image>();
-        //bg.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/InputFieldBackground.psd");
         bg.type = Image.Type.Sliced;
         bg.color = new Color(0.2f, 0.2f, 0.2f, 1f);
 
@@ -202,6 +201,10 @@ public class ConnectionMenu : MonoBehaviour
         input.textViewport = textRect;
         input.textComponent = textComp;
         input.text = initial;
+        input.caretColor = Color.white;
+
+        input.enabled = false;
+        input.enabled = true;
 
         return input;
     }

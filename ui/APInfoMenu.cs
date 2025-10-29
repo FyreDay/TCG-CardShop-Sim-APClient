@@ -33,6 +33,7 @@ public class APinfoMenu : MonoBehaviour
     public void setCardSellList(List<CardLocation> list)
     {
         cardSellItems = list;
+        Plugin.Log($"{list.Count}");
         UpdateList(cardSellItems);
     }
 
@@ -224,15 +225,15 @@ public class APinfoMenu : MonoBehaviour
         // Set the alignment of the VerticalLayoutGroup
         VerticalLayoutGroup vLayoutGroup = headerContainer.GetComponent<VerticalLayoutGroup>();
         vLayoutGroup.childAlignment = TextAnchor.UpperCenter;
-        vLayoutGroup.childControlHeight = false; // Allow manual height control
-        vLayoutGroup.spacing = 10; // Space between the logo and text
+        vLayoutGroup.childControlHeight = false;
+        vLayoutGroup.childControlWidth = false;
+        vLayoutGroup.spacing = 0; // Space between the logo and text
 
         //// --- Create and parent the Title to the header container ---
-        //TMP_Text title = CreateText("AP Client", Vector2.zero, 20, headerContainer.transform);
+        TMP_Text title = CreateText("Other Info goes here", new Vector2(-400, -200),20 , bgObj.transform);
         //title.alignment = TextAlignmentOptions.Center;
-        //title.rectTransform.sizeDelta = new Vector2(150, 30); // Give it a specific size
+        title.rectTransform.sizeDelta = new Vector2(150, 30); // Give it a specific size
 
-        // --- Create and parent the Logo to the header container ---
         Texture2D logoTex = EmbeddedResources.LoadTexture("ApClient.assets.color-icon.png");
         if (logoTex != null)
         {
@@ -246,7 +247,8 @@ public class APinfoMenu : MonoBehaviour
             logoImage.sprite = logoSprite;
 
             RectTransform logoRect = logoObj.GetComponent<RectTransform>();
-            logoRect.sizeDelta = new Vector2(50, 65); // Adjust as needed
+            logoRect.sizeDelta = new Vector2(70, 70); // adjust as needed
+            logoRect.anchoredPosition = new Vector2(0, 0); // just below the title
         }
 
         // --- Create Right Side UI: Buttons and Scrollable List ---
@@ -331,7 +333,7 @@ public class APinfoMenu : MonoBehaviour
         RectTransform rightPanel = rightPanelObj.GetComponent<RectTransform>();
         rightPanel.SetParent(parent, false);
         rightPanel.anchorMin = new Vector2(0.5f, 0f);
-        rightPanel.anchorMax = new Vector2(1f, 1f);
+        rightPanel.anchorMax = new Vector2(1f, .96f);
         rightPanel.offsetMin = new Vector2(0, 0);
         rightPanel.offsetMax = new Vector2(0, 0);
 
