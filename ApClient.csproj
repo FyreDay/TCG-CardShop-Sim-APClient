@@ -22,11 +22,7 @@
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
-    <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <Publicize Include="Assembly-CSharp" />
+    <PackageReference Include="TCGGameLibs" Version="0.63.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2021.3.38.8007589" IncludeAssets="compile" />
   </ItemGroup>
   
@@ -35,26 +31,11 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>lib\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>lib\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  
-  <ItemGroup>
     <EmbeddedResource Include="assets\color-icon.png" />
   </ItemGroup>
-  
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="echo outfile: &quot;$(ProjectDir)$(OutDir)$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)$(OutDir)$(TargetFileName)&quot; &quot;E:\Applications\Steam\steamapps\common\TCG Card Shop Simulator\BepInEx\plugins\ApClient\BepInEx\plugins\$(TargetFileName)&quot;" />
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(TCGPath)' != '' ">
+    <Exec Command="echo outfile: &quot;$(ProjectDir)$(OutDir)$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)$(OutDir)$(TargetFileName)&quot; &quot;$(TCGPath)\BepInEx\plugins\$(TargetFileName)&quot;" />
   </Target>
 
   </Project>
