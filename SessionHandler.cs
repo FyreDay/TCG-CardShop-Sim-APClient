@@ -315,30 +315,37 @@ public class SessionHandler
             {
                 Plugin.Log($"Achievement: {a.name} with difficulty {a.difficulty}");
             }
-
-            APinfoMenu.Instance.setCardSellList((slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+            if (slotData.SellAchievementData != null)
             {
-                IsHinted = false,
-                CurrentNum = 0,
-                Status = CardStatus.Unavailable,
-                AchievementData = ach
-            }).ToList());
+                APinfoMenu.Instance.setCardSellList((slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+                {
+                    IsHinted = false,
+                    CurrentNum = 0,
+                    Status = CardStatus.Unavailable,
+                    AchievementData = ach
+                }).ToList());
+            }
 
-            APinfoMenu.Instance.setCardGradeList((slotData.GradeAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+            if (slotData.GradeAchievementData != null)
             {
-                IsHinted = false,
-                CurrentNum = 0,
-                Status = CardStatus.Unavailable,
-                AchievementData = ach
-            }).ToList());
-
-            APinfoMenu.Instance.setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+                APinfoMenu.Instance.setCardGradeList((slotData.GradeAchievementData).Select(ach => new CardLocation
+                {
+                    IsHinted = false,
+                    CurrentNum = 0,
+                    Status = CardStatus.Unavailable,
+                    AchievementData = ach
+                }).ToList());
+            }
+            if (slotData.OpenAchievementData != null)
             {
-                IsHinted = false,
-                CurrentNum = 0,
-                Status = CardStatus.Unavailable,
-                AchievementData = ach
-            }).ToList());
+                APinfoMenu.Instance.setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+                {
+                    IsHinted = false,
+                    CurrentNum = 0,
+                    Status = CardStatus.Unavailable,
+                    AchievementData = ach
+                }).ToList());
+            }
 
             slotData.AutoRenovate = loginSuccess.SlotData.GetValueOrDefault("AutoRenovate").ToString() == "1";
             slotData.ExtraStartingItemChecks = int.Parse(loginSuccess.SlotData.GetValueOrDefault("ExtraStartingItemChecks").ToString());

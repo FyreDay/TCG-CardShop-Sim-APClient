@@ -361,6 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/lib/Unity.TextMeshPro.dll
-/lib/UnityEngine.UI.dll
-/lib/Assembly-CSharp.dll
+/lib/*

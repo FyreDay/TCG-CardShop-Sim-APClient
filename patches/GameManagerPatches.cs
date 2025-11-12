@@ -62,6 +62,7 @@ public class GameUIScreenPatches
         
 
     }
+    public static int ExactMaxLevel = 5;
 
     [HarmonyPatch("EvaluateShopLevelAndExp")]
     [HarmonyPostfix]
@@ -75,6 +76,13 @@ public class GameUIScreenPatches
         }
         else
         {
+            while (licenses_required <= 0 && !(nextlevel > Plugin.m_SessionHandler.GetSlotData().MaxLevel))
+            {
+                nextlevel += 5;
+                licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
+                ExactMaxLevel = nextlevel;
+            }
+
             LevelLocked.text = "";
         }
     }

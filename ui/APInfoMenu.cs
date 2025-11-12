@@ -6,6 +6,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ApClient.patches;
 namespace ApClient.ui;
 public class APinfoMenu : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class APinfoMenu : MonoBehaviour
     {
         cardOpenItems = list;
         UpdateList(cardOpenItems);
+        cardOpenButton.interactable = true;
     }
 
     public void setCardSellList(List<CardLocation> list)
@@ -35,12 +37,14 @@ public class APinfoMenu : MonoBehaviour
         cardSellItems = list;
         Plugin.Log($"{list.Count}");
         UpdateList(cardSellItems);
+        cardSellButton.interactable = true;
     }
 
     public void setCardGradeList(List<CardLocation> list)
     {
         cardGradeItems = list;
         UpdateList(cardGradeItems);
+        cardGradeButton.interactable = true;
     }
 
     //returns complete location ids
@@ -253,6 +257,7 @@ public class APinfoMenu : MonoBehaviour
 
         // --- Create Right Side UI: Buttons and Scrollable List ---
         CreateRightPanel(bgObj.transform);
+        CreateLeftPanel(bgObj.transform);
         //PopulateSampleData();
         UpdateList(cardOpenItems);
 
@@ -280,18 +285,54 @@ public class APinfoMenu : MonoBehaviour
 
 
     // --- Helpers ---
-    private TMP_Text CreateText(string text, Vector2 pos, int size, Transform parent)
+    private TMP_Text CreateTextInRow(string text, Transform parent, TextAlignmentOptions alignment = TextAlignmentOptions.Left, int size = 18)
     {
         GameObject obj = new GameObject(text, typeof(TextMeshProUGUI));
         obj.transform.SetParent(parent, false);
+
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0, 0); // stretch in both directions
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = Vector2.zero; // layout controls size
+
         var tmp = obj.GetComponent<TextMeshProUGUI>();
         tmp.text = text;
         tmp.fontSize = size;
         tmp.color = Color.white;
-        tmp.alignment = TextAlignmentOptions.Left;
+        tmp.alignment = alignment;
+        tmp.enableWordWrapping = false;
+        tmp.verticalAlignment = VerticalAlignmentOptions.Top;
+
+        // Make the HorizontalLayoutGroup give this text flexible width
+        var layoutElement = obj.AddComponent<LayoutElement>();
+        layoutElement.flexibleWidth = 0;
+        layoutElement.minHeight = 30; // optional
+        layoutElement.minWidth = 0; // Essential for allowing the text to shrink
+
+        return tmp;
+    }
+    private TMP_Text CreateText(string text, Vector2 pos, int fontsize, Transform parent, TextAlignmentOptions alignment = TextAlignmentOptions.Left)
+    {
+        return CreateText(text, pos, new Vector2(280, 30), fontsize, parent, alignment);
+    }
+    private TMP_Text CreateText(string text, Vector2 pos, Vector2 size, int fontsize, Transform parent, TextAlignmentOptions alignment = TextAlignmentOptions.Left)
+    {
+            GameObject obj = new GameObject(text, typeof(TextMeshProUGUI));
+        obj.transform.SetParent(parent, false);
+
+        var tmp = obj.GetComponent<TextMeshProUGUI>();
+        tmp.text = text;
+        tmp.fontSize = fontsize;
+        tmp.color = Color.white;
+        tmp.alignment = alignment; // ✅ use the passed alignment
+        tmp.enableWordWrapping = false;
+
         RectTransform rect = tmp.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(280, 30);
+        rect.sizeDelta = size;
         rect.anchoredPosition = pos;
+
         return tmp;
     }
 
@@ -324,6 +365,106 @@ public class APinfoMenu : MonoBehaviour
         textRect.sizeDelta = size;
 
         return button;
+    }
+    private void CreateLeftPanel(Transform parent)
+    {
+        // ... (Left Panel setup as before) ...
+        GameObject leftPanelObj = new GameObject("LeftPanel", typeof(RectTransform));
+        RectTransform leftPanel = leftPanelObj.GetComponent<RectTransform>();
+        leftPanel.SetParent(parent, false);
+        leftPanel.anchorMin = new Vector2(0f, 0.0f);
+        leftPanel.anchorMax = new Vector2(0.5f, .9f);
+        leftPanel.offsetMin = new Vector2(0, 0);
+        leftPanel.offsetMax = new Vector2(0, 0);
+
+        VerticalLayoutGroup panelLayout = leftPanelObj.AddComponent<VerticalLayoutGroup>();
+        panelLayout.childAlignment = TextAnchor.UpperCenter;
+        panelLayout.childForceExpandWidth = true;
+        panelLayout.childForceExpandHeight = false;
+        panelLayout.childControlHeight = true;
+        panelLayout.childControlWidth = true;
+        panelLayout.spacing = 5;
+
+        // --- Info Row Setup ---
+        GameObject infoRowObj = new GameObject("InfoRow", typeof(RectTransform));
+        RectTransform infoRow = infoRowObj.GetComponent<RectTransform>();
+        infoRow.SetParent(leftPanelObj.transform, false);
+
+        LayoutElement infoRowLayoutElement = infoRowObj.AddComponent<LayoutElement>();
+        infoRowLayoutElement.minHeight = 30;
+        infoRowLayoutElement.flexibleHeight = 0;
+        infoRowLayoutElement.flexibleWidth = 1;
+
+        HorizontalLayoutGroup rowLayout = infoRowObj.AddComponent<HorizontalLayoutGroup>();
+        rowLayout.childAlignment = TextAnchor.MiddleCenter;
+        rowLayout.childForceExpandWidth = true; // We want full expansion of children
+        rowLayout.childForceExpandHeight = true;
+        rowLayout.childControlWidth = true;
+        rowLayout.childControlHeight = true;
+        rowLayout.spacing = 0; // We'll use flexible width for spacing now
+
+        // --- 1. Left Text ---
+        // Use the CreateTextInRow function, which uses flexibleWidth=1 and minWidth=0
+        CreateTextInRow($"Level Max: {GameUIScreenPatches.ExactMaxLevel}", infoRowObj.transform, TextAlignmentOptions.Left);
+
+        // --- 2. Center Text (This needs to be fixed width, or also flexible width) ---
+        // To make this work robustly with L/C/R alignment, we make all 3 flexible.
+        CreateTextInRow($"Stored XP: {Plugin.m_SaveManager.TotalStoredXP()}", infoRowObj.transform, TextAlignmentOptions.Center);
+
+        // --- 3. Right Text ---
+        CreateTextInRow($"Licenses to Level: {Plugin.m_SessionHandler.GetRemainingLicenses((((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5)}", infoRowObj.transform, TextAlignmentOptions.Right);
+
+
+        GameObject scrollViewObj = new GameObject("ScrollView", typeof(Image), typeof(ScrollRect));
+        scrollViewObj.transform.SetParent(leftPanel, false);
+
+        RectTransform scrollViewRect = scrollViewObj.GetComponent<RectTransform>();
+        scrollViewRect.anchorMin = new Vector2(0, 0);
+        scrollViewRect.anchorMax = new Vector2(1, 1);
+        scrollViewRect.offsetMin = new Vector2(10, 10);
+        scrollViewRect.offsetMax = new Vector2(0, 0); // Adjust offset to make space for the buttons and title
+
+
+        Image scrollViewImage = scrollViewObj.GetComponent<Image>();
+        scrollViewImage.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+        scrollViewImage.type = Image.Type.Sliced;
+
+        ScrollRect scrollRect = scrollViewObj.GetComponent<ScrollRect>();
+        scrollRect.vertical = true;
+        scrollRect.horizontal = false;
+        scrollRect.scrollSensitivity = 50f;
+        // Viewport
+        GameObject viewportObj = new GameObject("Viewport", typeof(RectMask2D), typeof(Image));
+        viewportObj.transform.SetParent(scrollViewObj.transform, false);
+        RectTransform viewportRect = viewportObj.GetComponent<RectTransform>();
+        viewportRect.anchorMin = new Vector2(0, 0);
+        viewportRect.anchorMax = new Vector2(1, 1);
+        viewportRect.offsetMin = Vector2.zero;
+        viewportRect.offsetMax = Vector2.zero;
+        viewportObj.GetComponent<Image>().color = new Color(0, 0, 0, 0);
+
+        scrollRect.viewport = viewportRect;
+
+        // Content
+        GameObject contentObj = new GameObject("Content", typeof(RectTransform));
+        contentObj.transform.SetParent(viewportObj.transform, false);
+        scrollContent = contentObj.GetComponent<RectTransform>();
+        scrollContent.anchorMin = new Vector2(0, 1);
+        scrollContent.anchorMax = new Vector2(1, 1);
+        scrollContent.pivot = new Vector2(0.5f, 1);
+        scrollContent.sizeDelta = new Vector2(0, 0);
+
+        scrollRect.content = scrollContent;
+
+        VerticalLayoutGroup vLayoutGroup = contentObj.AddComponent<VerticalLayoutGroup>();
+        vLayoutGroup.childAlignment = TextAnchor.UpperLeft;
+        vLayoutGroup.childForceExpandHeight = false;
+        vLayoutGroup.childControlHeight = false;
+        vLayoutGroup.spacing = 5;
+        vLayoutGroup.padding = new RectOffset(5, 5, 5, 5); // Add padding to the layout group
+
+        ContentSizeFitter sizeFitter = contentObj.AddComponent<ContentSizeFitter>();
+        sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
     }
 
     private void CreateRightPanel(Transform parent)
@@ -366,6 +507,10 @@ public class APinfoMenu : MonoBehaviour
         cardOpenButton.onClick.AddListener(() => UpdateList(cardOpenItems));
         cardSellButton.onClick.AddListener(() => UpdateList(cardSellItems));
         cardGradeButton.onClick.AddListener(() => UpdateList(cardGradeItems));
+
+        cardOpenButton.interactable = false;
+        cardSellButton.interactable = false;
+        cardGradeButton.interactable = false;
 
         // Create Scroll View
         GameObject scrollViewObj = new GameObject("ScrollView", typeof(Image), typeof(ScrollRect));

@@ -96,6 +96,7 @@ class PlayerDataPatches
         static bool Prefix(CEventPlayer_AddShopExp evt)
         {
             //Plugin.Log($"Before Level Up");
+            // /5 to round to nearest 5
             int nextlevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5;
             int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
             int maxLevel = nextlevel;
