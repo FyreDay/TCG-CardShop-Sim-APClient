@@ -231,7 +231,7 @@ public class APClientSaveManager
         return CardHelper.CardRoller((ECollectionPackType)UnityEngine.Random.Range(0, 8));
     }
 
-    private string GetBaseDirectory()
+    public string GetBaseDirectory()
     {
         return Application.persistentDataPath;
     }

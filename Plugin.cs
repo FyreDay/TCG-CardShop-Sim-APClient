@@ -12,6 +12,7 @@ using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -38,6 +39,8 @@ public class Plugin : BaseUnityPlugin
     public static SessionHandler m_SessionHandler = new SessionHandler();
     public static CardHelper m_CardHelper = new CardHelper();
 
+    private static AssetBundle myAssetBundle;
+    private static GameObject apinfoobject;
     private Plugin()
     {
         
@@ -51,7 +54,9 @@ public class Plugin : BaseUnityPlugin
         Settings.Instance.Load(this);
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.sceneLoaded += this.OnSceneLoad;
-       
+
+        
+
     }
     void Start()
     {
@@ -65,7 +70,49 @@ public class Plugin : BaseUnityPlugin
         GameObject infoui = new GameObject("APinfoMenu");
         APinfoMenu infomenu = infoui.AddComponent<APinfoMenu>();
         DontDestroyOnLoad(infoui);
-        
+        //asset bundle
+        string assetsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets");
+        string bundlePath = Path.Combine(assetsFolder, "apinfoui"); // Make sure "myAssetBundle" is the correct file name
+        Plugin.Log(assetsFolder);
+        Plugin.Log(bundlePath);
+        // Load the asset bundle
+        myAssetBundle = AssetBundle.LoadFromFile(bundlePath);
+
+        // Example: Load a GameObject from the bundle
+        GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
+
+        // Do something with myGameObject, e.g., instantiate it
+        apinfoobject = Instantiate(myGameObject);
+
+        var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
+        infoPanel.Setup(apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"));
+        infoPanel.SetLevelMax(50);
+        infoPanel.SetStoredXP(12345);
+        infoPanel.SetLicensesToLevel(3);
+        infoPanel.UpdateList(new List<CardLocation>
+        {
+            new CardLocation
+            {
+                IsHinted = true,
+                CurrentNum = 0,
+                AchievementData = new data.AchievementData
+                {
+                    name = "Open 100 Destiny\r\n Legendary Cards",
+                    threshold = 100
+                }
+            },
+            new CardLocation
+            {
+                IsHinted = false,
+                CurrentNum = 2,
+                AchievementData = new data.AchievementData
+                {
+                    name = "Open 10 Destiny\r\n Rare Cards",
+                    threshold = 10
+                }
+            },
+        });
+
     }
 
     private void OnDestroy()
