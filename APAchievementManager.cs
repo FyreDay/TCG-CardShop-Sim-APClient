@@ -42,7 +42,7 @@ public class APAchievementManager
         Plugin.Log("adding new card to achievement manager");
         record.Opened++;
 
-        Plugin.m_SessionHandler.CompleteLocationChecks(APinfoMenu.Instance.UpdateOpenLocationValues(card));
+        Plugin.m_SessionHandler.CompleteLocationChecks(UIInfoPanel.getInstance().UpdateOpenLocationValues(card));
         return record;
     }
 
@@ -53,7 +53,7 @@ public class APAchievementManager
             _progress.Cards[id] = record = new CardRecord();
 
         record.Sold++;
-        Plugin.m_SessionHandler.CompleteLocationChecks(APinfoMenu.Instance.UpdateSellLocationValues(card));
+        Plugin.m_SessionHandler.CompleteLocationChecks(UIInfoPanel.getInstance().UpdateSellLocationValues(card));
         return record;
     }
 
@@ -65,7 +65,7 @@ public class APAchievementManager
 
         record.Grades.Add(card.cardGrade);
 
-        Plugin.m_SessionHandler.CompleteLocationChecks(APinfoMenu.Instance.UpdateGradeLocationValues(card, card.cardGrade));
+        Plugin.m_SessionHandler.CompleteLocationChecks(UIInfoPanel.getInstance().UpdateGradeLocationValues(card, card.cardGrade));
         return record;
     }
 

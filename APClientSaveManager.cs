@@ -255,9 +255,9 @@ public class APClientSaveManager
         var modData = new SaveDataWrapper
         {
             CardProgress = achievementManager.Save(),
-            OpenAchievements = APinfoMenu.Instance.cardOpenItems,
-            SellAchievements = APinfoMenu.Instance.cardSellItems,
-            GradeAchievements = APinfoMenu.Instance.cardGradeItems,
+            OpenAchievements = UIInfoPanel.getInstance().cardOpenItems,
+            SellAchievements = UIInfoPanel.getInstance().cardSellItems,
+            GradeAchievements = UIInfoPanel.getInstance().cardGradeItems,
             ProcessedIndex = aPSaveData.ProcessedIndex,
             MoneyMultiplier = aPSaveData.MoneyMultiplier,
             Luck = aPSaveData.Luck,
@@ -314,9 +314,9 @@ public class APClientSaveManager
             {
                 var mod = combined.ModData;
                 achievementManager.Load(mod.CardProgress ?? new PlayerCardProgress());
-                APinfoMenu.Instance.setCardOpenList(mod.OpenAchievements);
-                APinfoMenu.Instance.setCardSellList(mod.SellAchievements);
-                APinfoMenu.Instance.setCardGradeList(mod.GradeAchievements);
+                UIInfoPanel.getInstance().setCardOpenList(mod.OpenAchievements);
+                UIInfoPanel.getInstance().setCardSellList(mod.SellAchievements);
+                UIInfoPanel.getInstance().setCardGradeList(mod.GradeAchievements);
                 aPSaveData.ProcessedIndex = mod.ProcessedIndex;
                 aPSaveData.MoneyMultiplier = mod.MoneyMultiplier;
                 aPSaveData.Luck = mod.Luck;

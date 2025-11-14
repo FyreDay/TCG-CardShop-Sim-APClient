@@ -66,10 +66,6 @@ public class Plugin : BaseUnityPlugin
         ConnectionMenu menu = ui.AddComponent<ConnectionMenu>();
         DontDestroyOnLoad(ui);
 
-        Log("Setting up infomenu");
-        GameObject infoui = new GameObject("APinfoMenu");
-        APinfoMenu infomenu = infoui.AddComponent<APinfoMenu>();
-        DontDestroyOnLoad(infoui);
         //asset bundle
         string assetsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets");
         string bundlePath = Path.Combine(assetsFolder, "apinfoui"); // Make sure "myAssetBundle" is the correct file name
@@ -83,35 +79,36 @@ public class Plugin : BaseUnityPlugin
 
         // Do something with myGameObject, e.g., instantiate it
         apinfoobject = Instantiate(myGameObject);
-
         var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
-        infoPanel.Setup(apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"));
-        infoPanel.SetLevelMax(50);
-        infoPanel.SetStoredXP(12345);
-        infoPanel.SetLicensesToLevel(3);
-        infoPanel.UpdateList(new List<CardLocation>
-        {
-            new CardLocation
-            {
-                IsHinted = true,
-                CurrentNum = 0,
-                AchievementData = new data.AchievementData
-                {
-                    name = "Open 100 Destiny\r\n Legendary Cards",
-                    threshold = 100
-                }
-            },
-            new CardLocation
-            {
-                IsHinted = false,
-                CurrentNum = 2,
-                AchievementData = new data.AchievementData
-                {
-                    name = "Open 10 Destiny\r\n Rare Cards",
-                    threshold = 10
-                }
-            },
-        });
+        UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
+            myAssetBundle.LoadAsset<GameObject>("Product"));
+        
+        //infoPanel.SetLevelMax(50);
+        //infoPanel.SetStoredXP(12345);
+        //infoPanel.SetLicensesToLevel(3);
+        //infoPanel.UpdateAchievementList(new List<CardLocation>
+        //{
+        //    new CardLocation
+        //    {
+        //        IsHinted = true,
+        //        CurrentNum = 0,
+        //        AchievementData = new data.AchievementData
+        //        {
+        //            name = "Open 100 Destiny\r\n Legendary Cards",
+        //            threshold = 100
+        //        }
+        //    },
+        //    new CardLocation
+        //    {
+        //        IsHinted = false,
+        //        CurrentNum = 2,
+        //        AchievementData = new data.AchievementData
+        //        {
+        //            name = "Open 10 Destiny\r\n Rare Cards",
+        //            threshold = 10
+        //        }
+        //    },
+        //});
 
     }
 

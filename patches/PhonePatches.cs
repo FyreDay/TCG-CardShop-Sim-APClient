@@ -82,10 +82,10 @@ public class PhonePatches
                 Plugin.Log("button not null");
                 newButton.onClick.AddListener(() =>
                 {
-                    if (APinfoMenu.Instance != null)
+                    if (UIInfoPanel.getInstance() != null)
                     {
                         Plugin.Log("ap info open!!!");
-                        APinfoMenu.Instance.setVisable(true);
+                        UIInfoPanel.getInstance().setVisable(true);
                     }
                     else
                     {

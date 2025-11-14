@@ -149,7 +149,7 @@ public class ItemHandler
                 Plugin.Log($"recieved Item {itemtype}");
                 ERarity rarity =  (ERarity) (((int)itemtype / 2) % 4);
                 bool isDestiny = (int)itemtype > (int)EItemType.LegendaryCardBox;
-                APinfoMenu.Instance.UpdateAvailableAchievements(rarity, isDestiny);
+                UIInfoPanel.getInstance().UpdateAvailableAchievements(rarity, isDestiny);
             }
             
             return;

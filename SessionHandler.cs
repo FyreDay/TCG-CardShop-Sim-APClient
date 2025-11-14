@@ -317,7 +317,7 @@ public class SessionHandler
             }
             if (slotData.SellAchievementData != null)
             {
-                APinfoMenu.Instance.setCardSellList((slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+                UIInfoPanel.getInstance().setCardSellList((slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
                 {
                     IsHinted = false,
                     CurrentNum = 0,
@@ -328,7 +328,7 @@ public class SessionHandler
 
             if (slotData.GradeAchievementData != null)
             {
-                APinfoMenu.Instance.setCardGradeList((slotData.GradeAchievementData).Select(ach => new CardLocation
+                UIInfoPanel.getInstance().setCardGradeList((slotData.GradeAchievementData).Select(ach => new CardLocation
                 {
                     IsHinted = false,
                     CurrentNum = 0,
@@ -338,7 +338,7 @@ public class SessionHandler
             }
             if (slotData.OpenAchievementData != null)
             {
-                APinfoMenu.Instance.setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+                UIInfoPanel.getInstance().setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
                 {
                     IsHinted = false,
                     CurrentNum = 0,
@@ -411,7 +411,7 @@ public class SessionHandler
                 var hintnetworkItem = hintLogMessage.Item;
                 var hintfound = hintLogMessage.IsFound;
                 APConsole.Instance.Log("OH WOW THIS IS RELATED TO ME!!!!");
-                //APinfoMenu.Instance.HintAchievement(Plugin.m_SessionHandler.getLocationName(hintLogMessage.Item.LocationId));
+                //UIInfoPanel.getInstance().HintAchievement(Plugin.m_SessionHandler.getLocationName(hintLogMessage.Item.LocationId));
                 break;
             case ItemSendLogMessage itemSendLogMessage:
                 var receiver = itemSendLogMessage.Receiver;
