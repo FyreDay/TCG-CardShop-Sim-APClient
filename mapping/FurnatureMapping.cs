@@ -22,7 +22,7 @@ public class FurnatureMapping
         {8, (202, "Small Personal Shelf", 1) },
 
         {9, (233, "Workbench",1) },
-        {10, (236, "Empty Box Storage",1) },
+        {10, (239, "Empty Box Storage",1) },
         {11, (234, "Trash Bin",1) },
         
         {12, (201, "Small Card Display",1) },
@@ -35,9 +35,9 @@ public class FurnatureMapping
         
         {18, (230, "Pack Opener Machine S",1) },
         {19, (203, "Auto Scent G500",2) },
-        {20, (237, "Bulk Donation Box",1) },
+        {20, (240, "Bulk Donation Box",1) },
         
-        {21, (238, "Card Storage Shelf",1) },
+        {21, (241, "Card Storage Shelf",1) },
         {22, (201, "Card Display Table",2) },
         {23, (202, "Big Personal Shelf",2) },
         
