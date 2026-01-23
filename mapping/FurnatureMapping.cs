@@ -22,40 +22,48 @@ public class FurnatureMapping
         {8, (202, "Small Personal Shelf", 1) },
 
         {9, (233, "Workbench",1) },
-        {10, (234, "Trash Bin",1) },
-        {11, (201, "Small Card Display",1) },
+        {10, (236, "Empty Box Storage",1) },
+        {11, (234, "Trash Bin",1) },
+        
+        {12, (201, "Small Card Display",1) },
+        {13, (227, "Double Sided Shelf",5) },
+        {14, (228, "Wall Display Case",1) },
+        
+        {15, (204, "Big Warehouse Shelf",2) },
+        {16, (229, "Card Projector S",1) },
+        {17, (235, "Checkout Counter",1) },
+        
+        {18, (230, "Pack Opener Machine S",1) },
+        {19, (203, "Auto Scent G500",2) },
+        {20, (237, "Bulk Donation Box",1) },
+        
+        {21, (238, "Card Storage Shelf",1) },
+        {22, (201, "Card Display Table",2) },
+        {23, (202, "Big Personal Shelf",2) },
+        
+        {24, (200, "Vintage Card Table",2) },
+        {25, (228, "Wall Display Case 3x2",2) },
+        {26, (228, "Wall Display Case 5x2",3) },
 
-        {12, (227, "Double Sided Shelf",5) },
-        {13, (228, "Wall Display Case",1) },
-        {14, (204, "Big Warehouse Shelf",2) },
+        {27, (227, "Wide Shelf",6) },
+        {28, (229, "Card Projector M",2) },
+        {29, (230, "Pack Opener Machine M",2) },
 
-        {15, (229, "Card Projector S",1) },
-        {16, (235, "Checkout Counter",1) },
-        {17, (230, "Pack Opener Machine S",1) },
+        {30, (202, "Huge Personal Shelf",3) },
+        {31, (203, "Auto Scent T100",3) },
+        {32, (232, "Play Table Black", 2) },
 
-        {18, (203, "Auto Scent G500",2) },
-        {19, (201, "Card Display Table",2) },
-        {20, (202, "Big Personal Shelf",2) },
+        {33, (232, "Play Table White", 3) },
+        {34, (201, "Big Card Display",3) },
+        {35, (228, "Wall Display Case 6x6 Black",4) },
 
-        {21, (200, "Vintage Card Table",2) },
-        {22, (228, "Wall Display Case 3x2",2) },
-        {23, (228, "Wall Display Case 5x2",3) },
-
-        {24, (227, "Wide Shelf",6) },
-        {25, (229, "Card Projector M",2) },
-        {26, (230, "Pack Opener Machine M",2) },
-
-        {27, (202, "Huge Personal Shelf",3) },
-        {28, (203, "Auto Scent T100",3) },
-        {29, (232, "Play Table Black", 2) },
-
-        {30, (232, "Play Table White", 3) },
-        {31, (201, "Big Card Display",3) },
-        {32, (228, "Wall Display Case 6x6 Black",4) },
-
-        {33, (228, "Wall Display Case 6x6 White",5) },
-        {34, (230, "Pack Opener Machine L",3) },
-        {35, (229, "Card Projector L",3) },
+        {36, (228, "Wall Display Case 6x6 White",5) },
+        {37, (230, "Pack Opener Machine L",3) },
+        {38, (229, "Card Projector L",3) },
+        
+        {39, (227, "Corner Shelf",7) },
+        {40, (227, "Box Shelf",7) },
+        {41, (227, "Tetramon Shelf",8) },
     };
 
 
