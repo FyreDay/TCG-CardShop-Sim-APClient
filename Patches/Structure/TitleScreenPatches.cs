@@ -18,9 +18,9 @@ namespace ApClient.patches
             if (!__instance.m_IsOpeningLevel)
             {
                 __instance.m_IsOpeningLevel = true;
-                CSingleton<CGameManager>.Instance.m_CurrentSaveLoadSlotSelectedIndex = SaveHandler.SaveSlot;
+                CSingleton<CGameManager>.Instance.m_CurrentSaveLoadSlotSelectedIndex = Constants.SAVE_SLOT;
                 CSingleton<CGameManager>.Instance.m_IsManualSaveLoad = true;
-                CSingleton<CGameManager>.Instance.LoadMainLevelAsync("Start", SaveHandler.SaveSlot);
+                CSingleton<CGameManager>.Instance.LoadMainLevelAsync("Start", Constants.SAVE_SLOT);
                 ControllerScreenUIExtManager.OnCloseScreen(__instance.m_ControllerScreenUIExtension);
                 return true;
             }

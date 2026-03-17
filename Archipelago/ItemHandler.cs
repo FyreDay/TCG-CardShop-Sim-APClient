@@ -65,7 +65,7 @@ public class ItemHandler : MonoBehaviour
 
         APConsole.Instance.DebugLog($"Flushed {processedCount} cached items");
         if (processedCount > 0)
-            Plugin.SaveHandler.Save(SaveHandler.SaveSlot);
+            Plugin.SaveHandler.Save(Constants.SAVE_SLOT);
     }
 
 

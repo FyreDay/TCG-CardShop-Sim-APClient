@@ -88,13 +88,7 @@ public class Plugin : BaseUnityPlugin
         }
         if (scene.name == "Start")
         {
-            GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
-
-            var apinfoobject = Instantiate(myGameObject);
-            var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
-            UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
-                myAssetBundle.LoadAsset<GameObject>("Product"), ArchipelagoHandler.slotData);
-            UIInfoPanel.getInstance().setVisable(false);
+            
             //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
 
         }
@@ -102,6 +96,13 @@ public class Plugin : BaseUnityPlugin
 
     public static void SetSceneLoaded()
     {
+        GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
+
+        var apinfoobject = Instantiate(myGameObject);
+        var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
+        UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
+            myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.achievementHandler.achievementsByType);
+        UIInfoPanel.getInstance().setVisable(false);
         SceneLoaded = true;
     }
 
@@ -209,7 +210,7 @@ public class Plugin : BaseUnityPlugin
     {
         if(SaveHandler != null && IsGameReady())
         {
-            SaveHandler.Save(SaveHandler.SaveSlot);
+            SaveHandler.Save(Constants.SAVE_SLOT);
         }
         SaveHandler = null;
     }

@@ -1,4 +1,5 @@
-﻿using ApClient.ui;
+﻿
+using ApClient.data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,12 @@ using UnityEngine;
 
 namespace ApClient.Archipelago;
 
+public class CombinedSaveWrapper
+{
+    public string UnityGameData { get; set; }
+    public APSaveData ModData { get; set; }
+}
+
 [Serializable]
 public class APSaveData
 {
@@ -15,18 +22,32 @@ public class APSaveData
     public int Luck { get; set; }
     public int GhostCardsSold { get; set; }
     public int StoredXP { get; set; }
+    public PlayerAchievementSave achievementSave { get; set; }
+
+    public APSaveData() {
+        ProcessedIndex = 0;
+        Luck = 0;
+        StoredXP = 0;
+    }
 }
 public class SaveHandler
 {
-    public static readonly int SaveSlot = 3;
-    public APSaveData saveData;
     private string seed;
     private string slot;
+
+    public APSaveData saveData;
+    public AchievementHandler achievementHandler;
+
     public SaveHandler(string seed, string slot)
     {
         this.seed = seed;
         this.slot = slot;
         saveData = new APSaveData();
+    }
+
+    public void HandleNewGame()
+    {
+        achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
     }
 
 
@@ -100,6 +121,8 @@ public class SaveHandler
                 saveData.Luck = mod.Luck;
                 saveData.GhostCardsSold = mod.GhostCardsSold;
                 saveData.StoredXP = mod.StoredXP;
+                saveData.achievementSave = mod.achievementSave;
+                achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
             }
 
             return true;
@@ -109,11 +132,5 @@ public class SaveHandler
             Plugin.Logger.LogError("Failed to retrieve save data");
         }
         return false;
-    }
-
-    public class CombinedSaveWrapper
-    {
-        public string UnityGameData { get; set; }
-        public APSaveData ModData { get; set; }
     }
 }

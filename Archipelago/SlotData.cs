@@ -1,4 +1,5 @@
-﻿using ApClient.ui;
+﻿using ApClient.Archipelago;
+using ApClient.ui;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -66,6 +67,18 @@ public class SlotData
         pg3IndexMapping = PgStrToDict(slotDict.GetValueOrDefault("ShopPg3Mapping").ToString());
         ttIndexMapping = PgStrToDict(slotDict.GetValueOrDefault("ShopTTMapping").ToString());
         startingItems = StrToList(slotDict.GetValueOrDefault("StartingIds").ToString());
+    }
+
+    public Dictionary<string, List<AchievementData>> GetAchievementDefinitions()
+    {
+        var defs = new Dictionary<string, List<AchievementData>>
+        {
+            { Constants.OPEN_ACHIEVEMENT_TYPE, OpenAchievementData },
+            { Constants.SELL_ACHIEVEMENT_TYPE, SellAchievementData },
+            { Constants.GRADE_ACHIEVEMENT_TYPE, GradeAchievementData }
+        };
+
+        return defs;
     }
 
     private OrderedDictionary PgStrToDict(string str)

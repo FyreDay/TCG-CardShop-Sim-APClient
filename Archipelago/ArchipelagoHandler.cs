@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static System.Collections.Specialized.BitVector32;
 
 namespace ApClient.Archipelago;
 
@@ -31,9 +30,10 @@ public class ArchipelagoHandler : MonoBehaviour
         _locationsToCheck = new ConcurrentQueue<long>();
         Session = ArchipelagoSessionFactory.CreateSession(ip);
         Session.MessageLog.OnMessageReceived += OnMessageReceived;
-        //Session.Socket.ErrorReceived += OnError;
+        Session.Socket.ErrorReceived += OnError;
         Session.Socket.SocketClosed += OnSocketClosed;
         Session.Items.ItemReceived += ItemReceived;
+        Session.Hints.TrackHints(OnHint);
 
         LoginResult result = null;
         try
@@ -81,6 +81,8 @@ public class ArchipelagoHandler : MonoBehaviour
         return null;
     }
 
+    
+
     public async void DisconnectAsync()
     {
         if (Session == null)
@@ -90,10 +92,6 @@ public class ArchipelagoHandler : MonoBehaviour
         APConsole.Instance.Log("Disconnected from Archipelago");
     }
 
-    internal long GetLocationId(string name)
-    {
-        throw new NotImplementedException();
-    }
 
     public ScoutedItemInfo? TryScoutLocation(long locationId)
     {
@@ -153,8 +151,6 @@ public class ArchipelagoHandler : MonoBehaviour
 
             messageStr = builder.ToString();
         }
-
-        APConsole.Instance.Log(messageStr);
     }
 
     private void OnError(Exception ex, string message)
@@ -170,5 +166,24 @@ public class ArchipelagoHandler : MonoBehaviour
         APConsole.Instance.Log($"Socket closed: {reason}");
         ConnectionMenu.Instance.setVisable(true);
         ConnectionMenu.Instance.SetState("Not Connected");
+    }
+
+    private void OnHint(Hint[] hints)
+    {
+        foreach (Hint hint in hints)
+        {
+            if (hint.FindingPlayer == Session.ConnectionInfo.Slot && hint.Status == HintStatus.Priority)
+            {
+                Plugin.SaveHandler.achievementHandler.SetHinted(hint.LocationId);
+            }
+        }
+    }
+
+    void OnDestroy() { 
+        Session!.Socket.ErrorReceived -= OnError;
+        Session!.MessageLog.OnMessageReceived -= OnMessageReceived;
+        Session!.Socket.ErrorReceived -= OnError;
+        Session!.Socket.SocketClosed -= OnSocketClosed;
+        Session!.Items.ItemReceived -= ItemReceived;
     }
 }

@@ -8,12 +8,13 @@ using ApClient.ui;
 using System.Linq;
 using UnityEngine.UI;
 using ApClient.data;
+using ApClient.Archipelago;
 
 public class UIInfoPanel : MonoBehaviour
 {
     private static UIInfoPanel Instance;
 
-    public static void setInstance(UIInfoPanel instance, GameObject apinfoobject, GameObject achievementPrefab, GameObject productPrefab, SlotData slotData)
+    public static void setInstance(UIInfoPanel instance, GameObject apinfoobject, GameObject achievementPrefab, GameObject productPrefab, Dictionary<string, List<CompiledAchievement>> achievements)
     {
         Instance = instance;
         Instance.window = apinfoobject;
@@ -52,30 +53,27 @@ public class UIInfoPanel : MonoBehaviour
 
         Instance.SetLevelMax(20);
 
-        Instance.setCardSellList((slotData.SellAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+        //pass by reference so that they update when we update cards
+        Instance.cardOpenItems = achievements[Constants.OPEN_ACHIEVEMENT_TYPE];
+        Instance.cardSellItems = achievements[Constants.SELL_ACHIEVEMENT_TYPE];
+        Instance.cardGradeItems = achievements[Constants.GRADE_ACHIEVEMENT_TYPE];
+        if (Instance.cardGradeItems.Count > 0)
         {
-            IsHinted = false,
-            CurrentNum = 0,
-            Status = CardStatus.Unavailable,
-            AchievementData = ach
-        }).ToList());
+            Instance.cardGradeButton.interactable = true;
+            Instance.UpdateAchievementList(Instance.cardGradeItems);
+        }
 
-        Instance.setCardGradeList((slotData.GradeAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
+        if (Instance.cardSellItems.Count > 0)
         {
-            IsHinted = false,
-            CurrentNum = 0,
-            Status = CardStatus.Unavailable,
-            AchievementData = ach
-        }).ToList());
+            Instance.cardSellButton.interactable = true;
+            Instance.UpdateAchievementList(Instance.cardSellItems);
+        }
+        if (Instance.cardOpenItems.Count > 0)
+        {
+            Instance.cardOpenButton.interactable = true;
+            Instance.UpdateAchievementList(Instance.cardOpenItems);
+        }
 
-        Instance.setCardOpenList((slotData.OpenAchievementData ?? new List<AchievementData>()).Select(ach => new CardLocation
-        {
-            IsHinted = false,
-            CurrentNum = 0,
-            Status = CardStatus.Unavailable,
-            AchievementData = ach
-        }).ToList());
-        Instance.UpdateAchievementList(Instance.cardOpenItems);
 
         Instance.UpdateProductList(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var sr = apinfoobject.GetComponentInChildren<ScrollRect>(true);
@@ -103,118 +101,9 @@ public class UIInfoPanel : MonoBehaviour
     private Button cardGradeButton;
 
 
-    public List<CardLocation> cardOpenItems = new List<CardLocation>();
-    public List<CardLocation> cardSellItems = new List<CardLocation>();
-    public List<CardLocation> cardGradeItems = new List<CardLocation>();
-
-
-    public void setCardOpenList(List<CardLocation> list)
-    {
-        cardOpenItems = list;
-        Plugin.Logger.LogInfo($"Open length {list.Count}");
-        cardOpenButton.interactable = true;
-    }
-
-    public void setCardSellList(List<CardLocation> list)
-    {
-        cardSellItems = list;
-        Plugin.Logger.LogInfo($"sell length {list.Count}");
-        cardSellButton.interactable = true;
-    }
-
-    public void setCardGradeList(List<CardLocation> list)
-    {
-        cardGradeItems = list;
-        Plugin.Logger.LogInfo($"grade length {list.Count}");
-        cardGradeButton.interactable = true;
-    }
-
-    //returns complete location ids
-    public long[] UpdateOpenLocationValues(CardData cardData)
-    {
-        return UpdateLocationValues(cardData, cardOpenItems);
-    }
-
-    public long[] UpdateSellLocationValues(CardData cardData)
-    {
-        return UpdateLocationValues(cardData, cardSellItems);
-    }
-
-    public long[] UpdateGradeLocationValues(CardData cardData, int grade)
-    {
-        //todo:use grade for logic
-        return UpdateLocationValues(cardData, cardGradeItems);
-    }
-
-
-    public long[] UpdateLocationValues(CardData cardData, List<CardLocation> list)
-    {
-        List<long> ach = new List<long>();
-
-        foreach (CardLocation c in list)
-        {
-            if (c.Status != CardStatus.Available)
-            {
-                continue;
-            }
-            var monsterData = InventoryBase.GetMonsterData(cardData.monsterType);
-
-            //Plugin.Logger.LogInfo($"Rarity: {c.AchievementData.rarity} : {(int)monsterData.Rarity + 1}");
-            //Plugin.Logger.LogInfo($"Border: {c.AchievementData.border} : {(int)cardData.borderType}");
-            //Plugin.Logger.LogInfo($"Expansion: {c.AchievementData.expansion} : {(int)cardData.expansionType}");
-            //Plugin.Logger.LogInfo($"Foil: {c.AchievementData.foil} : {cardData.isFoil}");
-            //Plugin.Logger.LogInfo(" ");
-            if (c.AchievementData.rarity.Contains((int)monsterData.Rarity + 1)
-                && c.AchievementData.border.Contains((int)cardData.borderType)
-                && c.AchievementData.expansion.Contains((int)cardData.expansionType)
-                && c.AchievementData.foil.Contains(cardData.isFoil ? 1 : 0)
-                )
-            {
-                Plugin.Logger.LogInfo($"Matched card with {c.AchievementData.name}");
-                c.CurrentNum++;
-                if (c.CurrentNum >= c.AchievementData.threshold)
-                {
-                    c.Status = CardStatus.Found;
-                    ach.Add(Plugin.ArchipelagoHandler.GetLocationId(c.AchievementData.name));
-                }
-            }
-        }
-        return ach.ToArray();
-    }
-
-    private void CheckAvailable(CardLocation c, ERarity rarity, bool isDestiny)
-    {
-        if (c.Status == CardStatus.Unavailable
-                && c.AchievementData.rarity.Contains((int)rarity + 1)
-                && c.AchievementData.expansion.Contains(isDestiny ? 1 : 0))
-        {
-            c.Status = CardStatus.Available;
-        }
-    }
-
-    public void UpdateAvailableAchievements(ERarity rarity, bool isDestiny)
-    {
-        foreach (CardLocation c in cardOpenItems)
-        {
-            CheckAvailable(c, rarity, isDestiny);
-        }
-
-        foreach (CardLocation c in cardSellItems)
-        {
-            CheckAvailable(c, rarity, isDestiny);
-        }
-
-        foreach (CardLocation c in cardGradeItems)
-        {
-            CheckAvailable(c, rarity, isDestiny);
-        }
-    }
-
-
-    public void HintAchievement(string v)
-    {
-        throw new System.NotImplementedException();
-    }
+    public List<CompiledAchievement> cardOpenItems;
+    public List<CompiledAchievement> cardSellItems;
+    public List<CompiledAchievement> cardGradeItems;
 
     public void setVisable(bool visable)
     {
@@ -276,7 +165,7 @@ public class UIInfoPanel : MonoBehaviour
         licensesText.text = $"{value}";
     }
 
-    public void UpdateAchievementList(List<CardLocation> items)
+    public void UpdateAchievementList(List<CompiledAchievement> items)
     {
 
         Plugin.Logger.LogInfo($"Update list {items.Count}");
@@ -285,25 +174,27 @@ public class UIInfoPanel : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        foreach (CardLocation item in items)
+        var orderedAchievements = items
+            .OrderByDescending(a => a.IsHinted) // hinted first
+            .ThenBy(a =>
+            {
+                if (a.completed) return 2;   // completed last
+                if (a.Available) return 0;   // available group first
+                return 1;                     // unavailable group in the middle
+            })
+            .ToList();
+
+        foreach (CompiledAchievement item in orderedAchievements)
         {
-            Plugin.Logger.LogInfo("Try add item");
-            var achievement = Instantiate(achievementPrefab);
-            achievement.transform.SetParent(achievementContent, false);
-            achievement.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = item.AchievementData.name;
-            achievement.transform.Find("ProgressText").GetComponent<TextMeshProUGUI>().text = $"{item.CurrentNum}/{item.AchievementData.threshold}";
+            
+            var achievement = Instantiate(achievementPrefab, achievementContent);
+            achievement.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = item.data.name;
+            achievement.transform.Find("ProgressText").GetComponent<TextMeshProUGUI>().text = $"{item.progress}/{item.data.threshold}";
             var hint = achievement.transform.Find("Hint");
-            Plugin.Logger.LogInfo($"found hint {hint != null}");
             hint.Find("HintText").GetComponent<TextMeshProUGUI>().enabled = item.IsHinted;
             hint.GetComponent<Image>().enabled = item.IsHinted;
-            Plugin.Logger.LogInfo("finish add item");
+            achievement.transform.GetComponent<Image>().color = item.completed ? new Color(.6f,.6f,.6f) : item.Available ? Color.green : Color.red;
         }
-        LayoutRebuilder.ForceRebuildLayoutImmediate(achievementContent.GetComponent<RectTransform>());
-        //ScrollRect scrollRect = achievementContent.GetComponentInParent<ScrollRect>();
-        //if (scrollRect != null)
-        //{
-        //    LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.GetComponent<RectTransform>());
-        //}
     }
 
     public void UpdateProductList(List<int> products)

@@ -35,7 +35,10 @@ public class ControllerPatches
     [HarmonyPostfix]
     static void OnFinishPostFix(CEventPlayer_FinishHideLoadingScreen evt)
     {
-        Plugin.SetSceneLoaded();
+        if (Plugin.SaveHandler.achievementHandler != null)
+        {
+            Plugin.SetSceneLoaded();
+        }
 
     }
 }

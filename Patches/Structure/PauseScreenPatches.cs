@@ -16,17 +16,16 @@ namespace ApClient.patches
         [HarmonyPrefix]
         static bool SavePrefix()
         {
-            Plugin.Logger.LogInfo("Start Saving");
-            CSingleton<CGameManager>.Instance.m_CurrentSaveLoadSlotSelectedIndex = SaveHandler.SaveSlot;
+            Plugin.Logger.LogInfo("AP Save");
+            CSingleton<CGameManager>.Instance.m_CurrentSaveLoadSlotSelectedIndex = Constants.SAVE_SLOT;
             CSingleton<CGameManager>.Instance.m_IsManualSaveLoad = true;
             CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
-            CSingleton<CGameManager>.Instance.SaveGameData(SaveHandler.SaveSlot);
+            CSingleton<CGameManager>.Instance.SaveGameData(Constants.SAVE_SLOT);
             // SaveLoadGameSlotSelectScreen
             SaveLoadGameSlotSelectScreen saveScreen = GameObject.FindObjectOfType<SaveLoadGameSlotSelectScreen>();
 
             if (saveScreen != null)
             {
-                Plugin.Logger.LogInfo("Screen Saving");
                 saveScreen.m_SavingGameScreen.SetActive(value: true);
                 CSingleton<SaveLoadGameSlotSelectScreen>.Instance.StartCoroutine(DelaySavingGame(saveScreen));
             }
@@ -36,9 +35,6 @@ namespace ApClient.patches
 
         private static IEnumerator DelaySavingGame(SaveLoadGameSlotSelectScreen saveScreen)
         {
-            Plugin.Logger.LogInfo("Delay Saving");
-
-
             yield return new WaitForSecondsRealtime(2f);
             saveScreen.m_SavingGameScreen.SetActive(value: false);
             saveScreen.gameObject.SetActive(value: false);
