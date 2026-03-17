@@ -26,14 +26,16 @@ public static class CardDataExtensions
         };
     }
 
-    public static int GetUniqueHash(this CardData card)
-    {
-        return HashCode.Combine(
-            card.monsterType,
-            card.borderType,
-            card.isFoil,
-            card.isDestiny,
-            card.isChampionCard
-        );
-    }
+    //public static int GetUniqueHash(this CardData card)
+    //{
+    //    return HashCode.Combine(
+    //        card.monsterType,
+    //        card.borderType,
+    //        card.isFoil,
+    //        card.isDestiny,
+    //        card.isChampionCard
+    //    );
+    //}
+
+   
 }

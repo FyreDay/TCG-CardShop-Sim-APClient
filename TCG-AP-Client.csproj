@@ -44,6 +44,10 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(GamePath)\Card Shop Simulator_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -84,7 +88,8 @@
       <PluginAssets Include="$(ProjectDir)Assets\apinfoui" />
     </ItemGroup>
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)" />
-    <Copy SourceFiles="@(PluginAssets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets" />
+    <Copy SourceFiles="$(TargetDir)Archipelago.MultiClient.Net.dll" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(PluginAssets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets" SkipUnchangedFiles="true" />
   </Target>
  
 </Project>

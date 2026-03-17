@@ -114,6 +114,10 @@ public class UIInfoPanel : MonoBehaviour
             Plugin.Logger.LogInfo("instance not null");
             window.SetActive(visable);
             UpdateAchievementList(cardOpenItems);
+            int maxLevel = APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel);
+            SetLevelMax(maxLevel);
+            SetStoredXP(Plugin.SaveHandler.saveData.StoredXP);
+            SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(maxLevel));
         }
 
     }

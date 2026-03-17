@@ -1,5 +1,6 @@
 ﻿
 using ApClient.data;
+using ApClient.mapping;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,13 +17,23 @@ public class CombinedSaveWrapper
 }
 
 [Serializable]
+public class FoundCards
+{
+    public List<int> found  = new();
+    public List<int> notfound = new();
+}
+
+[Serializable]
 public class APSaveData
 {
+    public PlayerAchievementSave achievementSave { get; set; }
+    public FoundCards foundCards { get; set; }
     public int ProcessedIndex { get; set; }
     public int Luck { get; set; }
     public int GhostCardsSold { get; set; }
     public int StoredXP { get; set; }
-    public PlayerAchievementSave achievementSave { get; set; }
+
+    public float CustomerMoneyMult { get; set; }
 
     public APSaveData() {
         ProcessedIndex = 0;
@@ -48,8 +59,60 @@ public class SaveHandler
     public void HandleNewGame()
     {
         achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+        saveData.foundCards.found = new();
+        saveData.foundCards.notfound = new();
+
+        for (int pack = 0; (ECollectionPackType)pack < ECollectionPackType.GhostPack; pack++)
+        {
+            foreach (ECardExpansionType t in new[] { ECardExpansionType.Tetramon, ECardExpansionType.Destiny })
+            {
+                for (int monster = 0; (EMonsterType)monster < EMonsterType.MAX; monster++)
+                {
+                    for (int border = 0; (ECardBorderType)border <= ECardBorderType.FullArt; border++)
+                    {
+                        foreach (bool foil in new[] { true, false })
+                        {
+                            saveData.foundCards.notfound.Add(CardMapping.getId(new CardData
+                            {
+                                isFoil = foil,
+                                isDestiny = t == ECardExpansionType.Destiny,
+                                borderType = (ECardBorderType)border,
+                                monsterType = (EMonsterType)monster,
+                                expansionType = t,
+                                isChampionCard = false,
+                                isNew = true
+                            }));
+                        }
+                    }
+                }
+            }
+        }
+        saveData.foundCards.notfound.Sort();
     }
 
+    public void AddCard(CardData card, string achievementType)
+    {
+        int id = CardMapping.getId(card);
+        if (saveData.foundCards.notfound.Remove(id))
+        {
+            int index = saveData.foundCards.found.BinarySearch(id);
+            if (index < 0)
+            {
+                saveData.foundCards.found.Insert(~index, id);
+            }
+        }
+
+        achievementHandler.OnCard(card, achievementType);
+
+    }
+
+    public CardData NewRandomCard()
+    {
+        int id = Plugin.SaveHandler.saveData.foundCards.notfound[UnityEngine.Random.RandomRangeInt(0, Plugin.SaveHandler.saveData.foundCards.notfound.Count)];
+        CardData data = CardMapping.getCardFromId(id);
+        data.isNew = true;
+        return data;
+    }
 
 
     public string GetBaseDirectory()
@@ -123,6 +186,8 @@ public class SaveHandler
                 saveData.StoredXP = mod.StoredXP;
                 saveData.achievementSave = mod.achievementSave;
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+                saveData.foundCards = mod.foundCards;
+                saveData.CustomerMoneyMult = mod.CustomerMoneyMult;
             }
 
             return true;

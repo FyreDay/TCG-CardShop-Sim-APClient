@@ -1,4 +1,5 @@
 ﻿using ApClient.Archipelago;
+using ApClient.Patches.Functionality;
 using ApClient.UI;
 using BepInEx;
 using BepInEx.Configuration;

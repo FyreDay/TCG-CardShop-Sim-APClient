@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static System.Collections.Specialized.BitVector32;
 
 namespace ApClient.Archipelago;
 
@@ -110,6 +111,17 @@ public class ArchipelagoHandler : MonoBehaviour
     {
         Session?.SetGoalAchieved();
         Session?.SetClientState(ArchipelagoClientState.ClientGoal);
+    }
+
+    public int itemCount(long id)
+    {
+        return Session.Items.AllItemsReceived.Where(i => i.ItemId == id).Count();
+
+    }
+
+    public void CompleteLocationChecks(params long[] ids)
+    {
+        Session.Locations.CompleteLocationChecks(ids);
     }
     private void ItemReceived(ReceivedItemsHelper helper)
     {

@@ -69,7 +69,8 @@ class Program
                 {
                     Console.WriteLine($"Field found: {child.FieldName} (Type: {child.TypeName})");
                 }
-                var shownAllItems = GetIntList(baseField["m_ShownAllItemType"]);
+                //var shownAllItems = GetIntList(baseField["m_ShownAllItemType"]);
+                var shownAllItems = GetIntList(baseField["m_ShownItemType"]);
                 Console.WriteLine($"Found {shownAllItems.Count} items in m_ShownAllItemType:");
                 foreach (int val in shownAllItems)
                 {
