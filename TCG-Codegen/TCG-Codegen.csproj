@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Directory.Build.props" Condition="Exists('..\Directory.Build.props')" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>TCG_Codegen</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)..\ProjectSettings.props" />
+
+  <ItemGroup>
+    <PackageReference Include="AssetsTools.NET" Version="3.0.4" />
+    <PackageReference Include="AssetsTools.NET.MonoCecil" Version="3.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update=".\assets\uncompressed.tpk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update=".\assets\lz4.tpk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <PropertyGroup Condition="'$(GamePath)' != ''">
+    <DefineConstants>$(DefineConstants);GAME_PATH</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(GamePath)' != ''">
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>GamePath</_Parameter1>
+      <_Parameter2>$(GamePath)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

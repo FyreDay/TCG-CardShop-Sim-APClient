@@ -16,6 +16,14 @@
     <Configurations>Debug;Release;BuildAndLaunch</Configurations>
   </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)\ProjectSettings.props" />
+  
+  <ItemGroup>
+    <Compile Remove="TCG-Codegen\**" />
+    <EmbeddedResource Remove="TCG-Codegen\**" />
+    <None Remove="TCG-Codegen\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
@@ -35,10 +43,6 @@
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
-  
-  <PropertyGroup>
-    <GamePath Condition="'$(GamePath)' == ''"></GamePath>
-  </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
