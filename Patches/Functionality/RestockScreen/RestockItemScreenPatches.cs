@@ -10,17 +10,6 @@ public class RestockItemScreenPatches
     [HarmonyPatch(typeof(RestockItemScreen), "EvaluateRestockItemPanelUI")]
     public class Evaluate
     {
-        private static readonly HashSet<EItemType> CardBoxes = new HashSet<EItemType>
-        {
-            EItemType.BasicCardBox,
-            EItemType.RareCardBox,
-            EItemType.EpicCardBox,
-            EItemType.LegendaryCardBox,
-            EItemType.DestinyBasicCardBox,
-            EItemType.DestinyRareCardBox,
-            EItemType.DestinyEpicCardBox,
-            EItemType.DestinyLegendaryCardBox,
-        };
 
         [HarmonyPrefix]
         static bool EvaluateRestockItemPanelUI(RestockItemScreen __instance, int pageIndex)
@@ -68,7 +57,7 @@ public class RestockItemScreenPatches
                     {
                         if (InventoryBase.ItemTypeToCollectionPackType(list[k]) != ECollectionPackType.None)
                         {
-                            if (Plugin.ArchipelagoHandler.itemCount((int)list[k]) > 1)
+                            if (Plugin.ArchipelagoHandler.GetItemCount((int)list[k]) > 1)
                             {
                                 if (CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox)
                                 {

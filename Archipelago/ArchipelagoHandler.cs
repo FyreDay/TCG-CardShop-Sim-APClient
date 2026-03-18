@@ -113,7 +113,7 @@ public class ArchipelagoHandler : MonoBehaviour
         Session?.SetClientState(ArchipelagoClientState.ClientGoal);
     }
 
-    public int itemCount(long id)
+    public int GetItemCount(long id)
     {
         return Session.Items.AllItemsReceived.Where(i => i.ItemId == id).Count();
 

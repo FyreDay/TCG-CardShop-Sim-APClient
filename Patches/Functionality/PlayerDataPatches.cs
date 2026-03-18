@@ -4,7 +4,9 @@ using ApClient.patches;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using UnityEngine.Rendering;
 
 namespace ApClient.Patches.Functionality;
 
@@ -72,6 +74,43 @@ public class PlayerDataPatches
                 return;
             }
             Plugin.SaveHandler.AddCard(cardData, Constants.OPEN_ACHIEVEMENT_TYPE);
+        }
+    }
+
+    [HarmonyPatch(typeof(CPlayerData), "SetUnlockItemLicense")]
+    class UnlockLicense
+    {
+        [HarmonyPrefix]
+        static void Prefix(int index)
+        {
+            if (!CPlayerData.GetIsItemLicenseUnlocked(index) && Plugin.IsGameReady())
+            {
+                Plugin.SaveHandler.saveData.numLicensesOwned++;
+                UIInfoPanel.getInstance().SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
+                UIInfoPanel.getInstance().SetLevelMax(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel));
+            }
+        }
+
+        [HarmonyPostfix]
+        static void Postfix(int index)
+        {
+            //TODO: THIS DOES NOT FUNCTION
+            List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
+
+            for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)
+            {
+                if (!CPlayerData.m_IsItemLicenseUnlocked[i])
+                    continue;
+
+                ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
+
+                if (packType != ECollectionPackType.None)
+                {
+                    ownedPacks.Add(packType);
+                }
+            }
+
+            Plugin.SaveHandler.achievementHandler.UpdateAvailability(ownedPacks);
         }
     }
 

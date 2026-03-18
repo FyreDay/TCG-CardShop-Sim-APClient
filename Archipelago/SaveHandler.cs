@@ -32,7 +32,7 @@ public class APSaveData
     public int Luck { get; set; }
     public int GhostCardsSold { get; set; }
     public int StoredXP { get; set; }
-
+    public int numLicensesOwned { get; set; }
     public float CustomerMoneyMult { get; set; }
 
     public APSaveData() {
@@ -188,6 +188,7 @@ public class SaveHandler
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
                 saveData.foundCards = mod.foundCards;
                 saveData.CustomerMoneyMult = mod.CustomerMoneyMult;
+                saveData.numLicensesOwned = mod.numLicensesOwned;
             }
 
             return true;

@@ -31,6 +31,7 @@ public class CompiledAchievement
     public AchievementData data;
 
     public long id;
+    public ulong cardPackMask;
     public ulong rarityMask;
     public ulong borderMask;
     public ulong expansionMask;
@@ -55,6 +56,21 @@ public class CompiledAchievement
 
         return mask;
     }
+
+    static ulong BuildCardPackMask(int[] rarities, int[] expansions)
+    {
+        ulong itemMask = 0;
+
+        foreach (var r in rarities)
+        {
+            foreach (var e in expansions)
+            {
+                int index = (r - 1) + (4 * e);
+                itemMask |= 1UL << index;
+            }
+        }
+        return itemMask;
+    }
     public CompiledAchievement(AchievementData data)
     {
         this.data = data;
@@ -64,6 +80,7 @@ public class CompiledAchievement
         expansionMask = BuildMask(data.expansion);
         foilMask = BuildMask(data.foil);
         gradeMask = BuildMask(data.grade);
+        cardPackMask = BuildCardPackMask(data.rarity, data.expansion);
     }
 }
 
@@ -148,25 +165,22 @@ public class AchievementHandler
         }
     }
 
-    public void UpdateAvailability(List<int> unlockedRarities, List<int> unlockedExpansions)
+    //TODO: THIS DOES NOT FUNCTION
+    public void UpdateAvailability(List<ECollectionPackType> packTypes)
     {
-        ulong rarityMask = 0;
-        ulong expansionMask = 0;
+        ulong selectedMask = 0;
 
-        foreach (var r in unlockedRarities)
-            rarityMask |= 1UL << r;
+        foreach (var p in packTypes)
+        {
+            selectedMask |= 1UL << (int)p;
+        }
 
-        foreach (var e in unlockedExpansions)
-            expansionMask |= 1UL << e;
-        //loop through all 3 achievement type dictionaries. if special handling, split into 3
         foreach (var list in achievementsByType.Values)
         {
             foreach (var ach in list)
             {
-                bool rarityOK = (ach.rarityMask & rarityMask) != 0;
-                bool expansionOK = (ach.expansionMask & expansionMask) != 0;
-
-                ach.Available = rarityOK && expansionOK;
+                bool matches = (ach.cardPackMask & selectedMask) != 0;
+                ach.Available = matches;
             }
         }
     }

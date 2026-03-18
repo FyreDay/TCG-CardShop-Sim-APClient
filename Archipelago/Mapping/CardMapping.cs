@@ -33,11 +33,5 @@ namespace ApClient.mapping
 
             return cardData;
         }
-
-        public static int oneghostcard = 326;
-        public static int twoghostcard = 327;
-        public static int threeghostcard = 328;
-        public static int fourghostcard = 329;
-        public static int fiveghostcard = 330;
     }
 }

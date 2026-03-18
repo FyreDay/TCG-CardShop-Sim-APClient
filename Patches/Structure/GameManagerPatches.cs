@@ -70,7 +70,7 @@ public class GameUIScreenPatches
     [HarmonyPostfix]
     static void EvaluatePostFix(GameUIScreen __instance)
     {
-        //int nextlevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) *5;
+        //int nextlevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5;
         //int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
         //if (licenses_required > 0 && CPlayerData.m_ShopLevel + 2 == nextlevel)
         //{
