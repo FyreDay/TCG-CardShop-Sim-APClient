@@ -1,12 +1,7 @@
 ﻿using ApClient.Archipelago;
 using ApClient.mapping;
-using ApClient.patches;
 using HarmonyLib;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using UnityEngine.Rendering;
 
 namespace ApClient.Patches.Functionality;
 

@@ -33,7 +33,7 @@ public class PhonePatches
             newButtonObj.name = "PhoneButtonGrp_APInfo";
 
             RectTransform rt = newButtonObj.GetComponent<RectTransform>();
-            rt.anchoredPosition += new Vector2(0, 7);
+            rt.anchoredPosition += new Vector2(-7, 14);
 
             Image bg = newButtonObj.transform.Find("BG").GetComponent<Image>();
             Image border = newButtonObj.transform.Find("BG2").GetComponent<Image>();

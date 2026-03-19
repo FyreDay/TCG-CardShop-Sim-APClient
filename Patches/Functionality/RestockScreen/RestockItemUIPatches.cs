@@ -1,6 +1,5 @@
 ﻿using ApClient.Archipelago;
 using ApClient.Archipelago.Mapping;
-using ApClient.patches;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;

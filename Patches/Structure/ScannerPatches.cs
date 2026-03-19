@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace ApClient.Patches.Structure;
-[HarmonyPatch(typeof(ScannerRestockScreen))]
+[HarmonyPatch(typeof(ScannerRestockScreen), "OnPressUnlockButton")]
 public class ScannerPatches
 {
-    [HarmonyPatch("OnPressUnlockButton")]
     [HarmonyPrefix]
     static bool PreFix()
     {
@@ -19,13 +18,15 @@ public class ScannerPatches
         return false;
     }
 }
-[HarmonyPatch(typeof(UI_BarcodeScannerScreen))]
-public class BarcodePatches
+[HarmonyPatch(typeof(ScannerRestockScreen), "Awake")]
+public class ScannerAwakePatches
 {
-    [HarmonyPatch("GetRestockIndex")]
     [HarmonyPostfix]
-    static void PostFix(ref int __result)
+    static void PostFix(ScannerRestockScreen __instance)
     {
-        Plugin.Logger.LogInfo($"{__result}");
+        if (!CPlayerData.m_IsScannerRestockUnlocked)
+        {
+            __instance.m_UnlockCostText.text = "Locked";
+        }
     }
 }
