@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApClient.patches;
+namespace ApClient.Patches.Structure;
 [HarmonyPatch(typeof(ScannerRestockScreen))]
 public class ScannerPatches
 {

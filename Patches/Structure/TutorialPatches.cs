@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine.SceneManagement;
 
-namespace ApClient.patches
+namespace ApClient.Patches.Structure;
 {
     public class TutorialPatches
     {

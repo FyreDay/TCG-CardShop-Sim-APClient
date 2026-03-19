@@ -6,7 +6,7 @@ using System.Text;
 using System.Reflection;
 using ApClient.mapping;
 
-namespace ApClient.patches;
+namespace ApClient.Patches.Functionality;
 
 
 public class ExpansionShopPatches

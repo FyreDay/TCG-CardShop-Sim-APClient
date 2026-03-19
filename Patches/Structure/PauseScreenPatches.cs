@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace ApClient.patches
+namespace ApClient.Patches.Structure;
 {
     [HarmonyPatch(typeof(PauseScreen))]
     public class PauseScreenPatches

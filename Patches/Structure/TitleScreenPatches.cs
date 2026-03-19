@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace ApClient.patches
+namespace ApClient.Patches.Structure;
 {
     [HarmonyPatch(typeof(TitleScreen))]
     public class TitleScreenPatches

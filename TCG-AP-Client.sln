@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36717.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG-AP-Client", "TCG-AP-Client.csproj", "{40064B78-E36E-DDD2-E26D-DC412FAB974B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG-Codegen", "TCG-Codegen\TCG-Codegen.csproj", "{DA442B70-1706-5299-2B17-6048B6ED7CBA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BuildAndLaunch|Any CPU = BuildAndLaunch|Any CPU
@@ -20,12 +18,6 @@ Global
 		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA442B70-1706-5299-2B17-6048B6ED7CBA}.BuildAndLaunch|Any CPU.ActiveCfg = Release|Any CPU
-		{DA442B70-1706-5299-2B17-6048B6ED7CBA}.BuildAndLaunch|Any CPU.Build.0 = Release|Any CPU
-		{DA442B70-1706-5299-2B17-6048B6ED7CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA442B70-1706-5299-2B17-6048B6ED7CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA442B70-1706-5299-2B17-6048B6ED7CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA442B70-1706-5299-2B17-6048B6ED7CBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

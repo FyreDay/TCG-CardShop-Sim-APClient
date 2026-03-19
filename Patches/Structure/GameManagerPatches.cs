@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ApClient.patches;
+namespace ApClient.Patches.Structure;
 
 [HarmonyPatch(typeof(CGameManager), "LoadData")]
 public class CGameManagerPatches

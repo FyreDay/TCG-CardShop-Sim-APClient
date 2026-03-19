@@ -16,6 +16,7 @@ public class CombinedSaveWrapper
     public APSaveData ModData { get; set; }
 }
 
+
 [Serializable]
 public class FoundCards
 {
@@ -34,6 +35,7 @@ public class APSaveData
     public int StoredXP { get; set; }
     public int numLicensesOwned { get; set; }
     public float CustomerMoneyMult { get; set; }
+    public Dictionary<EGameEventFormat, int> PlayedGames = new();
 
     public APSaveData() {
         ProcessedIndex = 0;
@@ -73,6 +75,12 @@ public class SaveHandler
         newSave.foundCards.found = new();
         newSave.foundCards.notfound = new();
 
+        for (int format = 0; format < (int)EGameEventFormat.MAX; format++)
+        {
+            newSave.PlayedGames.Add((EGameEventFormat)format, 0);
+        }
+        
+
 
         foreach (ECardExpansionType t in new[] { ECardExpansionType.Tetramon, ECardExpansionType.Destiny })
         {
@@ -106,16 +114,26 @@ public class SaveHandler
     public void AddCard(CardData card, string achievementType)
     {
         Plugin.Logger.LogInfo($"Added new card : {card.monsterType} : {achievementType}");
-        int id = CardMapping.getId(card);
-        if (saveData.foundCards.notfound.Remove(id))
+        if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE)
         {
-            int index = saveData.foundCards.found.BinarySearch(id);
-            if (index < 0)
+            int id = CardMapping.getId(card);
+            if (saveData.foundCards.notfound.Remove(id))
             {
-                saveData.foundCards.found.Insert(~index, id);
+                int index = saveData.foundCards.found.BinarySearch(id);
+                if (index < 0)
+                {
+                    saveData.foundCards.found.Insert(~index, id);
+                }
+            }
+            if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
+            {
+                decimal percentCollected = (decimal)saveData.foundCards.found.Count / (decimal)(saveData.foundCards.found.Count + saveData.foundCards.notfound.Count);
+                if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100)
+                {
+                    Plugin.ArchipelagoHandler.Release();
+                }
             }
         }
-        Plugin.Logger.LogInfo($"Found Length: {saveData.foundCards.found.Count} | Not Found {saveData.foundCards.notfound.Count}");
         achievementHandler.OnCard(card, achievementType);
 
     }
@@ -193,18 +211,7 @@ public class SaveHandler
 
             if (combined.ModData != null)
             {
-                var mod = combined.ModData;
-                var loadedSave = new APSaveData();
-                loadedSave.ProcessedIndex = mod.ProcessedIndex;
-                loadedSave.Luck = mod.Luck;
-                loadedSave.GhostCardsSold = mod.GhostCardsSold;
-                loadedSave.StoredXP = mod.StoredXP;
-                loadedSave.achievementSave = mod.achievementSave;
-                loadedSave.foundCards = mod.foundCards;
-                loadedSave.CustomerMoneyMult = mod.CustomerMoneyMult;
-                loadedSave.numLicensesOwned = mod.numLicensesOwned;
-
-                saveData = loadedSave;
+                saveData = combined.ModData;
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
             }
 

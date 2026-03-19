@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ApClient.patches;
+namespace ApClient.Patches.Structure;
 
 public class PhonePatches
 {

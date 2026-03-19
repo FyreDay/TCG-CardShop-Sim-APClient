@@ -17,12 +17,6 @@
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\ProjectSettings.props" />
-  
-  <ItemGroup>
-    <Compile Remove="TCG-Codegen\**" />
-    <EmbeddedResource Remove="TCG-Codegen\**" />
-    <None Remove="TCG-Codegen\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />

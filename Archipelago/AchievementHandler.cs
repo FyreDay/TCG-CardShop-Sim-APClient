@@ -180,7 +180,6 @@ public class AchievementHandler
     //doing bitwise checks to make this fast (and because I find it cool)
     private bool Matches(CompiledAchievement a, CardMask c, string achievementType)
     {
-        if ((a.rarityMask & c.rarity) == 0) return false;
         if ((a.borderMask & c.border) == 0) return false;
         if ((a.expansionMask & c.expansion) == 0) return false;
         if ((a.foilMask & c.foil) == 0) return false;
