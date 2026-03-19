@@ -53,6 +53,7 @@ public class Plugin : BaseUnityPlugin
     {
         // Plugin startup logic
         Logger = base.Logger;
+        Application.logMessageReceived += HandleUnityLog;
         Harmony.PatchAll();
         DontDestroyOnLoad(gameObject);
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
@@ -220,6 +221,19 @@ public class Plugin : BaseUnityPlugin
             SaveHandler.Save(Constants.SAVE_SLOT);
         }
         SaveHandler = null;
+    }
+
+
+    void HandleUnityLog(string condition, string stackTrace, LogType type)
+    {
+        if (type == LogType.Warning &&
+            condition.Contains("Parent of RectTransform is being set with parent property"))
+        {
+            return; // swallow it
+        }
+
+        // otherwise log normally if you want
+        Debug.unityLogger.Log(type, condition);
     }
 
     private void OnDestroy()

@@ -34,6 +34,7 @@ public class FurnatureMapping
         new FurnatureTypeToId(EObjectType.PlayTable, 232, 1),
         new FurnatureTypeToId(EObjectType.BlackPlayTable, 232, 2),
         new FurnatureTypeToId(EObjectType.WhitePlayTable, 232, 3),
+        new FurnatureTypeToId(EObjectType.TournamentPrizeShelf, 237, 1),
 
         new FurnatureTypeToId(EObjectType.WarehouseShelfA, 204, 1),
         new FurnatureTypeToId(EObjectType.WarehouseShelf, 204, 2),
@@ -78,5 +79,6 @@ public class FurnatureMapping
         new FurnatureTypeToId(EObjectType.PersonalShelfA, 202, 1),
         new FurnatureTypeToId(EObjectType.PersonalShelfB, 202, 2),
         new FurnatureTypeToId(EObjectType.PersonalShelfC, 202, 3),
+        
     };
 }

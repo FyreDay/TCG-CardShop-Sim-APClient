@@ -33,7 +33,7 @@ public class PhonePatches
             newButtonObj.name = "PhoneButtonGrp_APInfo";
 
             RectTransform rt = newButtonObj.GetComponent<RectTransform>();
-            rt.anchoredPosition += new Vector2(-7, 14);
+            rt.anchoredPosition += new Vector2(-6, 12);
 
             Image bg = newButtonObj.transform.Find("BG").GetComponent<Image>();
             Image border = newButtonObj.transform.Find("BG2").GetComponent<Image>();
@@ -42,7 +42,8 @@ public class PhonePatches
             border.color = Color.white;
 
             TextMeshProUGUI tmpText = newButtonObj.transform.Find("Text").GetComponent<TextMeshProUGUI>();
-            tmpText.text = "AP Info";
+            tmpText.text = "";
+            //tmpText.text = "AP Info";
             //tmpText.color = Color.cyan;
 
             Transform iconRoot = newButtonObj.transform.Find("Icon");
