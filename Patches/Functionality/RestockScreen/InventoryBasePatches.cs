@@ -52,9 +52,11 @@ public class InventoryBasePatches
             stockData.m_ShownFigurineItemType = UpdateShopList(Plugin.ArchipelagoHandler.slotData.pg3IndexMapping, stockData);
             stockData.m_ShownBoardGameItemType = UpdateShopList(Plugin.ArchipelagoHandler.slotData.ttIndexMapping, stockData);
 
+            //InventoryBase.GetRestockDataUsingItemType(EItemType.Deodorant)[1].isBigBox = true;
+            
             var orderLookup = FurnatureMapping.Furnature
-                .Select((entry, index) => new { entry.Item1, index })
-                .ToDictionary(x => x.Item1, x => x.index);
+                .Select((entry, index) => new { entry.type, index })
+                .ToDictionary(x => x.type, x => x.index);
 
             foreach (var item in __instance.m_ObjectData_SO.m_FurniturePurchaseDataList)
             {

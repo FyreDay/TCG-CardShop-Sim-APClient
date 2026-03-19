@@ -9,11 +9,15 @@ namespace ApClient.Archipelago;
 
 public class APLogicUtil
 {
+    public static int GetNextLevel()
+    {
+        return (((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5;
+    }
     public static int GetMaxLevel(int currentLevel)
     {
-        int maxLevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5;
+        int maxLevel = GetNextLevel();
 
-        while(GetRemainingLicenses(maxLevel) <= 0 || maxLevel > Plugin.ArchipelagoHandler.slotData.MaxLevel)
+        while (GetRemainingLicenses(maxLevel) <= 0 || maxLevel > Plugin.ArchipelagoHandler.slotData.MaxLevel)
         {
             maxLevel+=5;
         }
@@ -43,7 +47,7 @@ public class APLogicUtil
         requiredCount += (sect_2 / 5) * 3;
         requiredCount += (sect_3 / 5) * 2;
 
-        int remaining = requiredCount - Plugin.SaveHandler.saveData.numLicensesOwned;
+        int remaining = requiredCount - Plugin.SaveHandler.GetSaveData().numLicensesOwned;
         return remaining > 0 ? remaining : 0; // return 0 if none remaining
     }
 }

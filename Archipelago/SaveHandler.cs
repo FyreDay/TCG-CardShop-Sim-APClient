@@ -46,52 +46,66 @@ public class SaveHandler
     private string seed;
     private string slot;
 
-    public APSaveData saveData;
+    private APSaveData saveData;
     public AchievementHandler achievementHandler;
 
     public SaveHandler(string seed, string slot)
     {
         this.seed = seed;
         this.slot = slot;
-        saveData = new APSaveData();
+    }
+
+    public APSaveData GetSaveData()
+    {
+        if(saveData == null)
+        {
+            Plugin.Logger.LogError("AP SAVE DATA IS NULL");
+            return null;
+        }
+        return saveData;
     }
 
     public void HandleNewGame()
     {
-        achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
-        saveData.foundCards.found = new();
-        saveData.foundCards.notfound = new();
+        var newSave = new APSaveData();
+        newSave.foundCards = new FoundCards();
 
-        for (int pack = 0; (ECollectionPackType)pack < ECollectionPackType.GhostPack; pack++)
+        newSave.foundCards.found = new();
+        newSave.foundCards.notfound = new();
+
+
+        foreach (ECardExpansionType t in new[] { ECardExpansionType.Tetramon, ECardExpansionType.Destiny })
         {
-            foreach (ECardExpansionType t in new[] { ECardExpansionType.Tetramon, ECardExpansionType.Destiny })
+            for (int monster = 0; (EMonsterType)monster < EMonsterType.MAX; monster++)
             {
-                for (int monster = 0; (EMonsterType)monster < EMonsterType.MAX; monster++)
+                for (int border = 0; (ECardBorderType)border <= ECardBorderType.FullArt; border++)
                 {
-                    for (int border = 0; (ECardBorderType)border <= ECardBorderType.FullArt; border++)
+                    foreach (bool foil in new[] { true, false })
                     {
-                        foreach (bool foil in new[] { true, false })
+                        newSave.foundCards.notfound.Add(CardMapping.getId(new CardData
                         {
-                            saveData.foundCards.notfound.Add(CardMapping.getId(new CardData
-                            {
-                                isFoil = foil,
-                                isDestiny = t == ECardExpansionType.Destiny,
-                                borderType = (ECardBorderType)border,
-                                monsterType = (EMonsterType)monster,
-                                expansionType = t,
-                                isChampionCard = false,
-                                isNew = true
-                            }));
-                        }
+                            isFoil = foil,
+                            isDestiny = t == ECardExpansionType.Destiny,
+                            borderType = (ECardBorderType)border,
+                            monsterType = (EMonsterType)monster,
+                            expansionType = t,
+                            isChampionCard = false,
+                            isNew = true
+                        }));
                     }
                 }
             }
         }
-        saveData.foundCards.notfound.Sort();
+
+        newSave.foundCards.notfound.Sort();
+
+        saveData = newSave;
+        achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
     }
 
     public void AddCard(CardData card, string achievementType)
     {
+        Plugin.Logger.LogInfo($"Added new card : {card.monsterType} : {achievementType}");
         int id = CardMapping.getId(card);
         if (saveData.foundCards.notfound.Remove(id))
         {
@@ -101,7 +115,7 @@ public class SaveHandler
                 saveData.foundCards.found.Insert(~index, id);
             }
         }
-
+        Plugin.Logger.LogInfo($"Found Length: {saveData.foundCards.found.Count} | Not Found {saveData.foundCards.notfound.Count}");
         achievementHandler.OnCard(card, achievementType);
 
     }
@@ -180,15 +194,18 @@ public class SaveHandler
             if (combined.ModData != null)
             {
                 var mod = combined.ModData;
-                saveData.ProcessedIndex = mod.ProcessedIndex;
-                saveData.Luck = mod.Luck;
-                saveData.GhostCardsSold = mod.GhostCardsSold;
-                saveData.StoredXP = mod.StoredXP;
-                saveData.achievementSave = mod.achievementSave;
+                var loadedSave = new APSaveData();
+                loadedSave.ProcessedIndex = mod.ProcessedIndex;
+                loadedSave.Luck = mod.Luck;
+                loadedSave.GhostCardsSold = mod.GhostCardsSold;
+                loadedSave.StoredXP = mod.StoredXP;
+                loadedSave.achievementSave = mod.achievementSave;
+                loadedSave.foundCards = mod.foundCards;
+                loadedSave.CustomerMoneyMult = mod.CustomerMoneyMult;
+                loadedSave.numLicensesOwned = mod.numLicensesOwned;
+
+                saveData = loadedSave;
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
-                saveData.foundCards = mod.foundCards;
-                saveData.CustomerMoneyMult = mod.CustomerMoneyMult;
-                saveData.numLicensesOwned = mod.numLicensesOwned;
             }
 
             return true;

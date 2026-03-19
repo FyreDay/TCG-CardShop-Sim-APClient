@@ -145,18 +145,7 @@ public class AchievementHandler
 
         
     }
-    //doing bitwise checks to make this fast (and because I find it cool)
-    private bool Matches(CompiledAchievement a, CardMask c)
-    {
-        if ((a.rarityMask & c.rarity) == 0) return false;
-        if ((a.borderMask & c.border) == 0) return false;
-        if ((a.expansionMask & c.expansion) == 0) return false;
-        if ((a.foilMask & c.foil) == 0) return false;
-        if ((a.gradeMask & c.grade) == 0) return false;
-
-        return true;
-    }
-
+   
     public void SetHinted(long achievementId)
     {
         if (achievementById.TryGetValue(achievementId, out var ach))
@@ -180,9 +169,24 @@ public class AchievementHandler
             foreach (var ach in list)
             {
                 bool matches = (ach.cardPackMask & selectedMask) != 0;
+                if (matches) {
+                    Plugin.Logger.LogInfo($"Set Available {ach.data.name}");
+                }
                 ach.Available = matches;
             }
         }
+    }
+
+    //doing bitwise checks to make this fast (and because I find it cool)
+    private bool Matches(CompiledAchievement a, CardMask c, string achievementType)
+    {
+        if ((a.rarityMask & c.rarity) == 0) return false;
+        if ((a.borderMask & c.border) == 0) return false;
+        if ((a.expansionMask & c.expansion) == 0) return false;
+        if ((a.foilMask & c.foil) == 0) return false;
+        if (achievementType == Constants.GRADE_ACHIEVEMENT_TYPE && (a.gradeMask & c.grade) == 0) return false;
+
+        return true;
     }
 
     public List<long> OnCard(CardData card, string achievementType)
@@ -195,10 +199,10 @@ public class AchievementHandler
         {
             if (a.completed)
                 continue;
-
-            if (!Matches(a, mask))
+            
+            if (!Matches(a, mask, achievementType))
                 continue;
-
+            Plugin.Logger.LogInfo($"Match! : {card.monsterType} : {a.data.name}");
             a.progress++;
 
             var saveEntry = saveDataRef.achievementSave.Achievements[achievementType][a.id];

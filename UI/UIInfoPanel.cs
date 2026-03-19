@@ -51,8 +51,8 @@ public class UIInfoPanel : MonoBehaviour
         Instance.productContent = apinfoobject.GetComponentsInChildren<Transform>(true)
             .FirstOrDefault(t => t.name == "ProductContent");
 
-        Instance.SetLevelMax(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel));
-        Instance.SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
+        //Instance.SetLevelMax(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel));
+        //Instance.SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
 
         //pass by reference so that they update when we update cards
         Instance.cardOpenItems = achievements[Constants.OPEN_ACHIEVEMENT_TYPE];
@@ -117,7 +117,7 @@ public class UIInfoPanel : MonoBehaviour
             UpdateAchievementList(cardOpenItems);
             int maxLevel = APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel);
             SetLevelMax(maxLevel);
-            SetStoredXP(Plugin.SaveHandler.saveData.StoredXP);
+            SetStoredXP(Plugin.SaveHandler.GetSaveData().StoredXP);
             SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(maxLevel));
         }
 

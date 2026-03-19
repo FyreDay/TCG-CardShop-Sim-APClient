@@ -7,49 +7,76 @@ namespace ApClient.Archipelago.Mapping;
 
 public class FurnatureMapping
 {
-    public static List<(EObjectType, long)> Furnature = new()
+    public class FurnatureTypeToId
     {
-        (EObjectType.CabinetA, 227),
-        (EObjectType.ShelfSmallB, 227),
-        (EObjectType.Shelf2X2, 227),
-        (EObjectType.ShelfSmall, 227),
-        (EObjectType.Shelf, 227),
-        (EObjectType.LongShelfA, 236),
-        (EObjectType.LShapedShelf, 236),
-        (EObjectType.BoxShelf, 236),
-        (EObjectType.TetramonCircularShelf, 236),
-        (EObjectType.PlayTable, 232),
-        (EObjectType.BlackPlayTable, 232),
-        (EObjectType.WhitePlayTable, 232),
-        (EObjectType.WarehouseShelfA, 204),
-        (EObjectType.WarehouseShelf, 204),
-        (EObjectType.CardShelf, 200),
-        (EObjectType.VintageCardTable, 200),
-        (EObjectType.AutoCleanser1, 203),
-        (EObjectType.AutoCleanser2, 203),
-        (EObjectType.AutoCleanser3, 203),
-        (EObjectType.DisplayCardShelfA, 201),
-        (EObjectType.DisplayCardTableA, 201),
-        (EObjectType.DisplayCardShelfB, 201),
-        (EObjectType.CashCounter, 235),
-        (EObjectType.AutoPackOpener1, 230),
-        (EObjectType.AutoPackOpener2, 230),
-        (EObjectType.AutoPackOpener3, 230),
-        (EObjectType.CardDisplayWallSmall, 228),
-        (EObjectType.CardDisplayWallBig, 228),
-        (EObjectType.CardDisplayWall3X2, 228),
-        (EObjectType.CardDisplayWall1, 228),
-        (EObjectType.CardDisplayWallBigWhite, 228),
-        (EObjectType.CardDisplayElectronicSmall, 229),
-        (EObjectType.CardDisplayElectronic, 229),
-        (EObjectType.CardDisplayElectronicLarge, 229),
-        (EObjectType.BulkDonationBox, 240),
-        (EObjectType.Trashbin, 234),
-        (EObjectType.EmptyBoxStorage, 239),
-        (EObjectType.Workbench, 233),
-        (EObjectType.CardStorageShelf, 241),
-        (EObjectType.PersonalShelfA, 202),
-        (EObjectType.PersonalShelfB, 202),
-        (EObjectType.PersonalShelfC, 202),
+        public EObjectType type {  get; set; }
+        public long id { get; set; }
+        public int ProgressiveNum { get; set; }
+        public FurnatureTypeToId(EObjectType type, long id, int progressiveNum)
+        {
+            this.type = type;
+            this.id = id;
+            ProgressiveNum = progressiveNum;
+        }
+    }
+    public static List<FurnatureTypeToId> Furnature = new()
+    {
+        new FurnatureTypeToId(EObjectType.CabinetA, 227,1), 
+        new FurnatureTypeToId(EObjectType.ShelfSmallB, 227,2), 
+        new FurnatureTypeToId(EObjectType.Shelf2X2, 227,3), 
+        new FurnatureTypeToId(EObjectType.ShelfSmall, 227,4), 
+        new FurnatureTypeToId(EObjectType.Shelf, 227,5),
+        new FurnatureTypeToId(EObjectType.LongShelfA, 236, 1),
+        new FurnatureTypeToId(EObjectType.LShapedShelf, 236, 2),
+        new FurnatureTypeToId(EObjectType.BoxShelf, 236, 3),
+        new FurnatureTypeToId(EObjectType.TetramonCircularShelf, 236, 4),
+
+        new FurnatureTypeToId(EObjectType.PlayTable, 232, 1),
+        new FurnatureTypeToId(EObjectType.BlackPlayTable, 232, 2),
+        new FurnatureTypeToId(EObjectType.WhitePlayTable, 232, 3),
+
+        new FurnatureTypeToId(EObjectType.WarehouseShelfA, 204, 1),
+        new FurnatureTypeToId(EObjectType.WarehouseShelf, 204, 2),
+
+        new FurnatureTypeToId(EObjectType.CardShelf, 200, 1),
+        new FurnatureTypeToId(EObjectType.VintageCardTable, 200, 2),
+
+        new FurnatureTypeToId(EObjectType.AutoCleanser1, 203, 1),
+        new FurnatureTypeToId(EObjectType.AutoCleanser2, 203, 2),
+        new FurnatureTypeToId(EObjectType.AutoCleanser3, 203, 3),
+
+        new FurnatureTypeToId(EObjectType.DisplayCardShelfA, 201, 1),
+        new FurnatureTypeToId(EObjectType.DisplayCardTableA, 201, 2),
+        new FurnatureTypeToId(EObjectType.DisplayCardShelfB, 201, 3),
+
+        new FurnatureTypeToId(EObjectType.CashCounter, 235, 1),
+
+        new FurnatureTypeToId(EObjectType.AutoPackOpener1, 230, 1),
+        new FurnatureTypeToId(EObjectType.AutoPackOpener2, 230, 2),
+        new FurnatureTypeToId(EObjectType.AutoPackOpener3, 230, 3),
+
+        new FurnatureTypeToId(EObjectType.CardDisplayWallSmall, 228, 1),
+        new FurnatureTypeToId(EObjectType.CardDisplayWallBig, 228, 2),
+        new FurnatureTypeToId(EObjectType.CardDisplayWall3X2, 228, 3),
+        new FurnatureTypeToId(EObjectType.CardDisplayWall1, 228, 4),
+        new FurnatureTypeToId(EObjectType.CardDisplayWallBigWhite, 228, 5),
+
+        new FurnatureTypeToId(EObjectType.CardDisplayElectronicSmall, 229, 1),
+        new FurnatureTypeToId(EObjectType.CardDisplayElectronic, 229, 2),
+        new FurnatureTypeToId(EObjectType.CardDisplayElectronicLarge, 229, 3),
+
+        new FurnatureTypeToId(EObjectType.BulkDonationBox, 240, 1),
+
+        new FurnatureTypeToId(EObjectType.Trashbin, 234, 1),
+
+        new FurnatureTypeToId(EObjectType.EmptyBoxStorage, 239, 1),
+
+        new FurnatureTypeToId(EObjectType.Workbench, 233, 1),
+
+        new FurnatureTypeToId(EObjectType.CardStorageShelf, 241, 1),
+
+        new FurnatureTypeToId(EObjectType.PersonalShelfA, 202, 1),
+        new FurnatureTypeToId(EObjectType.PersonalShelfB, 202, 2),
+        new FurnatureTypeToId(EObjectType.PersonalShelfC, 202, 3),
     };
 }

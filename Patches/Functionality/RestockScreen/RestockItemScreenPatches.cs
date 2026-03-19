@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
 
 namespace ApClient.Patches.Functionality.RestockScreen;
 
@@ -10,14 +11,10 @@ public class RestockItemScreenPatches
     [HarmonyPatch(typeof(RestockItemScreen), "EvaluateRestockItemPanelUI")]
     public class Evaluate
     {
-
         [HarmonyPrefix]
         static bool EvaluateRestockItemPanelUI(RestockItemScreen __instance, int pageIndex)
         {
-            if (__instance.m_PageIndex == pageIndex)
-            {
-                return false;
-            }
+            RestockItemUIPatches.Init.ResetBoxTexts();
 
             __instance.m_PageIndex = pageIndex;
             for (int i = 0; i < __instance.m_PageButtonHighlightList.Count; i++)
@@ -55,7 +52,7 @@ public class RestockItemScreenPatches
                 {
                     if (list[k] == CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType)
                     {
-                        if (InventoryBase.ItemTypeToCollectionPackType(list[k]) != ECollectionPackType.None)
+                        if (InventoryBase.ItemTypeToCollectionPackType(list[k]) != ECollectionPackType.None || list[k] == EItemType.Deodorant)
                         {
                             if (Plugin.ArchipelagoHandler.GetItemCount((int)list[k]) > 1)
                             {
@@ -75,7 +72,7 @@ public class RestockItemScreenPatches
                             continue;
                             
                         }
-                        Plugin.Logger.LogInfo($"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} : {list[k]}");
+                        //Plugin.Logger.LogInfo($"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} : {list[k]}");
                         __instance.m_CurrentRestockDataIndexList.Add(l);
                     }
                 }

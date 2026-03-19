@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using ApClient.Archipelago;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,37 +10,37 @@ using UnityEngine.SceneManagement;
 
 namespace ApClient.patches;
 
-[HarmonyPatch(typeof(CGameManager))]
+[HarmonyPatch(typeof(CGameManager), "LoadData")]
 public class CGameManagerPatches
 {
-    [HarmonyPatch("LoadData")]
     [HarmonyPostfix]
     static void PostFix()
     {
-        CPlayerData.m_TutorialIndex = 16;
-        if (CPlayerData.PlayerName != "My Card Shop" || CPlayerData.m_TutorialIndex > 0)
+        if (CPlayerData.m_HasFinishedTutorial)
         {
-            
+            CPlayerData.m_TutorialIndex = 16;
             CSingleton<TutorialManager>.Instance.m_TutorialTargetIndicator.SetActive(value: false);
             CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
-            CPlayerData.m_HasFinishedTutorial = true;
+
         }
     }
     
 }
 
-[HarmonyPatch(typeof(InteractionPlayerController))]
+[HarmonyPatch(typeof(InteractionPlayerController), "OnFinishHideLoadingScreen")]
 public class ControllerPatches
 {
-    [HarmonyPatch("OnFinishHideLoadingScreen")]
     [HarmonyPostfix]
     static void OnFinishPostFix(CEventPlayer_FinishHideLoadingScreen evt)
     {
-        if (Plugin.SaveHandler.achievementHandler != null)
+        if (CPlayerData.m_HasFinishedTutorial)
         {
             Plugin.SetSceneLoaded();
         }
-
+        else
+        {
+            Plugin.SaveHandler.HandleNewGame();
+        }
     }
 }
 
@@ -52,41 +53,37 @@ public class GameUIScreenPatches
     [HarmonyPostfix]
     static void AwakePostFix(GameUIScreen __instance)
     {
-        
-        //LevelLocked = GameObject.Instantiate(__instance.m_ShopLevelText, __instance.m_ShopLevelText.transform.parent);
-        //LevelLocked.rectTransform.anchoredPosition += new Vector2(-400, 0);
-        //LevelLocked.color = Color.red;
-        //LevelLocked.text = "";
-        //LevelLocked.enableWordWrapping = false;
-        //LevelLocked.overflowMode = TextOverflowModes.Overflow;
-        //LevelLocked.enableAutoSizing = false;
 
-        
+        LevelLocked = GameObject.Instantiate(__instance.m_ShopLevelText, __instance.m_ShopLevelText.transform.parent);
+        LevelLocked.rectTransform.anchoredPosition += new Vector2(-400, 0);
+        LevelLocked.color = Color.red;
+        LevelLocked.text = "";
+        LevelLocked.enableWordWrapping = false;
+        LevelLocked.overflowMode = TextOverflowModes.Overflow;
+        LevelLocked.enableAutoSizing = false;
+
+
 
     }
-    public static int ExactMaxLevel = 5;
 
     [HarmonyPatch("EvaluateShopLevelAndExp")]
     [HarmonyPostfix]
     static void EvaluatePostFix(GameUIScreen __instance)
     {
-        //int nextlevel = (((CPlayerData.m_ShopLevel + 1) + 4) / 5) * 5;
-        //int licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
-        //if (licenses_required > 0 && CPlayerData.m_ShopLevel + 2 == nextlevel)
-        //{
-        //    LevelLocked.text = $"Level Locked. Find {licenses_required} more Licenses to levelup";
-        //}
-        //else
-        //{
-        //    while (licenses_required <= 0 && !(nextlevel > Plugin.m_SessionHandler.GetSlotData().MaxLevel))
-        //    {
-        //        nextlevel += 5;
-        //        licenses_required = Plugin.m_SessionHandler.GetRemainingLicenses(nextlevel);
-        //        ExactMaxLevel = nextlevel;
-        //    }
-
-        //    LevelLocked.text = "";
-        //}
+        if (!Plugin.IsGameReady())
+        {
+            return;
+        }
+        int nextlevel = APLogicUtil.GetNextLevel();
+        int licenses_required = APLogicUtil.GetRemainingLicenses(nextlevel);
+        if (licenses_required > 0 && CPlayerData.m_ShopLevel + 2 == nextlevel)
+        {
+            LevelLocked.text = $"Level Locked. Find {licenses_required} more Licenses to levelup";
+        }
+        else
+        {
+            LevelLocked.text = "";
+        }
     }
 }
 

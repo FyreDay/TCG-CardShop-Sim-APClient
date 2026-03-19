@@ -40,6 +40,24 @@ public class RestockItemUIPatches
         private static Vector2 defaultAnchorPrice = new Vector2();
         private static TextMeshProUGUI[] cardCheckText = new TextMeshProUGUI[8];
         private static TextMeshProUGUI[] cardProgressText = new TextMeshProUGUI[8];
+
+        public static void ResetBoxTexts()
+        {
+            foreach (TextMeshProUGUI txt in cardCheckText)
+            {
+                if (txt != null)
+                {
+                    txt.text = "";
+                }
+            }
+            foreach (TextMeshProUGUI txt in cardProgressText)
+            {
+                if (txt != null)
+                {
+                    txt.text = "";
+                }
+            }
+        }
         private static void SetGoalText(RestockItemPanelUI __instance, List<(int id, int count)> goals)
         {
             if (goals.Any())
@@ -168,8 +186,14 @@ public class RestockItemUIPatches
         [HarmonyPostfix]
         static void Postfix(RestockItemPanelUI __instance, RestockItemScreen restockItemScreen, int index)
         {
+            if (!Plugin.IsGameReady())
+            {
+                return;
+            }
             int licenses_required = APLogicUtil.GetRemainingLicenses(__instance.m_LevelRequired);
-            bool hasItem = Plugin.ArchipelagoHandler.GetItemCount((long)__instance.m_ItemType) > 0;
+            
+            bool hasItem = CPlayerData.GetIsItemLicenseUnlocked(index);
+            Plugin.Logger.LogInfo($"{__instance.m_ItemType} : has Item? : {hasItem} : {Plugin.ArchipelagoHandler.GetItemCount(index == 0 ? 190 : (long)__instance.m_ItemType)}");
             if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && licenses_required <= 0)
             {
                 __instance.m_UIGrp.SetActive(value: true);
@@ -190,7 +214,7 @@ public class RestockItemUIPatches
                 __instance.m_UIGrp.SetActive(value: false);
                 __instance.m_LicenseUIGrp.SetActive(value: true);
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Requires {licenses_required} more Licenses";
+                __instance.m_LevelRequirementText.text = $"{licenses_required} More Sellable Licenses for Level {__instance.m_LevelRequired}";
                 __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
                 __instance.m_LicensePriceText.text = "License Locked";
 

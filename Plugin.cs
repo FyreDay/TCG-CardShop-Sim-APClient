@@ -100,11 +100,17 @@ public class Plugin : BaseUnityPlugin
         GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
 
         var apinfoobject = Instantiate(myGameObject);
+
         var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
+        
+        SceneLoaded = true;
+
         UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
             myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.achievementHandler.achievementsByType);
+
         UIInfoPanel.getInstance().setVisable(false);
-        SceneLoaded = true;
+        ItemHandler.FlushQueue();
+
     }
 
     public static bool IsGameReady()
@@ -119,13 +125,13 @@ public class Plugin : BaseUnityPlugin
             ConnectionMenu.Instance.toggleVisability();
         }
         // Toggle with hotkey
-        if (Input.GetKeyDown(KeyCode.F7))
-        {
-            UIInfoPanel.getInstance().setVisable(true);
-        }
+        //if (Input.GetKeyDown(KeyCode.F7))
+        //{
+        //    UIInfoPanel.getInstance().setVisable(true);
+        //}
 
         // Toggle with hotkey
-        if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)))
+        if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
         {
             Logger.LogInfo("close custom window");
             UIInfoPanel.getInstance().DelaySetVisable(false);

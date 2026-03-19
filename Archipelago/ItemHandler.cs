@@ -76,13 +76,13 @@ public class ItemHandler : MonoBehaviour
 
     private void ProcessItem(int index, ItemInfo item)
     {
-        if (index < Plugin.SaveHandler.saveData.ProcessedIndex)
+        if (index < Plugin.SaveHandler.GetSaveData().ProcessedIndex)
         {
-            APConsole.Instance.DebugLog($"Item {index} already processed (current: {Plugin.SaveHandler.saveData.ProcessedIndex})");
+            APConsole.Instance.DebugLog($"Item {index} already processed (current: {Plugin.SaveHandler.GetSaveData().ProcessedIndex})");
             return;
         }
 
-        Plugin.SaveHandler.saveData.ProcessedIndex++;
+        Plugin.SaveHandler.GetSaveData().ProcessedIndex++;
 
         switch (item.ItemId)
         {
@@ -109,20 +109,20 @@ public class ItemHandler : MonoBehaviour
                 return;
 
             case GenericItemMapping.PROGRESSIVE_CUSTOMER_MONEY:
-                Plugin.SaveHandler.saveData.CustomerMoneyMult += 0.1f;
+                Plugin.SaveHandler.GetSaveData().CustomerMoneyMult += 0.1f;
                 return;
             case GenericItemMapping.INCREASE_CARD_LUCK:
-                if (Plugin.SaveHandler.saveData.Luck >= 100)
+                if (Plugin.SaveHandler.GetSaveData().Luck >= 100)
                 {
                     CEventManager.QueueEvent(new CEventPlayer_AddCoin(400 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
                 }
                 else
                 {
-                    Plugin.SaveHandler.saveData.Luck += 1;
+                    Plugin.SaveHandler.GetSaveData().Luck += 1;
                 }
                 return;
             case GenericItemMapping.DECREASE_CARD_LUCK_TRAP:
-                Plugin.SaveHandler.saveData.Luck -= Plugin.SaveHandler.saveData.Luck > 0 ? 1 : 0;
+                Plugin.SaveHandler.GetSaveData().Luck -= Plugin.SaveHandler.GetSaveData().Luck > 0 ? 1 : 0;
                 return;
             case GenericItemMapping.CURRENCY_TRAP:
                 //make this check to make sure you are not in a transaction
@@ -191,101 +191,118 @@ public class ItemHandler : MonoBehaviour
                 CEventManager.QueueEvent(new CEventPlayer_ScannerRestockUnlocked());
                 return;
             case GenericItemMapping.FIVE_GHOST_CARD:
-                addRandomGhost(5);
+                addRandomGhosts(5);
                 return;
             case GenericItemMapping.FOUR_GHOST_CARD:
-                addRandomGhost(4);
+                addRandomGhosts(4);
                 return;
             case GenericItemMapping.THREE_GHOST_CARD:
-                addRandomGhost(3);
+                addRandomGhosts(3);
                 return;
             case GenericItemMapping.TWO_GHOST_CARD:
-                addRandomGhost(2);
+                addRandomGhosts(2);
                 return;
             case GenericItemMapping.ONE_GHOST_CARD:
-                addRandomGhost(1);
+                addRandomGhosts(1);
                 return;
 
         }
 
         if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
         {
-            //update restock UI
+            EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
+            
+            var list = InventoryBase.GetRestockDataIndexList(type);
+            for (int i = 0; i < list.Count; i++)
+            {
+                var data = InventoryBase.GetRestockData(list[i]);
+                Plugin.Logger.LogInfo($"{data.itemType} : {data.amount}");
+            }
+            int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
+            Plugin.Logger.LogInfo($" num Received: {num}");
+            CPlayerData.SetUnlockItemLicense(list[Math.Min(num, list.Count) - 1]);
+
+
+            var screen = UnityEngine.Object.FindObjectOfType<RestockItemScreen>();
+            if (screen != null)
+            {
+                Util.RunOnMainThread(() =>
+                {
+                    screen.OnPressChangePageButton(screen.m_PageIndex);
+                });
+                
+            }
+
+            screen = UnityEngine.Object.FindObjectOfType<RestockItemBoardGameScreen>();
+            if (screen != null)
+            {
+                Util.RunOnMainThread(() =>
+                {
+                    screen.OnPressChangePageButton(screen.m_PageIndex);
+                });
+
+            }
+            return;
         }
 
 
-            //if (EmployeeMapping.getindexFromId((int)itemReceived.ItemId) != -1)
-            //{
-            //    int index = EmployeeMapping.getindexFromId((int)itemReceived.ItemId);
-            //    //cannot run uless level fully loaded
-            //    var screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
+        //if (EmployeeMapping.getindexFromId((int)itemReceived.ItemId) != -1)
+        //{
+        //    int index = EmployeeMapping.getindexFromId((int)itemReceived.ItemId);
+        //    //cannot run uless level fully loaded
+        //    var screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
 
-            //    HireWorkerPanelUI[] allpanels = UnityEngine.Object.FindObjectsOfType<HireWorkerPanelUI>();
-            //    HireWorkerPanelUI panel = null;
-            //    foreach (HireWorkerPanelUI screenItem in allpanels)
-            //    {
-            //        FieldInfo fieldInfo = typeof(HireWorkerPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
-            //        if (fieldInfo == null)
-            //        {
-            //            return;
-            //        }
+        //    HireWorkerPanelUI[] allpanels = UnityEngine.Object.FindObjectsOfType<HireWorkerPanelUI>();
+        //    HireWorkerPanelUI panel = null;
+        //    foreach (HireWorkerPanelUI screenItem in allpanels)
+        //    {
+        //        FieldInfo fieldInfo = typeof(HireWorkerPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
+        //        if (fieldInfo == null)
+        //        {
+        //            return;
+        //        }
 
-            //        int m_Index = (int)fieldInfo.GetValue(screenItem);
-            //        if (m_Index == index)
-            //        {
-            //            panel = screenItem;
-            //            break;
-            //        }
-            //    }
-            //    if (panel == null)
-            //    {
-            //        return;
-            //    }
-            //    Plugin.Log("detected Hire Worker Screen");
+        //        int m_Index = (int)fieldInfo.GetValue(screenItem);
+        //        if (m_Index == index)
+        //        {
+        //            panel = screenItem;
+        //            break;
+        //        }
+        //    }
+        //    if (panel == null)
+        //    {
+        //        return;
+        //    }
+        //    Plugin.Log("detected Hire Worker Screen");
 
-            //    Plugin.Log("Found Hire Worker Panel");
-            //    panel.m_HiredText.SetActive(value: false);
-            //    panel.m_PurchaseBtn.SetActive(value: true);
-            //    //panel.Init(screen, itemMapping.Key);
-            //    //EmployeePatches.HireEmployee(panel, itemMapping.Key);
-            //    Plugin.Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
+        //    Plugin.Log("Found Hire Worker Panel");
+        //    panel.m_HiredText.SetActive(value: false);
+        //    panel.m_PurchaseBtn.SetActive(value: true);
+        //    //panel.Init(screen, itemMapping.Key);
+        //    //EmployeePatches.HireEmployee(panel, itemMapping.Key);
+        //    Plugin.Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
 
-            //    //SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-            //    return;
-            //}
+        //    //SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
+        //    return;
+        //}
 
-            //if (FurnatureMapping.getindexFromId((int)itemReceived.ItemId) != -1)
-            //{
-            //    int index = FurnatureMapping.getindexFromId((int)itemReceived.ItemId);
-            //    FurnitureShopPanelUI panel = null;
-            //    //update Restock ui
-            //    FurnitureShopPanelUI[] screen = UnityEngine.Object.FindObjectsOfType<FurnitureShopPanelUI>();
-            //    foreach (FurnitureShopPanelUI screenItem in screen)
-            //    {
-            //        FieldInfo fieldInfo = typeof(FurnitureShopPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
-            //        if (fieldInfo == null)
-            //        {
-            //            return;
-            //        }
+        if (FurnatureMapping.Furnature.Where(f => f.id == item.ItemId).Any())
+        {
+            var screen = UnityEngine.Object.FindObjectOfType<FurnitureShopUIScreen>();
+            if (screen != null)
+            {
+                Util.RunOnMainThread(() =>
+                {
+                    screen.Init();
+                });
 
-            //        int m_Index = (int)fieldInfo.GetValue(screenItem);
-            //        if (m_Index == index)
-            //        {
-            //            panel = screenItem;
-            //            break;
-            //        }
-            //    }
-            //    if (panel == null)
-            //    {
-            //        return;
-            //    }
-            //    FurnaturePatches.EnableFurnature(panel, index);
-            //    return;
-            //}
-
+            }
+            return;
         }
 
-    private void addRandomGhost(int count)
+    }
+
+    private void addRandomGhosts(int count)
     {
         for (int i = 0; i < count; i++)
         {

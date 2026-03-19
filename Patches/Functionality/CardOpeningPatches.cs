@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace ApClient.Patches.Functionality;
@@ -72,13 +73,13 @@ public class CardOpeningPatches
             float num10 = 10f;
             float num11 = 2f;
             float num12 = 0.1f;
-            float foilPullRate = 5f + .45f * Plugin.SaveHandler.saveData.Luck;
+            float foilPullRate = 5f + .45f * Plugin.SaveHandler.GetSaveData().Luck;
             ECardBorderType borderType = ECardBorderType.Base;
             float FirstEdPullRate = 20f;
-            float SilverEdPullRate = 8f + .12f * Plugin.SaveHandler.saveData.Luck;
-            float GoldEdPullRate = 4f + .26f * Plugin.SaveHandler.saveData.Luck;
-            float EXPullRate = 1f + .29f * Plugin.SaveHandler.saveData.Luck;
-            float FullArtPullRate = 0.25f + .5f * Plugin.SaveHandler.saveData.Luck;
+            float SilverEdPullRate = 8f + .12f * Plugin.SaveHandler.GetSaveData().Luck;
+            float GoldEdPullRate = 4f + .26f * Plugin.SaveHandler.GetSaveData().Luck;
+            float EXPullRate = 1f + .29f * Plugin.SaveHandler.GetSaveData().Luck;
+            float FullArtPullRate = 0.25f + .5f * Plugin.SaveHandler.GetSaveData().Luck;
             ERarity eRarity = ERarity.Common;
             int num19 = 7;
             if (__instance.m_CollectionPackType == ECollectionPackType.RareCardPack || __instance.m_CollectionPackType == ECollectionPackType.DestinyRareCardPack)

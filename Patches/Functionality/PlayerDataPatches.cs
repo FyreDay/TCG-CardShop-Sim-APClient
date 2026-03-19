@@ -27,7 +27,7 @@ public class PlayerDataPatches
                 if (CPlayerData.m_ShopExpPoint + evt.m_ExpValue >= CPlayerData.GetExpRequiredToLevelUp())
                 {
                     int xptonext = CPlayerData.GetExpRequiredToLevelUp() - CPlayerData.m_ShopExpPoint;
-                    Plugin.SaveHandler.saveData.StoredXP+=evt.m_ExpValue;
+                    Plugin.SaveHandler.GetSaveData().StoredXP+=evt.m_ExpValue;
                     CEventManager.QueueEvent(new CEventPlayer_AddShopExp(xptonext - 1));
                     return false;
                 }
@@ -35,10 +35,10 @@ public class PlayerDataPatches
 
             }
 
-            if (Plugin.SaveHandler.saveData.StoredXP > 50)
+            if (Plugin.SaveHandler.GetSaveData().StoredXP > 50)
             {
-                int xp = Plugin.SaveHandler.saveData.StoredXP;
-                Plugin.SaveHandler.saveData.StoredXP = 0;
+                int xp = Plugin.SaveHandler.GetSaveData().StoredXP;
+                Plugin.SaveHandler.GetSaveData().StoredXP = 0;
                 CEventManager.QueueEvent(new CEventPlayer_AddShopExp(xp));
             }
             return true;
@@ -48,7 +48,7 @@ public class PlayerDataPatches
         static void Postfix(CEventPlayer_AddShopExp evt)
         {
 
-            if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel + 1 >= 2)
+            if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel + 1 >= 2 && Plugin.IsGameReady())
             {
                 //Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
                 Plugin.ArchipelagoHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
@@ -83,17 +83,22 @@ public class PlayerDataPatches
         [HarmonyPrefix]
         static void Prefix(int index)
         {
-            if (!CPlayerData.GetIsItemLicenseUnlocked(index) && Plugin.IsGameReady())
+            if (!Plugin.IsGameReady()) return;
+
+            foreach (RestockData data in InventoryBase.GetRestockDataUsingItemType(InventoryBase.GetRestockData(index).itemType))
             {
-                Plugin.SaveHandler.saveData.numLicensesOwned++;
-                UIInfoPanel.getInstance().SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
-                UIInfoPanel.getInstance().SetLevelMax(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel));
+                if (CPlayerData.GetIsItemLicenseUnlocked(index)) return;
             }
+
+            Plugin.SaveHandler.GetSaveData().numLicensesOwned++;
+            UIInfoPanel.getInstance().SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
+            UIInfoPanel.getInstance().SetLevelMax(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel));
         }
 
         [HarmonyPostfix]
         static void Postfix(int index)
         {
+            CSingleton<GameUIScreen>.Instance.EvaluateShopLevelAndExp();
             //TODO: THIS DOES NOT FUNCTION
             List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
 
