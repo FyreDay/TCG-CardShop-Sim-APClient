@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using UnityEngine;
 
@@ -49,14 +50,14 @@ public class SaveHandler
     private string slot;
 
     private APSaveData saveData;
-    public AchievementHandler achievementHandler;
+    private AchievementHandler achievementHandler;
 
     public SaveHandler(string seed, string slot)
     {
         this.seed = seed;
         this.slot = slot;
     }
-
+    
     public APSaveData GetSaveData()
     {
         if(saveData == null)
@@ -64,7 +65,20 @@ public class SaveHandler
             Plugin.Logger.LogError("AP SAVE DATA IS NULL");
             return null;
         }
+        if (achievementHandler == null)
+        {
+            achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+        }
         return saveData;
+    }
+
+    public AchievementHandler GetAchievementHandler()
+    {
+        if (achievementHandler == null)
+        {
+            achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+        }
+        return achievementHandler;
     }
 
     public void HandleNewGame()
@@ -214,7 +228,7 @@ public class SaveHandler
                 saveData = combined.ModData;
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
             }
-
+            Plugin.Logger.LogInfo("Completed AP Save Load");
             return true;
         }
         catch

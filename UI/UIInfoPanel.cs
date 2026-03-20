@@ -198,7 +198,7 @@ public class UIInfoPanel : MonoBehaviour
             var hint = achievement.transform.Find("Hint");
             hint.Find("HintText").GetComponent<TextMeshProUGUI>().enabled = item.IsHinted;
             hint.GetComponent<Image>().enabled = item.IsHinted;
-            achievement.transform.GetComponent<Image>().color = item.completed ? new Color(.6f,.6f,.6f) : item.Available ? Color.green : Color.red;
+            achievement.transform.GetComponent<Image>().color = item.completed ? new Color(.6f,.6f,.6f) : item.Available ? new Color(0,.5f,055f) : new Color(.86f, 0, 0);
         }
     }
 

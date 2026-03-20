@@ -98,9 +98,8 @@ public class APConsole : MonoBehaviour
         if (Plugin.MessageHoldTime != null) _instance._holdTime = Plugin.MessageHoldTime.Value;
         if (Plugin.MessageOutTime != null) _instance._fadeOutTime = Plugin.MessageOutTime.Value;
 
-        _instance.Log($"by xMcacutt");
+        _instance.Log($"by FyreDay");
         _instance.Log($"Press {LogToggleKey} to Toggle log & {HistoryToggleKey} to toggle history");
-        _instance.DebugLog("Colour Test");
         foreach (var word in KeywordColors.Keys) _instance.DebugLog(word);
     }
 

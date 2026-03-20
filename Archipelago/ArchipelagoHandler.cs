@@ -186,7 +186,7 @@ public class ArchipelagoHandler : MonoBehaviour
         {
             if (hint.FindingPlayer == Session.ConnectionInfo.Slot && hint.Status == HintStatus.Priority)
             {
-                Plugin.SaveHandler.achievementHandler.SetHinted(hint.LocationId);
+                Plugin.SaveHandler.GetAchievementHandler().SetHinted(hint.LocationId);
             }
         }
     }

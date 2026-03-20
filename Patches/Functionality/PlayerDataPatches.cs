@@ -110,7 +110,7 @@ public class PlayerDataPatches
                 }
             }
 
-            Plugin.SaveHandler.achievementHandler.UpdateAvailability(ownedPacks);
+            Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(ownedPacks);
         }
     }
 

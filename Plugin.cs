@@ -107,7 +107,7 @@ public class Plugin : BaseUnityPlugin
         SceneLoaded = true;
 
         UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
-            myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.achievementHandler.achievementsByType);
+            myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.GetAchievementHandler().achievementsByType);
 
         UIInfoPanel.getInstance().setVisable(false);
         ItemHandler.FlushQueue();

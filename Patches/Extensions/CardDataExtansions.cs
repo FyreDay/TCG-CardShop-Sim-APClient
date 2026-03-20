@@ -9,7 +9,7 @@ public static class CardDataExtensions
     public struct CardMask
     {
         public ulong border;
-        public ulong expansion;
+        public ulong packType;
         public ulong foil;
         public ulong grade;
     }
@@ -18,7 +18,7 @@ public static class CardDataExtensions
         return new CardMask
         {
             border = 1UL << (int)card.borderType,
-            expansion = 1UL << (int)card.expansionType,
+            packType = 1UL << ((int)InventoryBase.GetMonsterData(card.monsterType).Rarity + (4*(int)card.expansionType)),
             foil = 1UL << (card.isFoil ? 1 : 0),
             grade = 1UL << card.cardGrade
         };

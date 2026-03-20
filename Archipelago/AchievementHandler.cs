@@ -34,7 +34,7 @@ public class CompiledAchievement
     public ulong cardPackMask;
     public ulong rarityMask;
     public ulong borderMask;
-    public ulong expansionMask;
+    public ulong expansion;
     public ulong foilMask;
     public ulong gradeMask;
 
@@ -77,7 +77,7 @@ public class CompiledAchievement
         id = data.id;
         rarityMask = BuildMask(data.rarity);
         borderMask = BuildMask(data.border);
-        expansionMask = BuildMask(data.expansion);
+        expansion = BuildMask(data.expansion);
         foilMask = BuildMask(data.foil);
         gradeMask = BuildMask(data.grade);
         cardPackMask = BuildCardPackMask(data.rarity, data.expansion);
@@ -120,9 +120,9 @@ public class AchievementHandler
                 var compiled = new CompiledAchievement(ach);
                 //add to id dictionary
                 achievementById[compiled.id] = compiled;
-                Plugin.Logger.LogInfo(compiled.id);
+                
                 //make sure the dict exists
-                if (!saveDataRef.achievementSave.Achievements.TryGetValue(typekey, out var saveDict))
+                if (!saveDataRef.achievementSave.Achievements.TryGetValue(typekey, out Dictionary<long, AchievementProgress> saveDict))
                 {
                     saveDict = new Dictionary<long, AchievementProgress>();
                     saveDataRef.achievementSave.Achievements[typekey] = saveDict;
@@ -154,7 +154,6 @@ public class AchievementHandler
         }
     }
 
-    //TODO: THIS DOES NOT FUNCTION
     public void UpdateAvailability(List<ECollectionPackType> packTypes)
     {
         ulong selectedMask = 0;
@@ -181,7 +180,7 @@ public class AchievementHandler
     private bool Matches(CompiledAchievement a, CardMask c, string achievementType)
     {
         if ((a.borderMask & c.border) == 0) return false;
-        if ((a.expansionMask & c.expansion) == 0) return false;
+        if ((a.cardPackMask & c.packType) == 0) return false;
         if ((a.foilMask & c.foil) == 0) return false;
         if (achievementType == Constants.GRADE_ACHIEVEMENT_TYPE && (a.gradeMask & c.grade) == 0) return false;
 

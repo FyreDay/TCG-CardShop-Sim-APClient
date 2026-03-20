@@ -8,7 +8,6 @@ using ApClient.mapping;
 
 namespace ApClient.Patches.Functionality;
 
-
 public class ExpansionShopPatches
 {
     [HarmonyPatch(typeof(ExpansionShopPanelUI), "Init")]
