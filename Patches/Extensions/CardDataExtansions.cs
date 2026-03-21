@@ -18,10 +18,15 @@ public static class CardDataExtensions
         return new CardMask
         {
             border = 1UL << (int)card.borderType,
-            packType = 1UL << ((int)InventoryBase.GetMonsterData(card.monsterType).Rarity + (4*(int)card.expansionType)),
+            packType = 1UL << (int)card.GetPackType(),
             foil = 1UL << (card.isFoil ? 1 : 0),
             grade = 1UL << card.cardGrade
         };
+    }
+
+    public static ECollectionPackType GetPackType(this CardData card)
+    {
+        return (ECollectionPackType)((int)InventoryBase.GetMonsterData(card.monsterType).Rarity + (4 * (int)card.expansionType));
     }
 
     //public static int GetUniqueHash(this CardData card)

@@ -18,12 +18,16 @@ public class RestockItemUIPatches
         [HarmonyPrefix]
         static bool Prefix(RestockItemPanelUI __instance)
         {
-            if (Plugin.ArchipelagoHandler.GetItemCount(__instance.m_ItemType == EItemType.BasicCardPack ? 190 : (long)__instance.m_ItemType) > 1)
+            if ((Plugin.ArchipelagoHandler.GetItemCount(__instance.m_ItemType == EItemType.BasicCardPack ? 190 : (long)__instance.m_ItemType)) > 0
+                && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && APLogicUtil.GetRemainingLicenses(__instance.m_LevelRequired) <= 0)
             {
                 return true;
             }
             else
             {
+                Plugin.Logger.LogInfo((Plugin.ArchipelagoHandler.GetItemCount(__instance.m_ItemType == EItemType.BasicCardPack ? 190 : (long)__instance.m_ItemType)) > 1);
+                Plugin.Logger.LogInfo(CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired);
+                Plugin.Logger.LogInfo(APLogicUtil.GetRemainingLicenses(__instance.m_LevelRequired) <= 0);
                 PopupTextPatches.ShowCustomText("Item Locked");
                 return false;
             }
@@ -185,19 +189,18 @@ public class RestockItemUIPatches
         [HarmonyPostfix]
         static void Postfix(RestockItemPanelUI __instance, RestockItemScreen restockItemScreen, int index)
         {
+            
             if (!Plugin.IsGameReady())
             {
                 return;
             }
+            __instance.m_LicensePrice = 0;
+            __instance.m_LicensePriceText.text = "Click To Unlock";
             int licenses_required = APLogicUtil.GetRemainingLicenses(__instance.m_LevelRequired);
-            
+
             bool hasItem = CPlayerData.GetIsItemLicenseUnlocked(index);
-            Plugin.Logger.LogInfo($"{__instance.m_ItemType} : has Item? : {hasItem} : {Plugin.ArchipelagoHandler.GetItemCount(index == 0 ? 190 : (long)__instance.m_ItemType)}");
-            if (hasItem && CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired && licenses_required <= 0)
+            if (hasItem)
             {
-                __instance.m_UIGrp.SetActive(value: true);
-                __instance.m_LicenseUIGrp.SetActive(value: false);
-                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: false);
 
                 List<(int id, int count)> goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]).ToList();
 
@@ -207,49 +210,44 @@ public class RestockItemUIPatches
                 {
                     SetCardBoxText(__instance);
                 }
+                return;
             }
-            else if (0 < licenses_required)
-            {
-                __instance.m_UIGrp.SetActive(value: false);
-                __instance.m_LicenseUIGrp.SetActive(value: true);
-                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                __instance.m_LevelRequirementText.text = $"{licenses_required} More Sellable Licenses for Level {__instance.m_LevelRequired}";
-                __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-                __instance.m_LicensePriceText.text = "License Locked";
 
-                if (hasItem)
-                {
-                    __instance.m_LicensePriceText.text = "License Found";
-                }
-            }
-            else if (hasItem)
-            {
-                __instance.m_UIGrp.SetActive(value: false);
-                __instance.m_LicenseUIGrp.SetActive(value: true);
-                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required.";
-                __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-                __instance.m_LicensePriceText.text = "License Found";
-            }
-            else if (CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired)
-            {
-                __instance.m_UIGrp.SetActive(value: false);
-                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                __instance.m_LicenseUIGrp.SetActive(value: true);
-                __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-                __instance.m_LevelRequirementText.text = "Level Reached";
-                __instance.m_LicensePriceText.text = "License Locked";
 
+            __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
+            if (Plugin.ArchipelagoHandler.GetItemCount((int)__instance.m_ItemType == 0 ? 190 : (long)__instance.m_ItemType) > 0)
+            {
+                __instance.m_LicensePriceText.text = "AP Item Found";
             }
             else
             {
+                __instance.m_LicensePriceText.text = "AP Item Not Found";
                 __instance.m_UIGrp.SetActive(value: false);
                 __instance.m_LicenseUIGrp.SetActive(value: true);
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
-                __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required.";
-                __instance.m_LevelRequirementText.gameObject.SetActive(value: true);
-                __instance.m_LicensePriceText.text = "License Locked";
+                
             }
+
+            if (0 < licenses_required)
+            {
+                __instance.m_LevelRequirementText.text = $"{licenses_required} More Sellable Licenses for Level {__instance.m_LevelRequired}";
+                __instance.m_UIGrp.SetActive(value: false);
+                __instance.m_LicenseUIGrp.SetActive(value: true);
+                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+            }
+            else if (CPlayerData.m_ShopLevel + 1 < __instance.m_LevelRequired)
+            {
+                __instance.m_LevelRequirementText.text = $"Level {__instance.m_LevelRequired} Required.";
+                __instance.m_UIGrp.SetActive(value: false);
+                __instance.m_LicenseUIGrp.SetActive(value: true);
+                __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);
+            }
+            else
+            {
+                __instance.m_LevelRequirementText.text = "Level Reached";
+            }
+
+            
         }
     }
 }

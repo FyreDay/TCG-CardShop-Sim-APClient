@@ -129,12 +129,7 @@ public class ItemHandler : MonoBehaviour
                 //CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.Range(0, 8);
                 return;
             case GenericItemMapping.STINK_TRAP:
-                FieldInfo cfieldInfo = typeof(CustomerManager).GetField("m_CustomerList", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (cfieldInfo == null)
-                {
-                    return;
-                }
-                List<Customer> list = (List<Customer>)cfieldInfo.GetValue(CSingleton<CustomerManager>.Instance);
+                List<Customer> list = CSingleton<CustomerManager>.Instance.m_CustomerList;
                 foreach (Customer c in list)
                 {
                     c.SetSmelly();
@@ -210,20 +205,20 @@ public class ItemHandler : MonoBehaviour
 
         if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
         {
-            EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
+            //EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
             
-            var list = InventoryBase.GetRestockDataIndexList(type);
-            for (int i = 0; i < list.Count; i++)
-            {
-                var data = InventoryBase.GetRestockData(list[i]);
-                Plugin.Logger.LogInfo($"{data.itemType} : {data.amount}");
-            }
-            int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
-            Plugin.Logger.LogInfo($" num Received: {num}");
-            CPlayerData.SetUnlockItemLicense(list[Math.Min(num, list.Count) - 1]);
+            //var list = InventoryBase.GetRestockDataIndexList(type);
+            //for (int i = 0; i < list.Count; i++)
+            //{
+            //    var data = InventoryBase.GetRestockData(list[i]);
+            //    Plugin.Logger.LogInfo($"{data.itemType} : {data.amount}");
+            //}
+            //int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
+            //Plugin.Logger.LogInfo($" num Received: {num}");
+            //CPlayerData.SetUnlockItemLicense(list[Math.Min(num, list.Count) - 1]);
 
 
-            var screen = UnityEngine.Object.FindObjectOfType<RestockItemScreen>();
+            var screen = FindObjectOfType<RestockItemScreen>();
             if (screen != null)
             {
                 Util.RunOnMainThread(() =>
@@ -233,7 +228,7 @@ public class ItemHandler : MonoBehaviour
                 
             }
 
-            screen = UnityEngine.Object.FindObjectOfType<RestockItemBoardGameScreen>();
+            screen = FindObjectOfType<RestockItemBoardGameScreen>();
             if (screen != null)
             {
                 Util.RunOnMainThread(() =>
@@ -246,45 +241,30 @@ public class ItemHandler : MonoBehaviour
         }
 
 
-        //if (EmployeeMapping.getindexFromId((int)itemReceived.ItemId) != -1)
-        //{
-        //    int index = EmployeeMapping.getindexFromId((int)itemReceived.ItemId);
-        //    //cannot run uless level fully loaded
-        //    var screen = UnityEngine.Object.FindObjectOfType<HireWorkerScreen>();
+        if (EmployeeMapping.getindexFromId((int)item.ItemId) != -1)
+        {
+            int employeeIndex = EmployeeMapping.getindexFromId((int)item.ItemId);
+            //cannot run uless level fully loaded
+            var screen = FindObjectOfType<HireWorkerScreen>();
 
-        //    HireWorkerPanelUI[] allpanels = UnityEngine.Object.FindObjectsOfType<HireWorkerPanelUI>();
-        //    HireWorkerPanelUI panel = null;
-        //    foreach (HireWorkerPanelUI screenItem in allpanels)
-        //    {
-        //        FieldInfo fieldInfo = typeof(HireWorkerPanelUI).GetField("m_Index", BindingFlags.NonPublic | BindingFlags.Instance);
-        //        if (fieldInfo == null)
-        //        {
-        //            return;
-        //        }
-
-        //        int m_Index = (int)fieldInfo.GetValue(screenItem);
-        //        if (m_Index == index)
-        //        {
-        //            panel = screenItem;
-        //            break;
-        //        }
-        //    }
-        //    if (panel == null)
-        //    {
-        //        return;
-        //    }
-        //    Plugin.Log("detected Hire Worker Screen");
-
-        //    Plugin.Log("Found Hire Worker Panel");
-        //    panel.m_HiredText.SetActive(value: false);
-        //    panel.m_PurchaseBtn.SetActive(value: true);
-        //    //panel.Init(screen, itemMapping.Key);
-        //    //EmployeePatches.HireEmployee(panel, itemMapping.Key);
-        //    Plugin.Log($"Recieved Worker While panel was open: {(int)itemReceived.ItemId}");
-
-        //    //SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-        //    return;
-        //}
+            HireWorkerPanelUI[] allpanels = FindObjectsOfType<HireWorkerPanelUI>();
+            HireWorkerPanelUI panel = null;
+            foreach (HireWorkerPanelUI screenItem in allpanels)
+            {
+                if (screenItem.m_Index == employeeIndex)
+                {
+                    panel = screenItem;
+                    break;
+                }
+            }
+            if (panel == null)
+            {
+                return;
+            }
+            panel.m_HiredText.SetActive(value: false);
+            panel.m_PurchaseBtn.SetActive(value: true);
+            return;
+        }
 
         if (FurnatureMapping.Furnature.Where(f => f.id == item.ItemId).Any())
         {
@@ -351,4 +331,6 @@ public class ItemHandler : MonoBehaviour
             yield return new WaitForSeconds(delay);
         }
     }
+
+   
 }

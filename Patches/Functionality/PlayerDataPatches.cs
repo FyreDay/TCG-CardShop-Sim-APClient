@@ -30,7 +30,12 @@ public class PlayerDataPatches
 
             }
 
-            if (Plugin.SaveHandler.GetSaveData().StoredXP > 50)
+            if (Plugin.SaveHandler.GetSaveData().StoredXP > CPlayerData.GetExpRequiredToLevelUp())
+            {
+                Plugin.SaveHandler.GetSaveData().StoredXP -= CPlayerData.GetExpRequiredToLevelUp();
+                
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(CPlayerData.GetExpRequiredToLevelUp()));
+            }else if (Plugin.SaveHandler.GetSaveData().StoredXP > 0)
             {
                 int xp = Plugin.SaveHandler.GetSaveData().StoredXP;
                 Plugin.SaveHandler.GetSaveData().StoredXP = 0;
@@ -94,7 +99,6 @@ public class PlayerDataPatches
         static void Postfix(int index)
         {
             CSingleton<GameUIScreen>.Instance.EvaluateShopLevelAndExp();
-            //TODO: THIS DOES NOT FUNCTION
             List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
 
             for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)

@@ -12,11 +12,6 @@ public class PopupTextPatches
     private static string currentText;
     public static void ShowCustomText(string notEnoughResourceText)
     {
-        if (currentText == notEnoughResourceText)
-        {
-            return;
-        }
-
         CSingleton<NotEnoughResourceTextPopup>.Instance.m_ResetTimer = 0f;
         currentText = notEnoughResourceText;
         for (int i = 0; i < CSingleton<NotEnoughResourceTextPopup>.Instance.m_ShowTextGameObjectList.Count; i++)
@@ -29,6 +24,7 @@ public class PopupTextPatches
             }
         }
     }
+
     [HarmonyPatch]
     public class ShowText
     {

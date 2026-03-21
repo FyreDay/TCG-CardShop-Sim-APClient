@@ -1,4 +1,6 @@
 ﻿using ApClient.data;
+using ApClient.Patches.Functionality;
+using I2.Loc;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -49,5 +51,32 @@ public class APLogicUtil
 
         int remaining = requiredCount - Plugin.SaveHandler.GetSaveData().numLicensesOwned;
         return remaining > 0 ? remaining : 0; // return 0 if none remaining
+    }
+
+    public static void TriggerDeathlinkLogic()
+    {
+        PopupTextPatches.ShowCustomText("Deathlink Has Caused Customers to Leave!");
+        foreach (Customer c in CSingleton<CustomerManager>.Instance.m_CustomerList)
+        {
+            if (!(UnityEngine.Random.Range(0, 1f) < Constants.SHOPLIFT_CHANCE))
+            {
+                continue;
+            }
+            List<string> list = new List<string>();
+            if (c.m_ItemInBagList.Count > 0 || c.m_CardInBagList.Count > 0)
+            {
+                list.Add(LocalizationManager.GetTranslation("Im Going to Shoplift"));
+            }
+            else
+            {
+                list.Add(LocalizationManager.GetTranslation("Im leaving"));
+            }
+            c.PopupText(list, 100);
+            c.m_CustomerTournamentData.m_IsTournamentCustomer = false;
+            c.m_ItemInBagList.Clear();
+            c.m_CardInBagList.Clear();
+            c.ExitShop();
+
+        }
     }
 }

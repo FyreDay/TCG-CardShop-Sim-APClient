@@ -58,20 +58,15 @@ public class ArchipelagoHandler : MonoBehaviour
             
             slotData = new SlotData(loginSuccess.SlotData);
 
-            if (slotData.Deathlink)
+            if (Plugin.EnabledDeathLink())
             {
                 deathLinkService = Session.CreateDeathLinkService();
                 deathLinkService.EnableDeathLink();
                 deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
                 {
-                    if (slotData.Deathlink && Plugin.IsGameReady())
+                    if (Plugin.EnabledDeathLink())
                     {
-                        APConsole.Instance.Log($"{deathLinkObject.Cause}");
-                        CSingleton<LightManager>.Instance.m_HasDayEnded = true;
-                        CSingleton<LightManager>.Instance.m_TimeHour = 21;
-                        CSingleton<LightManager>.Instance.EvaluateTimeClock();
-                        CEventManager.QueueEvent(new CEventPlayer_OnDayEnded());
-                        //CoroutineRunner.RunOnMainThread(() => EndOfDayReportScreen.OpenScreen());
+                        APLogicUtil.TriggerDeathlinkLogic();
                     }
                 };
             }
@@ -101,7 +96,7 @@ public class ArchipelagoHandler : MonoBehaviour
 
     public void sendDeath()
     {
-        if (slotData.Deathlink)
+        if (Plugin.EnabledDeathLink())
         {
             Plugin.Logger.LogInfo("Sent Death!");
             deathLinkService.SendDeathLink(new DeathLink(Plugin.LastUsedSlot.Value, Plugin.LastUsedSlot.Value + " Died to Not Paying Bills."));

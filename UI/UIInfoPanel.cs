@@ -21,13 +21,78 @@ public class UIInfoPanel : MonoBehaviour
         Instance.achievementPrefab = achievementPrefab;
         Instance.productPrefab = productPrefab;
 
+        int mult = 0;
+        switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+        {
+            case 0: mult = 12; break;
+            case 1: mult = 1; break;
+            case 2: mult = 3; break;
+            case 3: mult = 4; break;
+            case 4: mult = 6; break;
+        }
+        if(mult != 12 && Plugin.ArchipelagoHandler.slotData.CardSanity == 2)
+        {
+            mult *= 2;
+        }
+
         foreach (var tmp in apinfoobject.GetComponentsInChildren<TextMeshProUGUI>(true))
         {
+
             switch (tmp.name)
             {
                 case "MaxLevel": Instance.levelMaxText = tmp; break;
                 case "StoredXp": Instance.storedXPText = tmp; break;
                 case "LicensesRequired": Instance.licensesText = tmp; break;
+
+                case "PercentCollected": Instance.percentCollected = tmp; break;
+                case "PercentGoal": Instance.percentGoal = tmp; break;
+
+                case "LevelGoalText": Instance.levelGoalText = tmp; break;
+
+                case "CurrentGhostsSold": Instance.currentGhostsSold = tmp; break;
+                case "GhostGoalText": Instance.ghostGoalText = tmp; break;
+
+                case "Basic Count": Instance.basicCount = tmp; break;
+                case "Rare Count": Instance.rareCount = tmp; break;
+                case "Epic Count": Instance.epicCount = tmp; break;
+                case "Legendary Count": Instance.legendaryCount = tmp; break;
+                case "Destiny Basic Count": Instance.destinyBasicCount = tmp; break;
+                case "Destiny Rare Count": Instance.destinyRareCount = tmp; break;
+                case "Destiny Epic Count": Instance.destinyEpicCount = tmp; break;
+                case "Destiny Legendary Count": Instance.destinyLegendaryCount = tmp; break;
+
+                case "Basic Total": 
+                    Instance.basicCountTotal = tmp;
+                    Instance.basicCountTotal.text = $"{27 * mult}";
+                    break;
+                case "Rare Total": 
+                    Instance.rareCountTotal = tmp;
+                    Instance.rareCountTotal.text = $"{34 * mult}";
+                    break;
+                case "Epic Total": 
+                    Instance.epicCountTotal = tmp;
+                    Instance.epicCountTotal.text = $"{34 * mult}";
+                    break;
+                case "Legendary Total": 
+                    Instance.legendaryCountTotal = tmp;
+                    Instance.legendaryCountTotal.text = $"{26 * mult}";
+                    break;
+                case "Destiny Basic Total": 
+                    Instance.destinyBasicCountTotal = tmp; 
+                    Instance.destinyBasicCountTotal.text = $"{27 * mult}";
+                    break;
+                case "Destiny Rare Total": 
+                    Instance.destinyRareCountTotal = tmp; 
+                    Instance.destinyRareCountTotal.text = $"{34 * mult}";
+                    break;
+                case "Destiny Epic Total": 
+                    Instance.destinyEpicCountTotal = tmp; 
+                    Instance.destinyEpicCountTotal.text = $"{34 * mult}";
+                    break;
+                case "Destiny Legendary Total": 
+                    Instance.destinyLegendaryCountTotal = tmp; 
+                    Instance.destinyLegendaryCountTotal.text = $"{26 * mult}";
+                    break;
             }
         }
 
@@ -38,6 +103,8 @@ public class UIInfoPanel : MonoBehaviour
                 case "CardGradeButton": Instance.cardGradeButton = btn; break;
                 case "CardSellButton": Instance.cardSellButton = btn; break;
                 case "CardOpenButton": Instance.cardOpenButton = btn; break;
+
+                
             }
         }
 
@@ -51,6 +118,36 @@ public class UIInfoPanel : MonoBehaviour
         Instance.productContent = apinfoobject.GetComponentsInChildren<Transform>(true)
             .FirstOrDefault(t => t.name == "ProductContent");
 
+        Instance.CollectionGoalUI = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "CollectionGoal");
+
+        Instance.LevelGoalUI = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "LevelGoal");
+
+        Instance.GhostGoalUI = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "GhostGoal");
+
+        switch(Plugin.ArchipelagoHandler.slotData.Goal)
+        {
+            case 0: 
+                Instance.LevelGoalUI.gameObject.SetActive(true);
+                Instance.GhostGoalUI.gameObject.SetActive(false);
+                Instance.CollectionGoalUI.gameObject.SetActive(false);
+                Instance.levelGoalText.text = $"{Plugin.ArchipelagoHandler.slotData.MaxLevel}";
+                break;
+            case 1: 
+                Instance.CollectionGoalUI.gameObject.SetActive(true);
+                Instance.GhostGoalUI.gameObject.SetActive(false);
+                Instance.LevelGoalUI.gameObject.SetActive(false);
+                Instance.percentGoal.text = $"{Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent}%";
+                break;
+            case 2: 
+                Instance.GhostGoalUI.gameObject.SetActive(true);
+                Instance.CollectionGoalUI.gameObject.SetActive(false);
+                Instance.LevelGoalUI.gameObject.SetActive(false);
+                Instance.ghostGoalText.text = $"{Plugin.ArchipelagoHandler.slotData.GhostGoalAmount}";
+                break;
+        }
         //Instance.SetLevelMax(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel));
         //Instance.SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
 
@@ -92,8 +189,20 @@ public class UIInfoPanel : MonoBehaviour
     public TextMeshProUGUI levelMaxText;
     public TextMeshProUGUI storedXPText;
     public TextMeshProUGUI licensesText;
+
     public Transform achievementContent;
     public Transform productContent;
+
+    public Transform CollectionGoalUI;
+    public Transform LevelGoalUI;
+    public Transform GhostGoalUI;
+
+    public TextMeshProUGUI percentCollected;
+    public TextMeshProUGUI percentGoal;
+    public TextMeshProUGUI levelGoalText;
+    public TextMeshProUGUI currentGhostsSold;
+    public TextMeshProUGUI ghostGoalText;
+
     public GameObject achievementPrefab;
     public GameObject productPrefab;
 
@@ -101,6 +210,23 @@ public class UIInfoPanel : MonoBehaviour
     private Button cardSellButton;
     private Button cardGradeButton;
 
+    public TextMeshProUGUI basicCount;
+    public TextMeshProUGUI rareCount;
+    public TextMeshProUGUI epicCount;
+    public TextMeshProUGUI legendaryCount;
+    public TextMeshProUGUI destinyBasicCount;
+    public TextMeshProUGUI destinyRareCount;
+    public TextMeshProUGUI destinyEpicCount;
+    public TextMeshProUGUI destinyLegendaryCount;
+
+    public TextMeshProUGUI basicCountTotal;
+    public TextMeshProUGUI rareCountTotal;
+    public TextMeshProUGUI epicCountTotal;
+    public TextMeshProUGUI legendaryCountTotal;
+    public TextMeshProUGUI destinyBasicCountTotal;
+    public TextMeshProUGUI destinyRareCountTotal;
+    public TextMeshProUGUI destinyEpicCountTotal;
+    public TextMeshProUGUI destinyLegendaryCountTotal;
 
     public List<CompiledAchievement> cardOpenItems;
     public List<CompiledAchievement> cardSellItems;
@@ -170,6 +296,36 @@ public class UIInfoPanel : MonoBehaviour
         licensesText.text = $"{value}";
     }
 
+    public void UpdateCardCollection(ECollectionPackType packType, int count)
+    {
+        switch (packType)
+        {
+            case ECollectionPackType.BasicCardPack:
+                basicCount.text = $"{count}"; 
+                break;
+            case ECollectionPackType.RareCardPack:
+                epicCount.text = $"{count}";
+                break;
+            case ECollectionPackType.EpicCardPack:
+                epicCount.text = $"{count}";
+                break;
+            case ECollectionPackType.LegendaryCardPack:
+                legendaryCount.text = $"{count}";
+                break;
+            case ECollectionPackType.DestinyBasicCardPack:
+                destinyBasicCount.text = $"{count}";
+                break;
+            case ECollectionPackType.DestinyRareCardPack:
+                destinyRareCount.text = $"{count}";
+                break;
+            case ECollectionPackType.DestinyEpicCardPack:
+                destinyEpicCount.text = $"{count}";
+                break;
+            case ECollectionPackType.DestinyLegendaryCardPack:
+                destinyLegendaryCount.text = $"{count}";
+                break;
+        }
+    }
     public void UpdateAchievementList(List<CompiledAchievement> items)
     {
 

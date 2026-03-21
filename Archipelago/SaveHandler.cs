@@ -21,7 +21,7 @@ public class CombinedSaveWrapper
 [Serializable]
 public class FoundCards
 {
-    public List<int> found  = new();
+    public Dictionary<ECollectionPackType, List<int>> foundByPackType = new();
     public List<int> notfound = new();
 }
 
@@ -86,7 +86,11 @@ public class SaveHandler
         var newSave = new APSaveData();
         newSave.foundCards = new FoundCards();
 
-        newSave.foundCards.found = new();
+        for(int packType = 0; packType < (int)ECollectionPackType.MAX; packType++)
+        {
+            newSave.foundCards.foundByPackType.Add((ECollectionPackType)packType, new List<int>());
+        }
+
         newSave.foundCards.notfound = new();
 
         for (int format = 0; format < (int)EGameEventFormat.MAX; format++)
@@ -128,25 +132,49 @@ public class SaveHandler
     public void AddCard(CardData card, string achievementType)
     {
         Plugin.Logger.LogInfo($"Added new card : {card.monsterType} : {achievementType}");
-        if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE)
+        if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE 
+            && saveData.foundCards.foundByPackType.TryGetValue(card.GetPackType(), out List<int> found))
         {
             int id = CardMapping.getId(card);
             if (saveData.foundCards.notfound.Remove(id))
             {
-                int index = saveData.foundCards.found.BinarySearch(id);
+                int index = found.BinarySearch(id);
                 if (index < 0)
                 {
-                    saveData.foundCards.found.Insert(~index, id);
+                    found.Insert(~index, id);
+                    //int mult = 0;
+                    //int foil = Plugin.ArchipelagoHandler.slotData.CardSanity;
+                    //switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+                    //{
+                    //    case 0: UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count); break;
+                    //    case 1:
+                    //        if (card.borderType <= 1)
+                    //        {
+                    //            UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count);
+                    //        }
+                    //        break;
+                    //    case 2: mult = 3; break;
+                    //    case 3: mult = 4; break;
+                    //    case 4: mult = 6; break;
+                    //}
+                    
                 }
             }
             if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
             {
-                decimal percentCollected = (decimal)saveData.foundCards.found.Count / (decimal)(saveData.foundCards.found.Count + saveData.foundCards.notfound.Count);
+                decimal countCollected = 0;
+                foreach (var pair in saveData.foundCards.foundByPackType)
+                {
+                    countCollected += pair.Value.Count;
+                }
+                decimal percentCollected = countCollected / (decimal)(countCollected + saveData.foundCards.notfound.Count);
                 if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100)
                 {
                     Plugin.ArchipelagoHandler.Release();
                 }
             }
+            
+            //TODO: Update AP UI with Each Pack Count
         }
         achievementHandler.OnCard(card, achievementType);
 

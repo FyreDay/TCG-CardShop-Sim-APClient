@@ -78,6 +78,20 @@ public class CustomerPatches
         }
     }
 
+    [HarmonyPatch(typeof(Customer), "StenchLeaveCheck")]
+    public static class StenchLeaveCheck
+    {
+        [HarmonyPostfix]
+        public static void Postfix(ref bool __result)
+        {
+            if (__result)
+            {
+                PopupTextPatches.ShowCustomText("Too much Stink! Sending Deathlink");
+                Plugin.ArchipelagoHandler.sendDeath();
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Customer), "ActivateCustomer")]
     public static class Activate
     {

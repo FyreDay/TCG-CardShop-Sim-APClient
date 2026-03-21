@@ -5,7 +5,9 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using I2.Loc;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -36,7 +38,7 @@ public class Plugin : BaseUnityPlugin
     public static ConfigEntry<bool>? EnableDebugLogging;
     public static ConfigEntry<KeyCode> ConnectionHotKey;
     //public static ConfigEntry<KeyCode> ConsoleHotkey;
-    public static ConfigEntry<bool> disabledeathlink;
+    public static ConfigEntry<bool> doDeathlink;
     public static ConfigEntry<string> LastUsedIP;
     public static ConfigEntry<string> LastUsedPassword;
     public static ConfigEntry<string> LastUsedSlot;
@@ -119,17 +121,21 @@ public class Plugin : BaseUnityPlugin
         return ArchipelagoHandler.IsConnected && SceneLoaded;
     }
 
+    public static bool EnabledDeathLink()
+    {
+        return ArchipelagoHandler.IsConnected && IsGameReady() && ArchipelagoHandler.slotData.Deathlink && doDeathlink.Value;
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(ConnectionHotKey.Value))
         {
             ConnectionMenu.Instance.toggleVisability();
         }
-        // Toggle with hotkey
-        //if (Input.GetKeyDown(KeyCode.F7))
-        //{
-        //    UIInfoPanel.getInstance().setVisable(true);
-        //}
+        if (Input.GetKeyDown(KeyCode.F7))
+        {
+            APLogicUtil.TriggerDeathlinkLogic();
+        }
 
         // Toggle with hotkey
         if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
@@ -177,15 +183,15 @@ public class Plugin : BaseUnityPlugin
             "How long messages stay in the log before animating out."
         );
 
-        disabledeathlink = Config.Bind(
-           "1. GamePlay",
-           "Force Deathlink Off",
-           false,
-           "If this is on, Deathlink is forced off"
+        doDeathlink = Config.Bind(
+           "GamePlay",
+           "Enable Deathlink",
+           true,
+           "Enable sending and receiving deathlinks. Overrides YAML."
        );
 
         ConnectionHotKey = Config.Bind(
-            "2. Hotkeys",
+            "Hotkeys",
             "Toggle Connection Window",
             KeyCode.F8, // Default key
             "Press this key to toggle AP Connection GUI"
