@@ -23,6 +23,7 @@ public class FoundCards
 {
     public Dictionary<ECollectionPackType, List<int>> foundByPackType = new();
     public List<int> notfound = new();
+    public Dictionary<ECollectionPackType, int> sanityCount = new();
 }
 
 [Serializable]
@@ -129,6 +130,21 @@ public class SaveHandler
         achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
     }
 
+    private bool trackFoils(bool foil, int cardSanity)
+    {
+        if(cardSanity == 0)
+        {
+            return false;
+        }
+
+        if (cardSanity == 1)
+        {
+            return !foil;
+        }
+
+        return true;
+    }
+
     public void AddCard(CardData card, string achievementType)
     {
         Plugin.Logger.LogInfo($"Added new card : {card.monsterType} : {achievementType}");
@@ -142,22 +158,42 @@ public class SaveHandler
                 if (index < 0)
                 {
                     found.Insert(~index, id);
-                    //int mult = 0;
-                    //int foil = Plugin.ArchipelagoHandler.slotData.CardSanity;
-                    //switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
-                    //{
-                    //    case 0: UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count); break;
-                    //    case 1:
-                    //        if (card.borderType <= 1)
-                    //        {
-                    //            UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count);
-                    //        }
-                    //        break;
-                    //    case 2: mult = 3; break;
-                    //    case 3: mult = 4; break;
-                    //    case 4: mult = 6; break;
-                    //}
-                    
+
+                    int foil = Plugin.ArchipelagoHandler.slotData.CardSanity;
+                    switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+                    {
+                        case 0: UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count); break;
+                        case 1:
+                            if ((int)card.borderType <= 1 && trackFoils(card.isFoil, foil) )
+                            {
+                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
+                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                            }
+                            break;
+                        case 2: 
+                            if ((int)card.borderType <= 3 && trackFoils(card.isFoil, foil))
+                            {
+                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
+                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                            }
+                            break;
+                        case 3:
+                            if ((int)card.borderType <= 4 && trackFoils(card.isFoil, foil))
+                            {
+                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
+                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                            }
+                            break;
+
+                        case 4:
+                            if (trackFoils(card.isFoil, foil))
+                            {
+                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
+                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                            }
+                            break;
+                    }
+
                 }
             }
             if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
@@ -168,6 +204,7 @@ public class SaveHandler
                     countCollected += pair.Value.Count;
                 }
                 decimal percentCollected = countCollected / (decimal)(countCollected + saveData.foundCards.notfound.Count);
+                UIInfoPanel.getInstance().setPercentGoalCollected(percentCollected * 100);
                 if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100)
                 {
                     Plugin.ArchipelagoHandler.Release();
@@ -176,14 +213,25 @@ public class SaveHandler
             
             //TODO: Update AP UI with Each Pack Count
         }
-        achievementHandler.OnCard(card, achievementType);
+        Plugin.ArchipelagoHandler.CompleteLocationChecks(achievementHandler.OnCard(card, achievementType));
 
+    }
+
+    public void AddGhostSold()
+    {
+        saveData.GhostCardsSold++;
+        UIInfoPanel.getInstance().setGhostGoalSold(saveData.GhostCardsSold);
     }
 
     public CardData NewRandomCard()
     {
         int id = Plugin.SaveHandler.saveData.foundCards.notfound[UnityEngine.Random.RandomRangeInt(0, Plugin.SaveHandler.saveData.foundCards.notfound.Count)];
         CardData data = CardMapping.getCardFromId(id);
+        if(data == null)
+        {
+            Plugin.Logger.LogError("New Card was NULL. trying again");
+            return NewRandomCard();
+        }
         data.isNew = true;
         return data;
     }

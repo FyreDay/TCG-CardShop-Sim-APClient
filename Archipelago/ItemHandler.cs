@@ -1,5 +1,6 @@
 ﻿using ApClient.Archipelago.Mapping;
 using ApClient.mapping;
+using ApClient.Patches.Functionality;
 using ApClient.ui;
 using Archipelago.MultiClient.Net.Models;
 using System;
@@ -205,18 +206,18 @@ public class ItemHandler : MonoBehaviour
 
         if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
         {
-            //EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
-            
-            //var list = InventoryBase.GetRestockDataIndexList(type);
-            //for (int i = 0; i < list.Count; i++)
-            //{
-            //    var data = InventoryBase.GetRestockData(list[i]);
-            //    Plugin.Logger.LogInfo($"{data.itemType} : {data.amount}");
-            //}
-            //int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
-            //Plugin.Logger.LogInfo($" num Received: {num}");
-            //CPlayerData.SetUnlockItemLicense(list[Math.Min(num, list.Count) - 1]);
-
+            EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
+            int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
+            var list = InventoryBase.GetRestockDataUsingItemType(type);
+            var indexList = InventoryBase.GetRestockDataIndexList(type);
+            if (num == 1 && list[1].licenseShopLevelRequired <= CPlayerData.m_ShopLevel +1)
+            {
+                ItemData itemData = InventoryBase.GetItemData(type);
+                PopupTextPatches.ShowCustomText($"{itemData.GetName()} Now Available");
+            }else if (num > 1 && indexList.Count > 1)
+            {
+                CPlayerData.SetUnlockItemLicense(indexList[1]);
+            }
 
             var screen = FindObjectOfType<RestockItemScreen>();
             if (screen != null)

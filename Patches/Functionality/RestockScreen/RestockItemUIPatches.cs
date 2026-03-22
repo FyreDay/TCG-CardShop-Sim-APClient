@@ -32,6 +32,19 @@ public class RestockItemUIPatches
                 return false;
             }
         }
+
+        [HarmonyPostfix]
+        static void PostFix(RestockItemPanelUI __instance)
+        {
+            List<(int id, int count)> goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]).ToList();
+
+            Init.SetGoalText(__instance, goals);
+
+            if (Init.CardBoxes.Contains(__instance.m_ItemType))
+            {
+                Init.SetCardBoxText(__instance);
+            }
+        }
     }
 
     [HarmonyPatch(typeof(RestockItemPanelUI), "Init")]
@@ -61,7 +74,7 @@ public class RestockItemUIPatches
                 }
             }
         }
-        private static void SetGoalText(RestockItemPanelUI __instance, List<(int id, int count)> goals)
+        public static void SetGoalText(RestockItemPanelUI __instance, List<(int id, int count)> goals)
         {
             if (goals.Any())
             {
@@ -135,7 +148,7 @@ public class RestockItemUIPatches
             }
         }
 
-        private static readonly HashSet<EItemType> CardBoxes = new HashSet<EItemType>
+        public static readonly HashSet<EItemType> CardBoxes = new HashSet<EItemType>
         {
             EItemType.BasicCardBox,
             EItemType.RareCardBox,
@@ -147,7 +160,7 @@ public class RestockItemUIPatches
             EItemType.DestinyLegendaryCardBox,
         };
 
-        private static void SetCardBoxText(RestockItemPanelUI __instance)
+        public static void SetCardBoxText(RestockItemPanelUI __instance)
         {
             int packtype = ((int)__instance.m_ItemType / 2);
             if (cardCheckText[packtype] == null)

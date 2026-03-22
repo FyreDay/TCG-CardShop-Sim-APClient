@@ -376,4 +376,19 @@ public class UIInfoPanel : MonoBehaviour
     {
         
     }
+
+    public void setPercentGoalCollected(decimal percent)
+    {
+        percentCollected.text = $"{Math.Round(percent, 1)}%";
+    }
+
+    public void setGhostGoalSold(int totalNum)
+    {
+        currentGhostsSold.text = $"{totalNum}";
+    }
+
+    internal void UpdateImportantLicenses(List<RestockData> restockDatas)
+    {
+        throw new NotImplementedException();
+    }
 }

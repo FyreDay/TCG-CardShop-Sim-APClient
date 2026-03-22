@@ -10,6 +10,48 @@ public class PlayerDataPatches
     [HarmonyPatch(typeof(CPlayerData), "CPlayer_OnAddShopExp")]
     class AddXp
     {
+        private static List<RestockData> GetImportantData()
+        {
+            List<RestockData> importantRestock = new List<RestockData>();
+            foreach (EItemType type in CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownItemType)
+            {
+                var data = InventoryBase.GetRestockDataIndexList(type);
+                if (InventoryBase.GetRestockData(data[0]).licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1
+                    && !CPlayerData.GetIsItemLicenseUnlocked(data[0]))
+                {
+                    importantRestock.Add(InventoryBase.GetRestockData(data[0]));
+                }
+            }
+            foreach (EItemType type in CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownAccessoryItemType)
+            {
+                var data = InventoryBase.GetRestockDataIndexList(type);
+                if (InventoryBase.GetRestockData(data[0]).licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1
+                    && !CPlayerData.GetIsItemLicenseUnlocked(data[0]))
+                {
+                    importantRestock.Add(InventoryBase.GetRestockData(data[0]));
+                }
+            }
+            foreach (EItemType type in CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownFigurineItemType)
+            {
+                var data = InventoryBase.GetRestockDataIndexList(type);
+                if (InventoryBase.GetRestockData(data[0]).licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1
+                    && !CPlayerData.GetIsItemLicenseUnlocked(data[0]))
+                {
+                    importantRestock.Add(InventoryBase.GetRestockData(data[0]));
+                }
+            }
+            foreach (EItemType type in CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_ShownBoardGameItemType)
+            {
+                var data = InventoryBase.GetRestockDataIndexList(type);
+                if (InventoryBase.GetRestockData(data[0]).licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1
+                    && !CPlayerData.GetIsItemLicenseUnlocked(data[0]))
+                {
+                    importantRestock.Add(InventoryBase.GetRestockData(data[0]));
+                }
+            }
+            return importantRestock;
+        }
+
         private static int oldLevel;
         [HarmonyPrefix]
         static bool Prefix(CEventPlayer_AddShopExp evt)
@@ -50,7 +92,9 @@ public class PlayerDataPatches
 
             if (oldLevel < CPlayerData.m_ShopLevel && CPlayerData.m_ShopLevel + 1 >= 2 && Plugin.IsGameReady())
             {
-                //Plugin.Log($"Level Up: {oldLevel+1} -> {CPlayerData.m_ShopLevel+1}");
+                UIInfoPanel.getInstance().UpdateImportantLicenses(GetImportantData());
+
+
                 Plugin.ArchipelagoHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
                 if (Plugin.ArchipelagoHandler.slotData.Goal == 0 && CPlayerData.m_ShopLevel + 1 >= Plugin.ArchipelagoHandler.slotData.MaxLevel)
                 {

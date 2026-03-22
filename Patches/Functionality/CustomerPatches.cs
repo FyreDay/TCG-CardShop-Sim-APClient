@@ -65,7 +65,7 @@ public class CustomerPatches
             {
                 if(Plugin.ArchipelagoHandler.slotData.Goal == 2)
                 {
-                    Plugin.SaveHandler.GetSaveData().GhostCardsSold++;
+                    Plugin.SaveHandler.AddGhostSold();
                     if (Plugin.SaveHandler.GetSaveData().GhostCardsSold >= Plugin.ArchipelagoHandler.slotData.GhostGoalAmount)
                     {
                         Plugin.ArchipelagoHandler.Release();

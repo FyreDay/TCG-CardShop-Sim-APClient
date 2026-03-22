@@ -135,15 +135,30 @@ public class AchievementHandler
                 }
                 else
                 {
-                    saveDataRef.achievementSave.Achievements[typekey][ach.id] = new AchievementProgress();
+                    saveDataRef.achievementSave.Achievements[typekey].Add(ach.id, new AchievementProgress());
                 }
 
                 achievementsByType[typekey].Add(compiled);
             }
         }
-       
 
-        
+        List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
+
+        for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)
+        {
+            if (!CPlayerData.m_IsItemLicenseUnlocked[i])
+                continue;
+
+            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
+
+            if (packType != ECollectionPackType.None)
+            {
+                ownedPacks.Add(packType);
+            }
+        }
+
+        UpdateAvailability(ownedPacks);
+
     }
    
     public void SetHinted(long achievementId)
@@ -187,7 +202,7 @@ public class AchievementHandler
         return true;
     }
 
-    public List<long> OnCard(CardData card, string achievementType)
+    public long[] OnCard(CardData card, string achievementType)
     {
         var unlocked = new List<long>();
 
@@ -213,7 +228,7 @@ public class AchievementHandler
             }
         }
 
-        return unlocked;
+        return unlocked.ToArray();
     }
 
 

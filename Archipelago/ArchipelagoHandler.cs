@@ -158,6 +158,7 @@ public class ArchipelagoHandler : MonoBehaviour
 
             messageStr = builder.ToString();
         }
+        APConsole.Instance.Log(messageStr);
     }
 
     private void OnError(Exception ex, string message)

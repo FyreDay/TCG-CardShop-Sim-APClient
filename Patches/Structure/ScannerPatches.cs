@@ -24,7 +24,7 @@ public class ScannerAwakePatches
     [HarmonyPostfix]
     static void PostFix(ScannerRestockScreen __instance)
     {
-        __instance.m_UnlockCostText.text = string.Empty;
+        __instance.m_UnlockCostText.text = "Locked By AP";
         //if (!CPlayerData.m_IsScannerRestockUnlocked)
         //{
         //    __instance.m_UnlockCostText.text = "Locked";
