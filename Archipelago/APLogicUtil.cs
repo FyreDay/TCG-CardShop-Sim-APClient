@@ -19,7 +19,7 @@ public class APLogicUtil
     {
         int maxLevel = GetNextLevel();
 
-        while (GetRemainingLicenses(maxLevel) <= 0 || maxLevel > Plugin.ArchipelagoHandler.slotData.MaxLevel)
+        while (GetRemainingLicenses(maxLevel) <= 0 && maxLevel < Plugin.ArchipelagoHandler.slotData.MaxLevel)
         {
             maxLevel+=5;
         }
