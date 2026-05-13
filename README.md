@@ -72,15 +72,25 @@ The DIY shop is reorganized and each item can be unlocked with AP items. Many of
 
 Item name: order -> of -> unlocks
 "Progressive Shelf": Small Cabnet (Starting Item) -> small Shelf A -> shelf 2x2 -> small shelf B -> shelf
+
 "Progressive Large Shelf": Long shelf -> LShapedShelf -> BoxShelf -> TetramonCircularShelf
+
 "Progressive Pack Opener": Auto pack opener 1 -> 2 -> 3
+
 "Progressive Card Table": Card table -> Vintage Card table
+
 "Progressive Play Table": PlayTable -> BlackPlayTable -> WhitePlayTable -> TournamentPrizeShelf
+
 "Progressive Card Display": Small Card display -> Medium Card display -> Large Card display 
+
 "Progressive Personal Shelf":  Small Personal Shelf -> Medium Personal Shelf -> Large Personal Shelf
+
 "Progressive Auto Scent": Autoscent -> autosent 1000 -> autoscent 5000
+
 "Progressive Warehouse Shelf": Small Warehouse shelf -> Large Warehouse Shelf
+
 "Progressive Wall Display Case": CardDisplayWallSmall -> CardDisplayWallBig -> CardDisplayWall3X2 -> CardDisplayWall1 -> CardDisplayWallBigWhite
+
 "Progressive Card Projector": CardDisplayElectronicSmall -> CardDisplayElectronic -> CardDisplayElectronicLarge
 
 ### Auto Revovate
