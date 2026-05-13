@@ -390,7 +390,7 @@ public class CardOpeningPatches
                     __instance.m_RolledCardDataList.Add(cardData);
                 }
             }
-
+            Plugin.Logger.LogInfo($"Rolled Cards: {__instance.m_RolledCardDataList.Count}");
             list.Clear();
             BasicMonsters.Clear();
             RareMonsters.Clear();

@@ -30,6 +30,7 @@ public class Util : MonoBehaviour
 
     public static void RunOnMainThread(Action action)
     {
+        Plugin.Logger.LogInfo("Queueing action on main thread");
         var _ = Instance;
         lock (_mainThreadQueue)
         {

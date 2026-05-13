@@ -131,7 +131,7 @@ public class PlayerDataPatches
 
             foreach (RestockData data in InventoryBase.GetRestockDataUsingItemType(InventoryBase.GetRestockData(index).itemType))
             {
-                if (CPlayerData.GetIsItemLicenseUnlocked(index)) return;
+                if (CPlayerData.GetIsItemLicenseUnlocked(data.index)) return;
             }
 
             Plugin.SaveHandler.GetSaveData().numLicensesOwned++;

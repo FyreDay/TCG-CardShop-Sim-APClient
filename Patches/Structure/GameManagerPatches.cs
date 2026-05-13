@@ -16,6 +16,7 @@ public class CGameManagerPatches
     [HarmonyPostfix]
     static void PostFix()
     {
+        Plugin.Logger.LogInfo("start game m loading");
         if (CPlayerData.m_HasFinishedTutorial)
         {
             CPlayerData.m_TutorialIndex = 16;
@@ -23,8 +24,10 @@ public class CGameManagerPatches
             CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
 
         }
+
+        Plugin.Logger.LogInfo("end game m loading");
     }
-    
+
 }
 
 [HarmonyPatch(typeof(InteractionPlayerController), "OnFinishHideLoadingScreen")]
@@ -33,6 +36,7 @@ public class ControllerPatches
     [HarmonyPostfix]
     static void OnFinishPostFix(CEventPlayer_FinishHideLoadingScreen evt)
     {
+        Plugin.Logger.LogInfo("hide loading");
         if (CPlayerData.m_HasFinishedTutorial)
         {
             Plugin.SetSceneLoaded();
@@ -41,6 +45,7 @@ public class ControllerPatches
         {
             Plugin.SaveHandler.HandleNewGame();
         }
+        Plugin.Logger.LogInfo("finsih hide loading");
     }
 }
 

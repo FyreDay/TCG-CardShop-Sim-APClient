@@ -87,9 +87,14 @@ public class SaveHandler
         var newSave = new APSaveData();
         newSave.foundCards = new FoundCards();
 
-        for(int packType = 0; packType < (int)ECollectionPackType.MAX; packType++)
+        for (int packType = 0; packType < (int)ECollectionPackType.MAX; packType++)
         {
             newSave.foundCards.foundByPackType.Add((ECollectionPackType)packType, new List<int>());
+        }
+
+        for (int packType = 0; packType < (int)ECollectionPackType.GhostPack; packType++)
+        {
+            newSave.foundCards.sanityCount.Add((ECollectionPackType)packType, 0);
         }
 
         newSave.foundCards.notfound = new();
@@ -98,7 +103,7 @@ public class SaveHandler
         {
             newSave.PlayedGames.Add((EGameEventFormat)format, 0);
         }
-        
+
 
 
         foreach (ECardExpansionType t in new[] { ECardExpansionType.Tetramon, ECardExpansionType.Destiny })
@@ -128,6 +133,11 @@ public class SaveHandler
 
         saveData = newSave;
         achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+
+        for (int packtype = 0; packtype < (int)ECollectionPackType.MAX; packtype++)
+        {
+            UIInfoPanel.getInstance().UpdateCardCollection((ECollectionPackType)packtype, 0);
+        }
     }
 
     private bool trackFoils(bool foil, int cardSanity)
@@ -145,10 +155,21 @@ public class SaveHandler
         return true;
     }
 
+    private void UpdateCardCount(CardData card)
+    {
+        saveData.foundCards.sanityCount[card.GetPackType()] += 1;
+        UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+        Plugin.ArchipelagoHandler.CompleteLocationChecks(CardMapping.getId(card));
+    }
+
     public void AddCard(CardData card, string achievementType)
     {
         Plugin.Logger.LogInfo($"Added new card : {card.monsterType} : {achievementType}");
-        if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE 
+        foreach (var pair in saveData.foundCards.foundByPackType)
+        {
+            Plugin.Logger.LogInfo($"packtype: {pair.Key} : {pair.Value.Count} cards found");
+        }
+        if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE
             && saveData.foundCards.foundByPackType.TryGetValue(card.GetPackType(), out List<int> found))
         {
             int id = CardMapping.getId(card);
@@ -164,32 +185,28 @@ public class SaveHandler
                     {
                         case 0: UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count); break;
                         case 1:
-                            if ((int)card.borderType <= 1 && trackFoils(card.isFoil, foil) )
+                            if ((int)card.borderType <= 1 && trackFoils(card.isFoil, foil))
                             {
-                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
-                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                                UpdateCardCount(card);
                             }
                             break;
-                        case 2: 
+                        case 2:
                             if ((int)card.borderType <= 3 && trackFoils(card.isFoil, foil))
                             {
-                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
-                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                                UpdateCardCount(card);
                             }
                             break;
                         case 3:
                             if ((int)card.borderType <= 4 && trackFoils(card.isFoil, foil))
                             {
-                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
-                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                                UpdateCardCount(card);
                             }
                             break;
 
                         case 4:
                             if (trackFoils(card.isFoil, foil))
                             {
-                                saveData.foundCards.sanityCount[card.GetPackType()] += 1;
-                                UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
+                                UpdateCardCount(card);
                             }
                             break;
                     }
@@ -210,11 +227,20 @@ public class SaveHandler
                     Plugin.ArchipelagoHandler.Release();
                 }
             }
-            
+
             //TODO: Update AP UI with Each Pack Count
         }
+        Plugin.Logger.LogInfo($"Completed card add");
         Plugin.ArchipelagoHandler.CompleteLocationChecks(achievementHandler.OnCard(card, achievementType));
 
+        UIInfoPanel.getInstance().Refresh();
+
+    }
+
+    public void checkWithServer(HashSet<long> checkedLocations)
+    {
+        achievementHandler.CheckWithHashSet(checkedLocations);
+        Save(Constants.SAVE_SLOT);
     }
 
     public void AddGhostSold()
@@ -285,8 +311,9 @@ public class SaveHandler
         try
         {
             string text = File.ReadAllText(jsonpath);
-
+            Plugin.Logger.LogInfo("read");
             var combined = JsonConvert.DeserializeObject<CombinedSaveWrapper>(text);
+            Plugin.Logger.LogInfo("deserialize");
             if (combined == null)
             {
                 Plugin.Logger.LogError("Combined save wrapper is null!");
@@ -295,14 +322,21 @@ public class SaveHandler
 
             if (!string.IsNullOrEmpty(combined.UnityGameData))
             {
+                Plugin.Logger.LogInfo("gamedata");
                 CGameData gameData = JsonUtility.FromJson<CGameData>(combined.UnityGameData);
                 CSaveLoad.m_SavedGame = gameData;
+                Plugin.Logger.LogInfo("gamedata done");
             }
 
             if (combined.ModData != null)
             {
+                Plugin.Logger.LogInfo("moddata");
                 saveData = combined.ModData;
+                Plugin.Logger.LogInfo("get moddata");
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+                Plugin.Logger.LogInfo("after achievment");
+                
+                Plugin.Logger.LogInfo("moddata done");
             }
             Plugin.Logger.LogInfo("Completed AP Save Load");
             return true;
@@ -311,6 +345,14 @@ public class SaveHandler
         {
             Plugin.Logger.LogError("Failed to retrieve save data");
         }
-        return false;
+        return true;
+    }
+
+    public void UpdateSanityUI()
+    {
+        for (int packtype = 0; packtype < (int)ECollectionPackType.GhostPack; packtype++)
+        {
+            UIInfoPanel.getInstance().UpdateCardCollection((ECollectionPackType)packtype, 0);// saveData.foundCards.sanityCount[(ECollectionPackType)packtype]);
+        }
     }
 }

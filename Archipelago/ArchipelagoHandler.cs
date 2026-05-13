@@ -21,7 +21,7 @@ namespace ApClient.Archipelago;
 public class ArchipelagoHandler : MonoBehaviour
 {
     public SlotData slotData;
-    private ArchipelagoSession? Session { get; set; }
+    private ArchipelagoSession Session { get; set; }
     DeathLinkService deathLinkService = null;
     
     private ConcurrentQueue<long> _locationsToCheck = new ConcurrentQueue<long>();
@@ -89,8 +89,9 @@ public class ArchipelagoHandler : MonoBehaviour
     }
 
 
-    public ScoutedItemInfo? TryScoutLocation(long locationId)
+    public ScoutedItemInfo TryScoutLocation(long locationId)
     {
+        Plugin.Logger.LogInfo($"Trying to scout location {locationId}");
         return Session?.Locations.ScoutLocationsAsync(locationId)?.Result?.Values.First();
     }
 
@@ -185,6 +186,11 @@ public class ArchipelagoHandler : MonoBehaviour
                 Plugin.SaveHandler.GetAchievementHandler().SetHinted(hint.LocationId);
             }
         }
+    }
+
+    public HashSet<long> GetCheckedLocations()
+    {
+        return Session.Locations.AllLocationsChecked.ToHashSet();
     }
 
     void OnDestroy() { 

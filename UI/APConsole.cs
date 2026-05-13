@@ -52,7 +52,7 @@ public class APConsole : MonoBehaviour
     private bool _rebuildHistoryDirty;
     private int _historyBuiltCount;
 
-    private static TMP_FontAsset? _font;
+    private static TMP_FontAsset _font;
 
     private readonly ConcurrentQueue<Image> _backgroundPool = new ConcurrentQueue<Image>();
     private ConcurrentQueue<LogEntry> _cachedEntries = new ConcurrentQueue<LogEntry>();
@@ -60,16 +60,16 @@ public class APConsole : MonoBehaviour
     private readonly List<LogEntry> _visibleEntries = new List<LogEntry>();
     private readonly List<LogEntry> _historyEntries = new List<LogEntry>();
 
-    private GameObject? _historyPanel;
-    private RectTransform? _historyContent;
+    private GameObject _historyPanel;
+    private RectTransform _historyContent;
     private bool _showHistory;
-    private ScrollRect? _historyScrollRect;
-    private RectTransform? _historyViewport;
+    private ScrollRect _historyScrollRect;
+    private RectTransform _historyViewport;
 
-    private Transform? _messageParent;
+    private Transform _messageParent;
     private bool _showConsole = true;
 
-    private static APConsole? _instance;
+    private static APConsole _instance;
 
     public static APConsole Instance
     {
@@ -642,8 +642,8 @@ public class APConsole : MonoBehaviour
         public float offsetY;
         public float baseY;
         public float animatedY;
-        public TextMeshProUGUI? text;
-        public Image? background;
+        public TextMeshProUGUI text;
+        public Image background;
         public string message;
         public string colorizedMessage;
         public float height;

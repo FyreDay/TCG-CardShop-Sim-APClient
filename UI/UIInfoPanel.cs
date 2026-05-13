@@ -108,9 +108,18 @@ public class UIInfoPanel : MonoBehaviour
             }
         }
 
-        Instance.cardOpenButton.onClick.AddListener(() => Instance.UpdateAchievementList(Instance.cardOpenItems));
-        Instance.cardSellButton.onClick.AddListener(() => Instance.UpdateAchievementList(Instance.cardSellItems));
-        Instance.cardGradeButton.onClick.AddListener(() => Instance.UpdateAchievementList(Instance.cardGradeItems));
+        Instance.cardOpenButton.onClick.AddListener(() => {
+            Instance.UpdateAchievementList(Instance.cardOpenItems);
+            Instance.currentCardItems = Instance.cardOpenItems;
+        });
+        Instance.cardSellButton.onClick.AddListener(() => {
+            Instance.UpdateAchievementList(Instance.cardSellItems);
+            Instance.currentCardItems = Instance.cardSellItems;
+        });
+        Instance.cardGradeButton.onClick.AddListener(() => {
+            Instance.UpdateAchievementList(Instance.cardGradeItems);
+            Instance.currentCardItems = Instance.cardGradeItems;
+        });
 
         Instance.achievementContent = apinfoobject.GetComponentsInChildren<Transform>(true)
             .FirstOrDefault(t => t.name == "AchievementContent");
@@ -159,19 +168,21 @@ public class UIInfoPanel : MonoBehaviour
         {
             Instance.cardGradeButton.interactable = true;
             Instance.UpdateAchievementList(Instance.cardGradeItems);
+            Instance.currentCardItems = Instance.cardGradeItems;
         }
 
         if (Instance.cardSellItems.Count > 0)
         {
             Instance.cardSellButton.interactable = true;
             Instance.UpdateAchievementList(Instance.cardSellItems);
+            Instance.currentCardItems = Instance.cardSellItems;
         }
         if (Instance.cardOpenItems.Count > 0)
         {
             Instance.cardOpenButton.interactable = true;
             Instance.UpdateAchievementList(Instance.cardOpenItems);
+            Instance.currentCardItems = Instance.cardOpenItems;
         }
-
 
         Instance.UpdateProductList(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var sr = apinfoobject.GetComponentInChildren<ScrollRect>(true);
@@ -232,6 +243,7 @@ public class UIInfoPanel : MonoBehaviour
     public List<CompiledAchievement> cardSellItems;
     public List<CompiledAchievement> cardGradeItems;
 
+    public List<CompiledAchievement> currentCardItems;
     public void setVisable(bool visable)
     {
         Plugin.Logger.LogInfo("toggle Ap info");
@@ -304,7 +316,7 @@ public class UIInfoPanel : MonoBehaviour
                 basicCount.text = $"{count}"; 
                 break;
             case ECollectionPackType.RareCardPack:
-                epicCount.text = $"{count}";
+                rareCount.text = $"{count}";
                 break;
             case ECollectionPackType.EpicCardPack:
                 epicCount.text = $"{count}";
@@ -390,5 +402,13 @@ public class UIInfoPanel : MonoBehaviour
     internal void UpdateImportantLicenses(List<RestockData> restockDatas)
     {
         throw new NotImplementedException();
+    }
+
+    public void Refresh()
+    {
+        if (Instance.currentCardItems != null)
+        {
+            Instance.UpdateAchievementList(Instance.currentCardItems);
+        }
     }
 }

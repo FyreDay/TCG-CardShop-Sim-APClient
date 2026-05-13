@@ -22,7 +22,7 @@ public class Plugin : BaseUnityPlugin
     public static new ManualLogSource Logger;
     public static ArchipelagoHandler ArchipelagoHandler;
     
-    public static SaveHandler? SaveHandler
+    public static SaveHandler SaveHandler
     {
         get;
         private set;
@@ -31,11 +31,11 @@ public class Plugin : BaseUnityPlugin
 
     private static ConfigFile ConfigRef;
 
-    public static ConfigEntry<float>? MessageInTime;
-    public static ConfigEntry<bool>? FilterLog;
-    public static ConfigEntry<float>? MessageHoldTime;
-    public static ConfigEntry<float>? MessageOutTime;
-    public static ConfigEntry<bool>? EnableDebugLogging;
+    public static ConfigEntry<float> MessageInTime;
+    public static ConfigEntry<bool> FilterLog;
+    public static ConfigEntry<float> MessageHoldTime;
+    public static ConfigEntry<float> MessageOutTime;
+    public static ConfigEntry<bool> EnableDebugLogging;
     public static ConfigEntry<KeyCode> ConnectionHotKey;
     //public static ConfigEntry<KeyCode> ConsoleHotkey;
     public static ConfigEntry<bool> doDeathlink;
@@ -100,6 +100,7 @@ public class Plugin : BaseUnityPlugin
 
     public static void SetSceneLoaded()
     {
+        Logger.LogInfo("start AP scene load");
         GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
 
         var apinfoobject = Instantiate(myGameObject);
@@ -112,8 +113,9 @@ public class Plugin : BaseUnityPlugin
             myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.GetAchievementHandler().achievementsByType);
 
         UIInfoPanel.getInstance().setVisable(false);
+        SaveHandler.UpdateSanityUI();
         ItemHandler.FlushQueue();
-
+        Logger.LogInfo("Finish AP scene load");
     }
 
     public static bool IsGameReady()

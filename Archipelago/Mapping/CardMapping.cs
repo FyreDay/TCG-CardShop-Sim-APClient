@@ -30,7 +30,7 @@ namespace ApClient.mapping
             cardData.borderType = (ECardBorderType)((id >> 8) & 0xF);
             cardData.isFoil = ((id >> 7) & 0x1) == 1;
             cardData.monsterType = (EMonsterType)(id & 0x7F);
-
+            cardData.cardGrade = 0;
             return cardData;
         }
     }

@@ -231,5 +231,11 @@ public class AchievementHandler
         return unlocked.ToArray();
     }
 
-
+    public void CheckWithHashSet(HashSet<long> checkedLocations)
+    {
+        foreach (var a in achievementById)
+        {
+            a.Value.completed = checkedLocations.Contains(a.Key);
+        }
+    }
 }

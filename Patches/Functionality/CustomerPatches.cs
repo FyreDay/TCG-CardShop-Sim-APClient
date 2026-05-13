@@ -63,7 +63,7 @@ public class CustomerPatches
         {
             if (card.m_Card3dUI.m_CardUI.GetCardData().expansionType == ECardExpansionType.Ghost && Plugin.IsGameReady())
             {
-                if(Plugin.ArchipelagoHandler.slotData.Goal == 2)
+                if (Plugin.ArchipelagoHandler.slotData.Goal == 2)
                 {
                     Plugin.SaveHandler.AddGhostSold();
                     if (Plugin.SaveHandler.GetSaveData().GhostCardsSold >= Plugin.ArchipelagoHandler.slotData.GhostGoalAmount)
@@ -324,5 +324,5 @@ public class CustomerPatches
             }
             return false;
         }
-    }    
+    }
 }

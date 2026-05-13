@@ -18,8 +18,10 @@ public class SaveLoadPatches
         [HarmonyPrefix]
         static bool SavePrefix(int saveSlotIndex, bool skipJSONSave = false)
         {
+            Plugin.Logger.LogInfo("Saving AP save data");
             Plugin.SaveHandler.Save(saveSlotIndex);
             CEventManager.QueueEvent(new CEventPlayer_OnSaveStatusUpdated(isSuccess: true, isAutosaving: false));
+            Plugin.Logger.LogInfo("Finished saving AP save data");
             return false;
         }
     }
@@ -34,7 +36,9 @@ public class SaveLoadPatches
             {
                 Plugin.Logger.LogError("Cannot load Saves for AP Client");
                 __result = false;
+                return false;
             }
+            //Plugin.SaveHandler.checkWithServer(Plugin.ArchipelagoHandler.GetCheckedLocations());
             __result = true;
             return false;
         }
