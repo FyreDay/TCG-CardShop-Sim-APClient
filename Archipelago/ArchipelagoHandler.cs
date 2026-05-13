@@ -1,4 +1,5 @@
 ﻿using ApClient.data;
+using ApClient.mapping;
 using ApClient.ui;
 using ApClient.UI;
 using Archipelago.MultiClient.Net;

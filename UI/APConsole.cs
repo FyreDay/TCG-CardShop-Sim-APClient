@@ -27,7 +27,7 @@ public class APConsole : MonoBehaviour
     private const bool DefaultCursorVisible = false;
 
     private const float DefaultMessageHeight = 28f;
-    private const float DefaultConsoleHeight = 250f;
+    private const float DefaultConsoleHeight = 200f;
     private const float DefaultConsoleWidth = 600f;
 
     private float _slideInTime = 0.25f;

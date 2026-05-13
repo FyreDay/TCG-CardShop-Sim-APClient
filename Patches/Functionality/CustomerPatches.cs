@@ -119,9 +119,10 @@ public class CustomerPatches
 
                 int checknum = ++Plugin.SaveHandler.GetSaveData().PlayedGames[CPlayerData.m_GameEventFormat];
 
-                if (checknum != -1)
+                if (checknum != -1 && checknum <= Plugin.ArchipelagoHandler.slotData.PlayTableChecks)
                 {
-                    Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + (int)CPlayerData.m_GameEventFormat * 15 + checknum);
+                    Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + (int)CPlayerData.m_GameEventFormat * 15 + checknum - 1);
+                    UIInfoPanel.getInstance().UpdateFormatCount(CPlayerData.m_GameEventFormat, checknum);
                 }
             }
         }

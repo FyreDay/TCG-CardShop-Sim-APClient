@@ -61,6 +61,19 @@ public class UIInfoPanel : MonoBehaviour
                 case "Destiny Epic Count": Instance.destinyEpicCount = tmp; break;
                 case "Destiny Legendary Count": Instance.destinyLegendaryCount = tmp; break;
 
+                case "Standard Count": Instance.StandardCount = tmp; break;
+                case "Pauper Count": Instance.PauperCount = tmp; break;
+                case "Fire Count": Instance.FireCount = tmp; break;
+                case "Earth Count": Instance.EarthCount = tmp; break;
+                case "Water Count": Instance.WaterCount = tmp; break;
+                case "Wind Count": Instance.WindCount = tmp; break;
+                case "1st Ed Count": Instance.FirstEdCount = tmp; break;
+                case "Silver Count": Instance.SilverCount = tmp; break;
+                case "Gold Count": Instance.GoldCount = tmp; break;
+                case "EX Count": Instance.EXCount = tmp; break;
+                case "Full Art Count": Instance.FullArtCount = tmp; break;
+                case "Foil Count": Instance.FoilCount = tmp; break;
+
                 case "Basic Total": 
                     Instance.basicCountTotal = tmp;
                     Instance.basicCountTotal.text = $"{27 * mult}";
@@ -230,6 +243,19 @@ public class UIInfoPanel : MonoBehaviour
     public TextMeshProUGUI destinyEpicCount;
     public TextMeshProUGUI destinyLegendaryCount;
 
+    public TextMeshProUGUI StandardCount;
+    public TextMeshProUGUI PauperCount;
+    public TextMeshProUGUI FireCount;
+    public TextMeshProUGUI EarthCount;
+    public TextMeshProUGUI WaterCount;
+    public TextMeshProUGUI WindCount;
+    public TextMeshProUGUI FirstEdCount;
+    public TextMeshProUGUI SilverCount;
+    public TextMeshProUGUI GoldCount;
+    public TextMeshProUGUI EXCount;
+    public TextMeshProUGUI FullArtCount;
+    public TextMeshProUGUI FoilCount;
+
     public TextMeshProUGUI basicCountTotal;
     public TextMeshProUGUI rareCountTotal;
     public TextMeshProUGUI epicCountTotal;
@@ -306,6 +332,49 @@ public class UIInfoPanel : MonoBehaviour
     public void SetLicensesToLevel(int value)
     {
         licensesText.text = $"{value}";
+    }
+
+    public void UpdateFormatCount(EGameEventFormat packType, int count)
+    {
+        switch (packType)
+        {
+            case EGameEventFormat.Standard:
+                StandardCount.text = $"{count}";
+                break;
+            case EGameEventFormat.Pauper:
+                PauperCount.text = $"{count}";
+                break;
+            case EGameEventFormat.FireCup:
+                FireCount.text = $"{count}";
+                break;
+            case EGameEventFormat.EarthCup:
+                EarthCount.text = $"{count}";
+                break;
+            case EGameEventFormat.WaterCup:
+                WaterCount.text = $"{count}";
+                break;
+            case EGameEventFormat.WindCup:
+                WindCount.text = $"{count}";
+                break;
+            case EGameEventFormat.FirstEditionVintage:
+                FirstEdCount.text = $"{count}";
+                break;
+            case EGameEventFormat.SilverBorder:
+                SilverCount.text = $"{count}";
+                break;
+            case EGameEventFormat.GoldBorder:
+                GoldCount.text = $"{count}";
+                break;
+            case EGameEventFormat.ExBorder:
+                EXCount.text = $"{count}";
+                break;
+            case EGameEventFormat.FullArtBorder:
+                FullArtCount.text = $"{count}";
+                break;
+            case EGameEventFormat.Foil:
+                FoilCount.text = $"{count}";
+                break;
+        }
     }
 
     public void UpdateCardCollection(ECollectionPackType packType, int count)
