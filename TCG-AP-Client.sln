@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCG-AP-Client", "TCG-AP-Client.csproj", "{40064B78-E36E-DDD2-E26D-DC412FAB974B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		BuildAndLaunch|Any CPU = BuildAndLaunch|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.BuildAndLaunch|Any CPU.ActiveCfg = BuildAndLaunch|Any CPU
+		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.BuildAndLaunch|Any CPU.Build.0 = BuildAndLaunch|Any CPU
+		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40064B78-E36E-DDD2-E26D-DC412FAB974B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {04798B52-F670-481A-895B-4A1AA4C1CFD3}
+	EndGlobalSection
+EndGlobal

@@ -1,67 +1,74 @@
-﻿using ApClient.mapping;
-using ApClient.patches;
-using ApClient.ui;
-using Archipelago.MultiClient.Net;
-using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Helpers;
-using Archipelago.MultiClient.Net.Models;
+﻿using ApClient.Archipelago;
+using ApClient.Patches.Functionality;
+using ApClient.UI;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using I2.Loc;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using UnityEngine;
-using UnityEngine.Device;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
-using UnityEngine.XR;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ApClient;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-    internal static new ManualLogSource Logger;
+    public static new ManualLogSource Logger;
+    public static ArchipelagoHandler ArchipelagoHandler;
     
-    private readonly Harmony m_Harmony = new(MyPluginInfo.PLUGIN_GUID);
+    public static SaveHandler SaveHandler
+    {
+        get;
+        private set;
+    }
+    public static ItemHandler ItemHandler;
 
-    public static APClientSaveManager m_SaveManager = new APClientSaveManager();
-    public static ItemHandler m_ItemHandler = new ItemHandler();
-    public static SessionHandler m_SessionHandler = new SessionHandler();
-    public static CardHelper m_CardHelper = new CardHelper();
+    private static ConfigFile ConfigRef;
+
+    public static ConfigEntry<float> MessageInTime;
+    public static ConfigEntry<bool> FilterLog;
+    public static ConfigEntry<float> MessageHoldTime;
+    public static ConfigEntry<float> MessageOutTime;
+    public static ConfigEntry<bool> EnableDebugLogging;
+    public static ConfigEntry<KeyCode> ConnectionHotKey;
+    //public static ConfigEntry<KeyCode> ConsoleHotkey;
+    public static ConfigEntry<bool> doDeathlink;
+    public static ConfigEntry<string> LastUsedIP;
+    public static ConfigEntry<string> LastUsedPassword;
+    public static ConfigEntry<string> LastUsedSlot;
+
+    private readonly Harmony Harmony = new(MyPluginInfo.PLUGIN_GUID);
+
 
     private static AssetBundle myAssetBundle;
-    private static GameObject apinfoobject;
-    private Plugin()
-    {
-        
-        this.m_Harmony.PatchAll();
-    }
+
+
+    public static bool SceneLoaded { get; private set; }
 
     private void Awake()
     {
         // Plugin startup logic
         Logger = base.Logger;
-        Settings.Instance.Load(this);
+        Application.logMessageReceived += HandleUnityLog;
+        Harmony.PatchAll();
+        DontDestroyOnLoad(gameObject);
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.sceneLoaded += this.OnSceneLoad;
-
-        
-
+        bindConfig();
+        ArchipelagoHandler = gameObject.AddComponent<ArchipelagoHandler>();
+        ItemHandler = gameObject.AddComponent<ItemHandler>();
     }
+
     void Start()
     {
-        APConsole.Create();
-        
+        //APConsole.Create();
+
         GameObject ui = new GameObject("ConnectionMenu");
         ConnectionMenu menu = ui.AddComponent<ConnectionMenu>();
         DontDestroyOnLoad(ui);
@@ -69,180 +76,181 @@ public class Plugin : BaseUnityPlugin
         //asset bundle
         string assetsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets");
         string bundlePath = Path.Combine(assetsFolder, "apinfoui"); // Make sure "myAssetBundle" is the correct file name
-        Plugin.Log(assetsFolder);
-        Plugin.Log(bundlePath);
         // Load the asset bundle
         myAssetBundle = AssetBundle.LoadFromFile(bundlePath);
 
-        // Example: Load a GameObject from the bundle
-        GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
-
-        // Do something with myGameObject, e.g., instantiate it
-        apinfoobject = Instantiate(myGameObject);
-        var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
-        UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
-            myAssetBundle.LoadAsset<GameObject>("Product"));
-        
-        //infoPanel.SetLevelMax(50);
-        //infoPanel.SetStoredXP(12345);
-        //infoPanel.SetLicensesToLevel(3);
-        //infoPanel.UpdateAchievementList(new List<CardLocation>
-        //{
-        //    new CardLocation
-        //    {
-        //        IsHinted = true,
-        //        CurrentNum = 0,
-        //        AchievementData = new data.AchievementData
-        //        {
-        //            name = "Open 100 Destiny\r\n Legendary Cards",
-        //            threshold = 100
-        //        }
-        //    },
-        //    new CardLocation
-        //    {
-        //        IsHinted = false,
-        //        CurrentNum = 2,
-        //        AchievementData = new data.AchievementData
-        //        {
-        //            name = "Open 10 Destiny\r\n Rare Cards",
-        //            threshold = 10
-        //        }
-        //    },
-        //});
-
-    }
-
-    private void OnDestroy()
-    {
-        this.m_Harmony.UnpatchSelf();
-    }
-
-    private static bool SceneLoaded = false;
-    public static bool isSceneLoaded()
-    {
-        return SceneLoaded;
-    }
-
-    public static void onSceneLoadLogic()
-    {
-        SceneLoaded = true;
-        m_SessionHandler.ProcessCachedItems();
-    }
-
-    public static float getNumLuckItems()
-    {
-        return m_SaveManager.GetLuck();
-    }
-
-    public static bool isCashOnly()
-    {
-        return m_ItemHandler.cashOnly;
-    }
-
-    public static EGameEventFormat getFormat()
-    {
-        return CPlayerData.m_GameEventFormat;
-    }
-
-    public static CardData getNewCard()
-    {
-        int maxborder = 5;
-        bool uniqueFoil = true;
-        if (m_SessionHandler.GetSlotData().CardSanity > 0 && m_SessionHandler.GetSlotData().CardOpeningCheckDifficulty > 0)
-        {
-            uniqueFoil = m_SessionHandler.GetSlotData().CardSanity == 2;
-
-            maxborder = m_SessionHandler.maxBorder();
-        }
-
-         return m_SaveManager.GenerateUnopenedCard(maxborder, uniqueFoil);
-           
     }
 
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
-        Log($" Scene Load: {scene.name}");
         if (scene.name == "Title")
         {
-            m_SaveManager = new APClientSaveManager();
-            setTitleInteractable(false);
+            
+            Util.SetTitleInteractable(false);
 
-            //GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
-
-            //foreach (GameObject obj in allObjects)
-            //{
-            //    Debug.Log($"Object: {obj.name} | Active: {obj.activeSelf} | Tag: {obj.tag} | Layer: {obj.layer}");
-            //}
             SceneLoaded = false;
         }
         if (scene.name == "Start")
         {
-
-            //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
             
+            //CSingleton<PhoneManager>.Instance.m_RentBillScreen.m_DueDayMax = 4;
+
         }
     }
-    public static void RunTitleInteractableSaveLogic()
+
+    public static void SetSceneLoaded()
     {
-        //set buttons correctly
-        TitleScreen titleScreen = GameObject.FindFirstObjectByType<TitleScreen>();
-        GameObject parentObject = GameObject.Find("NewGameBtn");
-        UnityEngine.UI.Button newGame = null;
-        if (parentObject != null)
-        {
-            // Look for the Button component in this object or its children
-            newGame = parentObject.GetComponentInChildren<UnityEngine.UI.Button>();
+        Logger.LogInfo("start AP scene load");
+        GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
 
-        }
-        if (m_SaveManager.doesSaveExist())
-        {
-            titleScreen.m_LoadGameButton.interactable = true;
-            newGame.interactable = false;
-        }
-        else
-        {
-            titleScreen.m_LoadGameButton.interactable = false;
-            newGame.interactable = true;
+        var apinfoobject = Instantiate(myGameObject);
 
-        }
+        var infoPanel = apinfoobject.AddComponent<UIInfoPanel>();
+        
+        SceneLoaded = true;
+
+        UIInfoPanel.setInstance(infoPanel, apinfoobject, myAssetBundle.LoadAsset<GameObject>("Achievement"),
+            myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.GetAchievementHandler().achievementsByType);
+
+        UIInfoPanel.getInstance().setVisable(false);
+        SaveHandler.UpdateSanityUI();
+        ItemHandler.FlushQueue();
+        Logger.LogInfo("Finish AP scene load");
     }
-    public static void setTitleInteractable(bool interactable)
+
+    public static bool IsGameReady()
     {
-        {
-            TitleScreen titleScreen = GameObject.FindFirstObjectByType<TitleScreen>();
-            titleScreen.m_LoadGameButton.interactable = interactable;
-
-
-            GameObject parentObject = GameObject.Find("NewGameBtn");
-
-            if (parentObject != null)
-            {
-                // Look for the Button component in this object or its children
-                UnityEngine.UI.Button myButton = parentObject.GetComponentInChildren<UnityEngine.UI.Button>();
-                myButton.interactable = interactable;
-
-            }
-        }
+        return ArchipelagoHandler.IsConnected && SceneLoaded;
     }
-    public static void Log(string s)
+
+    public static bool EnabledDeathLink()
     {
-        Logger.LogInfo(s);
+        return ArchipelagoHandler.IsConnected && IsGameReady() && ArchipelagoHandler.slotData.Deathlink && doDeathlink.Value;
     }
 
-    //remove me
     private void Update()
     {
-
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(ConnectionHotKey.Value))
         {
-            //foreach (UI_PhoneScreen.)
-            //{
-            //    PhoneManager
-
-            //}
+            ConnectionMenu.Instance.toggleVisability();
         }
-            if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.F7))
         {
+            APLogicUtil.TriggerDeathlinkLogic();
         }
+
+        // Toggle with hotkey
+        if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
+        {
+            Logger.LogInfo("close custom window");
+            UIInfoPanel.getInstance().DelaySetVisable(false);
+
+        }
+    }
+
+    private void bindConfig()
+    {
+        ConfigRef = Config;
+        EnableDebugLogging = Config.Bind(
+                "Logging",
+                "EnableDebugLogging",
+                false,
+                "Enables or disables debug logging in the Archipelago Console."
+            );
+        FilterLog = Config.Bind(
+               "Logging",
+               "FilterLog",
+               false,
+               "Filter the archipelago log to only show messages relevant to you."
+           );
+
+        MessageInTime = Config.Bind(
+            "Logging",
+            "MessageInTime",
+            0.25f,
+            "How long messages take to animate in."
+        );
+
+        MessageHoldTime = Config.Bind(
+            "Logging",
+            "MessageHoldTime",
+            3f,
+            "How long messages stay in the log before animating out."
+        );
+
+        MessageOutTime = Config.Bind(
+            "Logging",
+            "MessageOutTime",
+            0.5f,
+            "How long messages stay in the log before animating out."
+        );
+
+        doDeathlink = Config.Bind(
+           "GamePlay",
+           "Enable Deathlink",
+           true,
+           "Enable sending and receiving deathlinks. Overrides YAML."
+       );
+
+        ConnectionHotKey = Config.Bind(
+            "Hotkeys",
+            "Toggle Connection Window",
+            KeyCode.F8, // Default key
+            "Press this key to toggle AP Connection GUI"
+        );
+        //ConsoleHotkey = Config.Bind(
+        //    "2. Hotkeys",
+        //    "Toggle AP Console",
+        //    KeyCode.F9, // Default key
+        //    "Press this key to toggle AP Console Output"
+        //);
+        LastUsedIP = Config.Bind("Connection", "LastUsedIP", "", "The last server IP entered.");
+        LastUsedPassword = Config.Bind("Connection", "LastUsedPassword", "", "The last server password entered.");
+        LastUsedSlot = Config.Bind("Connection", "LastUsedSlot", "", "The last player slot name entered.");
+    }
+
+    public static bool Connect(string ip, string password, string slot)
+    {
+        LastUsedIP.Value = ip;
+        LastUsedPassword.Value = password;
+        LastUsedSlot.Value = slot;
+        SaveHandler = ArchipelagoHandler.connect(ip, password, slot);
+        if (SaveHandler != null)
+        {
+            Util.RunTitleInteractableSaveLogic();
+            ConfigRef.Save();
+            return true;
+        }
+        ConfigRef.Save();
+        return false;
+    }
+
+    public static void ClearSave()
+    {
+        if(SaveHandler != null && IsGameReady())
+        {
+            SaveHandler.Save(Constants.SAVE_SLOT);
+        }
+        SaveHandler = null;
+    }
+
+
+    void HandleUnityLog(string condition, string stackTrace, LogType type)
+    {
+        if (type == LogType.Warning &&
+            condition.Contains("Parent of RectTransform is being set with parent property"))
+        {
+            return; // swallow it
+        }
+
+        // otherwise log normally if you want
+        Debug.unityLogger.Log(type, condition);
+    }
+
+    private void OnDestroy()
+    {
+        Plugin.Logger.LogInfo("WHAT IS HAPPENING AHHHHHHHHHHA");
+        ArchipelagoHandler.DisconnectAsync();
+        this.Harmony.UnpatchSelf();
     }
 }

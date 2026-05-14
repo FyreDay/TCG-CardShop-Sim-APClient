@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Example\Example\Example\common\TCG Card Shop Simulator</GamePath>
+  </PropertyGroup>
+</Project>

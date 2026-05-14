@@ -1,12 +1,9 @@
 {
   "profiles": {
-    "ApClient": {
-      "commandName": "Project",
-      "nativeDebugging": true
-    },
-    "RunGame": {
+    "Build and Launch": {
       "commandName": "Executable",
-      "executablePath": "E:\\Applications\\Steam\\steamapps\\common\\TCG Card Shop Simulator\\Card Shop Simulator.exe"
+      "executablePath": "$(GamePath)\\Card Shop Simulator.exe",
+      "workingDirectory": "$(GamePath)"
     }
   }
 }
