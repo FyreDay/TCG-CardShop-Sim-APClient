@@ -17,12 +17,19 @@ OR
 #### BepinEx Configuration
 
 Once installed navigate to `TCG Card Shop Simulator\BepInEx\config` and open `BepInEx.cfg`
+If it is not there, launch the game once and the close it to create the file
 
 Under [ChainLoader] change HideManagerGameObject = false to HideManagerGameObject = true
 
 #### Install Plugin
 
 Extract the latest release into `TCG Card Shop Simulator\BepInEx\plugins`
+
+
+
+# IF YOU DO NOT SEE THE CONNECTION WINDOW DOUBLE CHECK THAT HIDEMANAGEROBJECT IS SET TO TRUE AS STATED ABOVE
+
+
 
 ### Thunderstore
 
