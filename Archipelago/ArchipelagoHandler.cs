@@ -52,9 +52,13 @@ public class ArchipelagoHandler : MonoBehaviour
             var loginSuccess = (LoginSuccessful)result;
 
             string modversion = loginSuccess.SlotData.GetValueOrDefault("ModVersion").ToString();
-            if (!modversion.Equals(MyPluginInfo.PLUGIN_VERSION))
+            var modversionSplit = modversion.Split(".");
+            var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
+            if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
             {
-                ConnectionMenu.Instance.SetState($"AP Expects Mod v{modversion}");
+                ConnectionMenu.Instance.SetState($"AP Requires Mod v{modversion}");
+                Session.Socket.DisconnectAsync();
+                return null;
             }
             
             slotData = new SlotData(loginSuccess.SlotData);
