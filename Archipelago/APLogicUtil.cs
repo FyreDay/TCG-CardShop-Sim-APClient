@@ -79,4 +79,16 @@ public class APLogicUtil
 
         }
     }
+
+    public static bool hasAllCardPacks()
+    {
+        return ((Plugin.ArchipelagoHandler.GetItemCount(190) > 0 || Plugin.ArchipelagoHandler.GetItemCount(1) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 2 || Plugin.ArchipelagoHandler.GetItemCount(1) > 3) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 4 || Plugin.ArchipelagoHandler.GetItemCount(1) > 5) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 6 || Plugin.ArchipelagoHandler.GetItemCount(1) > 7) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 8 || Plugin.ArchipelagoHandler.GetItemCount(1) > 9) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 10 || Plugin.ArchipelagoHandler.GetItemCount(1) > 11) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 12 || Plugin.ArchipelagoHandler.GetItemCount(1) > 13) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(190) > 14 || Plugin.ArchipelagoHandler.GetItemCount(1) > 15));
+    }
 }

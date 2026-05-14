@@ -336,6 +336,7 @@ public class UIInfoPanel : MonoBehaviour
 
     public void UpdateFormatCount(EGameEventFormat packType, int count)
     {
+        Plugin.Logger.LogInfo($"Update format {packType} count to {count}");
         switch (packType)
         {
             case EGameEventFormat.Standard:

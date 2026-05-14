@@ -16,6 +16,9 @@ public class ConnectionMenu : MonoBehaviour
     private TMP_InputField ipField, passField, slotField;
     private TMP_Text stateLabel;
 
+    Button connectButton;
+    GameObject buttonObj;
+
     public bool showGUI = true;
     private string state = "Not Connected";
     public void SetState(string newState)
@@ -100,7 +103,7 @@ public class ConnectionMenu : MonoBehaviour
         slotField = CreateInput(Plugin.LastUsedSlot.Value, new Vector2(0, -65), bgObj.transform);
 
         // Connect Button
-        GameObject buttonObj = new GameObject("ConnectButton", typeof(Image), typeof(Button));
+        buttonObj = new GameObject("ConnectButton", typeof(Image), typeof(Button));
         buttonObj.transform.SetParent(bgObj.transform, false);
         Image btnImage = buttonObj.GetComponent<Image>();
         //btnImage.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
@@ -114,8 +117,8 @@ public class ConnectionMenu : MonoBehaviour
         TMP_Text btnText = CreateText("Connect", Vector2.zero, 18, buttonObj.transform);
         btnText.alignment = TextAlignmentOptions.Center;
 
-        Button button = buttonObj.GetComponent<Button>();
-        button.onClick.AddListener(OnConnectPressed);
+        connectButton = buttonObj.GetComponent<Button>();
+        connectButton.onClick.AddListener(OnConnectPressed);
 
         // State label
         stateLabel = CreateText("Not Connected", new Vector2(0, -140), 14, bgObj.transform);
@@ -130,7 +133,19 @@ public class ConnectionMenu : MonoBehaviour
     private void OnConnectPressed()
     {
         Debug.Log("Connect pressed!");
-        Plugin.Connect(ipField.text, passField.text, slotField.text);
+        bool success = Plugin.Connect(ipField.text, passField.text, slotField.text);
+        if (success)
+        {
+            SetState("Connected!");
+            connectButton.interactable = false;
+            buttonObj.SetActive(false);
+        }
+        else
+        {
+            SetState("Connection Failed");
+            connectButton.interactable = true;
+            buttonObj.SetActive(true);
+        }
     }
 
     // --- Helpers ---

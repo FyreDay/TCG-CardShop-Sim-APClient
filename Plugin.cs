@@ -209,7 +209,7 @@ public class Plugin : BaseUnityPlugin
         LastUsedSlot = Config.Bind("Connection", "LastUsedSlot", "", "The last player slot name entered.");
     }
 
-    public static void Connect(string ip, string password, string slot)
+    public static bool Connect(string ip, string password, string slot)
     {
         LastUsedIP.Value = ip;
         LastUsedPassword.Value = password;
@@ -218,8 +218,11 @@ public class Plugin : BaseUnityPlugin
         if (SaveHandler != null)
         {
             Util.RunTitleInteractableSaveLogic();
+            ConfigRef.Save();
+            return true;
         }
         ConfigRef.Save();
+        return false;
     }
 
     public static void ClearSave()

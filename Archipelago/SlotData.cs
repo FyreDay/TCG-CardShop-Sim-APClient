@@ -37,8 +37,8 @@ public class SlotData
     public int PlayTableChecks { get; private set; }
     public int CardSanity { get; private set; }
     public bool Deathlink { get; private set; }
-    
-    
+    public bool NoFormat { get; internal set; }
+
     public SlotData(Dictionary<string, object> slotDict)
     {
         MaxLevel = int.Parse(slotDict.GetValueOrDefault("MaxLevel").ToString());
@@ -60,6 +60,7 @@ public class SlotData
         PlayTableChecks = int.Parse(slotDict.GetValueOrDefault("PlayTableChecks").ToString());
 
         Deathlink = slotDict.GetValueOrDefault("Deathlink").ToString() == "1";
+        Deathlink = slotDict.GetValueOrDefault("NoFormat").ToString() == "1";
         CardSanity = int.Parse(slotDict.GetValueOrDefault("CardSanity").ToString());
 
         pg1IndexMapping = PgStrToDict(slotDict.GetValueOrDefault("ShopPg1Mapping").ToString());

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace ApClient.Patches.Functionality.RestockScreen;
 
@@ -231,10 +232,12 @@ public class RestockItemUIPatches
             if (Plugin.ArchipelagoHandler.GetItemCount((int)__instance.m_ItemType == 0 ? 190 : (long)__instance.m_ItemType) > 0)
             {
                 __instance.m_LicensePriceText.text = "AP Item Found";
+                __instance.m_LicensePriceText.color = UnityEngine.Color.green;
             }
             else
             {
                 __instance.m_LicensePriceText.text = "AP Item Not Found";
+                __instance.m_LicensePriceText.color = UnityEngine.Color.red;
                 __instance.m_UIGrp.SetActive(value: false);
                 __instance.m_LicenseUIGrp.SetActive(value: true);
                 __instance.m_LockPurchaseBtn.gameObject.SetActive(value: true);

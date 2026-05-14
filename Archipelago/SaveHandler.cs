@@ -222,7 +222,8 @@ public class SaveHandler
                 }
                 decimal percentCollected = countCollected / (decimal)(countCollected + saveData.foundCards.notfound.Count);
                 UIInfoPanel.getInstance().setPercentGoalCollected(percentCollected * 100);
-                if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100)
+                if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100
+                    && APLogicUtil.hasAllCardPacks())
                 {
                     Plugin.ArchipelagoHandler.Release();
                 }

@@ -84,7 +84,7 @@ public class CustomerPatches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            if (__result)
+            if (__result && Plugin.ArchipelagoHandler.slotData.Deathlink)
             {
                 PopupTextPatches.ShowCustomText("Too much Stink! Sending Deathlink");
                 Plugin.ArchipelagoHandler.sendDeath();
@@ -121,7 +121,8 @@ public class CustomerPatches
 
                 if (checknum != -1 && checknum <= Plugin.ArchipelagoHandler.slotData.PlayTableChecks)
                 {
-                    Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + (int)CPlayerData.m_GameEventFormat * 15 + checknum - 1);
+                    int formatId = Plugin.ArchipelagoHandler.slotData.NoFormat ? 12 : (int)CPlayerData.m_GameEventFormat;
+                    Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + (formatId * 15) + checknum - 1);
                     UIInfoPanel.getInstance().UpdateFormatCount(CPlayerData.m_GameEventFormat, checknum);
                 }
             }
