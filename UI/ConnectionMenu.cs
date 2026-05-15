@@ -18,12 +18,16 @@ public class ConnectionMenu : MonoBehaviour
 
     Button connectButton;
     GameObject buttonObj;
+    TMP_Text btnText;
 
     public bool showGUI = true;
     private string state = "Not Connected";
-    public void SetState(string newState)
+    public void SetState(string newState, bool buttonActive)
     {
         state = newState;
+        
+        connectButton.interactable = buttonActive;
+        buttonObj.SetActive(buttonActive);
     }
     public void setVisable(bool visable)
     {
@@ -114,7 +118,7 @@ public class ConnectionMenu : MonoBehaviour
         btnRect.sizeDelta = new Vector2(160, 35);
         btnRect.anchoredPosition = new Vector2(0, -100);
 
-        TMP_Text btnText = CreateText("Connect", Vector2.zero, 18, buttonObj.transform);
+        btnText = CreateText("Connect", Vector2.zero, 18, buttonObj.transform);
         btnText.alignment = TextAlignmentOptions.Center;
 
         connectButton = buttonObj.GetComponent<Button>();
@@ -133,19 +137,17 @@ public class ConnectionMenu : MonoBehaviour
     private void OnConnectPressed()
     {
         Debug.Log("Connect pressed!");
+
         bool success = Plugin.Connect(ipField.text, passField.text, slotField.text);
         if (success)
         {
-            SetState("Connected!");
-            connectButton.interactable = false;
-            buttonObj.SetActive(false);
+            SetState("Connected", false);
         }
         else
         {
-            SetState("Connection Failed");
-            connectButton.interactable = true;
-            buttonObj.SetActive(true);
+            SetState("Connection Failed", true);
         }
+        
     }
 
     // --- Helpers ---

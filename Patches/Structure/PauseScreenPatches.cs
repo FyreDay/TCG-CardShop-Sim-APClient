@@ -12,6 +12,14 @@ namespace ApClient.Patches.Structure;
 [HarmonyPatch(typeof(PauseScreen))]
 public class PauseScreenPatches
 {
+    [HarmonyPatch("OnPressBackMenu")]
+    [HarmonyPostfix]
+    static void MainMenuPostfix()
+    {
+        Plugin.Disconnect();
+    }
+
+
     [HarmonyPatch("OpenSaveGameSlotScreen")]
     [HarmonyPrefix]
     static bool SavePrefix()

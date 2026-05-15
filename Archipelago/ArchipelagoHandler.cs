@@ -14,6 +14,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using static System.Collections.Specialized.BitVector32;
 
@@ -84,7 +85,7 @@ public class ArchipelagoHandler : MonoBehaviour
 
     
 
-    public async void DisconnectAsync()
+    public async Task DisconnectAsync()
     {
         if (Session == null)
             return;

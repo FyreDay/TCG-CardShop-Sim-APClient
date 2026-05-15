@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -134,10 +135,10 @@ public class Plugin : BaseUnityPlugin
         {
             ConnectionMenu.Instance.toggleVisability();
         }
-        if (Input.GetKeyDown(KeyCode.F7))
-        {
-            APLogicUtil.TriggerDeathlinkLogic();
-        }
+        //if (Input.GetKeyDown(KeyCode.F7))
+        //{
+        //    APLogicUtil.TriggerDeathlinkLogic();
+        //}
 
         // Toggle with hotkey
         if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
@@ -223,6 +224,16 @@ public class Plugin : BaseUnityPlugin
         }
         ConfigRef.Save();
         return false;
+    }
+
+    public static void Disconnect()
+    {
+        ArchipelagoHandler.DisconnectAsync().Wait();
+        ArchipelagoHandler = null;
+        SaveHandler.Save(Constants.SAVE_SLOT);
+        SaveHandler = null;
+        ConnectionMenu.Instance.setVisable(true);
+        ConnectionMenu.Instance.SetState("Not Connected", true);
     }
 
     public static void ClearSave()
