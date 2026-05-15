@@ -1,35 +1,46 @@
 ﻿
 namespace ApClient.UI;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using UnityEngine.EventSystems;
-using Mono.Cecil;
 using ApClient;
+using ApClient.ui;
+using Mono.Cecil;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ConnectionMenu : MonoBehaviour
 {
-    public static ConnectionMenu Instance;
-    private Canvas canvas;
-    private RectTransform window;
+    private static ConnectionMenu _instance;
+    public static ConnectionMenu Instance
+    {
+        get
+        {
+            if (_instance == null)
+                Create();
+            return _instance!;
+        }
+    }
 
-    private TMP_InputField ipField, passField, slotField;
-    private TMP_Text stateLabel;
+    private static Canvas canvas;
+    private static RectTransform window;
 
-    Button connectButton;
-    GameObject buttonObj;
-    TMP_Text btnText;
+    private static TMP_InputField ipField, passField, slotField;
+    private static TMP_Text stateLabel;
 
-    public bool showGUI = true;
-    private string state = "Not Connected";
-    public void SetState(string newState, bool buttonActive)
+    private static Button connectButton;
+    private static GameObject buttonObj;
+    private static TMP_Text btnText;
+
+    public static bool showGUI = true;
+    private static string state = "Not Connected";
+    public static void SetState(string newState, bool buttonActive)
     {
         state = newState;
         
         connectButton.interactable = buttonActive;
         buttonObj.SetActive(buttonActive);
     }
-    public void setVisable(bool visable)
+    public static void setVisable(bool visable)
     {
         showGUI = visable;
         if (window != null)
@@ -40,12 +51,21 @@ public class ConnectionMenu : MonoBehaviour
     {
         setVisable(!showGUI);
     }
-    void Start()
+
+    private static void Create()
     {
-        Instance = this;
+        Plugin.Logger.LogInfo("Creating Connection Menu UI...");
+        if (_instance != null)
+            return;
+
+        var connectionMenuObject = new GameObject("ConnectionMenu");
+        DontDestroyOnLoad(connectionMenuObject);
+        _instance = connectionMenuObject.AddComponent<ConnectionMenu>();
+
         // Create main Canvas
         GameObject cObj = new GameObject("ConnectionCanvas");
         canvas = cObj.AddComponent<Canvas>();
+        cObj.transform.SetParent(connectionMenuObject.transform, false);
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 2000;   // higher than the APInfo window
 
@@ -131,10 +151,15 @@ public class ConnectionMenu : MonoBehaviour
 
     void Update()
     {
-        stateLabel.text = state;
+        if (Input.GetKeyDown(Plugin.ConnectionHotKey.Value))
+        {
+            toggleVisability();
+        }
+        if (stateLabel != null)
+            stateLabel.text = state;
     }
 
-    private void OnConnectPressed()
+    private static void OnConnectPressed()
     {
         Debug.Log("Connect pressed!");
 
@@ -151,7 +176,7 @@ public class ConnectionMenu : MonoBehaviour
     }
 
     // --- Helpers ---
-    private TMP_Text CreateText(string text, Vector2 pos, int size, Transform parent)
+    private static TMP_Text CreateText(string text, Vector2 pos, int size, Transform parent)
     {
         GameObject obj = new GameObject(text, typeof(TextMeshProUGUI));
         obj.transform.SetParent(parent, false);
@@ -166,7 +191,7 @@ public class ConnectionMenu : MonoBehaviour
         return tmp;
     }
 
-    private TMP_Text CreateLabel(string text, Vector2 pos, Transform parent)
+    private static TMP_Text CreateLabel(string text, Vector2 pos, Transform parent)
     {
         TMP_Text tmp = CreateText(text, pos, 14, parent);
         tmp.color = new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -174,7 +199,7 @@ public class ConnectionMenu : MonoBehaviour
         return tmp;
     }
 
-    private TMP_InputField CreateInput(string initial, Vector2 pos, Transform parent)
+    private static TMP_InputField CreateInput(string initial, Vector2 pos, Transform parent)
     {
         GameObject inputObj = new GameObject("InputField", typeof(Image), typeof(TMP_InputField));
         inputObj.transform.SetParent(parent, false);

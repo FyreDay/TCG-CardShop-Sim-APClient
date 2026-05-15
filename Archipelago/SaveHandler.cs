@@ -99,7 +99,7 @@ public class SaveHandler
 
         newSave.foundCards.notfound = new();
 
-        for (int format = 0; format < (int)EGameEventFormat.MAX; format++)
+        for (int format = 0; format <= (int)EGameEventFormat.MAX; format++)
         {
             newSave.PlayedGames.Add((EGameEventFormat)format, 0);
         }

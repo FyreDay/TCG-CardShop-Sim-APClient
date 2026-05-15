@@ -13,6 +13,19 @@ namespace ApClient.Patches.Functionality.RestockScreen;
 
 public class InventoryBasePatches
 {
+    [HarmonyPatch(typeof(InventoryBase), "GetGameEventData")]
+    public class GameEventDataPatches
+    {
+        [HarmonyPostfix]
+        public static void PostFix(ref GameEventData __result, EGameEventFormat gameEventFormat)
+        {
+            if (!Plugin.ArchipelagoHandler.slotData.NoFormat)
+            {
+                __result.unlockPlayCountRequired = 0;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(InventoryBase), "Start")]
     public class StartPatches
     {

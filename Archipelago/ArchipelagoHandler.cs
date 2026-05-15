@@ -45,7 +45,7 @@ public class ArchipelagoHandler : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ConnectionMenu.Instance.SetState("Connnection Failed");
+            ConnectionMenu.SetState("Connnection Failed", true);
         }
 
         if (result.Successful)
@@ -57,7 +57,7 @@ public class ArchipelagoHandler : MonoBehaviour
             var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
             if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
             {
-                ConnectionMenu.Instance.SetState($"AP Requires Mod v{modversion}");
+                ConnectionMenu.SetState($"AP Requires Mod v{modversion}", false);
                 Session.Socket.DisconnectAsync();
                 return null;
             }
@@ -91,6 +91,8 @@ public class ArchipelagoHandler : MonoBehaviour
             return;
         await Session.Socket.DisconnectAsync();
         Session = null;
+        deathLinkService = null;
+        slotData = null;
         APConsole.Instance.Log("Disconnected from Archipelago");
     }
 
@@ -176,11 +178,9 @@ public class ArchipelagoHandler : MonoBehaviour
     private void OnSocketClosed(string reason)
     {
         StopAllCoroutines();
-        Plugin.ClearSave();
         //todo:go to main menu
         APConsole.Instance.Log($"Socket closed: {reason}");
-        ConnectionMenu.Instance.setVisable(true);
-        ConnectionMenu.Instance.SetState("Not Connected");
+        _ = Plugin.Disconnect();
     }
 
     private void OnHint(Hint[] hints)

@@ -21,8 +21,7 @@ public class APConsole : MonoBehaviour
     private Color BackColor = new Color(0, 0, 0, 0.8f);
 
     private const int MaxHistoryEntries = 1000;
-    private const KeyCode LogToggleKey = KeyCode.F7;
-    private const KeyCode HistoryToggleKey = KeyCode.F8;
+    
     private const CursorLockMode DefaultCursorMode = CursorLockMode.Locked;
     private const bool DefaultCursorVisible = false;
 
@@ -99,7 +98,7 @@ public class APConsole : MonoBehaviour
         if (Plugin.MessageOutTime != null) _instance._fadeOutTime = Plugin.MessageOutTime.Value;
 
         _instance.Log($"by FyreDay");
-        _instance.Log($"Press {LogToggleKey} to Toggle log & {HistoryToggleKey} to toggle history");
+        _instance.Log($"Press {Plugin.LogToggleKey.Value} to Toggle log & {Plugin.HistoryToggleKey.Value} to toggle history");
         foreach (var word in KeywordColors.Keys) _instance.DebugLog(word);
     }
 
@@ -108,8 +107,8 @@ public class APConsole : MonoBehaviour
         UpdateMessages(Time.deltaTime);
         TryAddNewMessages();
 
-        if (Input.GetKeyDown(KeyCode.F7)) ToggleConsole();
-        if (Input.GetKeyDown(KeyCode.F8)) ToggleHistory();
+        if (Input.GetKeyDown(Plugin.LogToggleKey.Value)) ToggleConsole();
+        if (Input.GetKeyDown(Plugin.HistoryToggleKey.Value)) ToggleHistory();
 
         if (_showHistory)
         {

@@ -16,7 +16,7 @@ public class PauseScreenPatches
     [HarmonyPostfix]
     static void MainMenuPostfix()
     {
-        Plugin.Disconnect();
+        _ = Plugin.Disconnect();
     }
 
 

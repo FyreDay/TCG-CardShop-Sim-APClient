@@ -14,7 +14,8 @@ public class SetPlayEventPatches
         [HarmonyPostfix]
         static void Postfix(SetGameEventFormatScreen __instance, EGameEventFormat gameEventFormat)
         {
-            if (Plugin.ArchipelagoHandler.GetItemCount(PlayTableMapping.FormatStartingId + (int)gameEventFormat) == 0)
+            if (!Plugin.ArchipelagoHandler.slotData.NoFormat &&
+                Plugin.ArchipelagoHandler.GetItemCount(PlayTableMapping.FormatStartingId + (int)gameEventFormat) == 0)
             {
                 __instance.m_PlayCountRequired.text = "AP Item Not Found";
                 __instance.m_LockedGrp.SetActive(value: true);

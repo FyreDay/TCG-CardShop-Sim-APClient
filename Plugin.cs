@@ -38,6 +38,8 @@ public class Plugin : BaseUnityPlugin
     public static ConfigEntry<float> MessageOutTime;
     public static ConfigEntry<bool> EnableDebugLogging;
     public static ConfigEntry<KeyCode> ConnectionHotKey;
+    public static ConfigEntry<KeyCode> LogToggleKey;
+    public static ConfigEntry<KeyCode> HistoryToggleKey;
     //public static ConfigEntry<KeyCode> ConsoleHotkey;
     public static ConfigEntry<bool> doDeathlink;
     public static ConfigEntry<string> LastUsedIP;
@@ -68,18 +70,13 @@ public class Plugin : BaseUnityPlugin
 
     void Start()
     {
-        //APConsole.Create();
-
-        GameObject ui = new GameObject("ConnectionMenu");
-        ConnectionMenu menu = ui.AddComponent<ConnectionMenu>();
-        DontDestroyOnLoad(ui);
-
         //asset bundle
         string assetsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets");
         string bundlePath = Path.Combine(assetsFolder, "apinfoui"); // Make sure "myAssetBundle" is the correct file name
         // Load the asset bundle
         myAssetBundle = AssetBundle.LoadFromFile(bundlePath);
 
+        _ = ConnectionMenu.Instance;
     }
 
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
@@ -131,10 +128,6 @@ public class Plugin : BaseUnityPlugin
 
     private void Update()
     {
-        if (Input.GetKeyDown(ConnectionHotKey.Value))
-        {
-            ConnectionMenu.Instance.toggleVisability();
-        }
         //if (Input.GetKeyDown(KeyCode.F7))
         //{
         //    APLogicUtil.TriggerDeathlinkLogic();
@@ -196,15 +189,21 @@ public class Plugin : BaseUnityPlugin
         ConnectionHotKey = Config.Bind(
             "Hotkeys",
             "Toggle Connection Window",
-            KeyCode.F8, // Default key
+            KeyCode.F6, // Default key
             "Press this key to toggle AP Connection GUI"
         );
-        //ConsoleHotkey = Config.Bind(
-        //    "2. Hotkeys",
-        //    "Toggle AP Console",
-        //    KeyCode.F9, // Default key
-        //    "Press this key to toggle AP Console Output"
-        //);
+        LogToggleKey = Config.Bind(
+            "Hotkeys",
+            "Toggle AP Console",
+            KeyCode.F7, // Default key
+            "Press this key to toggle AP Console Output"
+        );
+        HistoryToggleKey = Config.Bind(
+            "Hotkeys",
+            "Toggle AP Console History",
+            KeyCode.F8, // Default key
+            "Press this key to toggle AP Console History"
+        );
         LastUsedIP = Config.Bind("Connection", "LastUsedIP", "", "The last server IP entered.");
         LastUsedPassword = Config.Bind("Connection", "LastUsedPassword", "", "The last server password entered.");
         LastUsedSlot = Config.Bind("Connection", "LastUsedSlot", "", "The last player slot name entered.");
@@ -226,14 +225,23 @@ public class Plugin : BaseUnityPlugin
         return false;
     }
 
-    public static void Disconnect()
+    public static async Task Disconnect()
     {
-        ArchipelagoHandler.DisconnectAsync().Wait();
-        ArchipelagoHandler = null;
+        if (ArchipelagoHandler != null)
+        {
+            try
+            {
+                await ArchipelagoHandler.DisconnectAsync();
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogWarning($"Disconnect error: {ex}");
+            }
+        }
         SaveHandler.Save(Constants.SAVE_SLOT);
         SaveHandler = null;
-        ConnectionMenu.Instance.setVisable(true);
-        ConnectionMenu.Instance.SetState("Not Connected", true);
+        ConnectionMenu.setVisable(true);
+        ConnectionMenu.SetState("Not Connected", true);
     }
 
     public static void ClearSave()
@@ -261,7 +269,7 @@ public class Plugin : BaseUnityPlugin
     private void OnDestroy()
     {
         Plugin.Logger.LogInfo("WHAT IS HAPPENING AHHHHHHHHHHA");
-        ArchipelagoHandler.DisconnectAsync();
+        _ = ArchipelagoHandler.DisconnectAsync();
         this.Harmony.UnpatchSelf();
     }
 }

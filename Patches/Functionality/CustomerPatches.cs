@@ -116,14 +116,14 @@ public class CustomerPatches
         {
             if (totalPlayTime > 0f)
             {
-
-                int checknum = ++Plugin.SaveHandler.GetSaveData().PlayedGames[CPlayerData.m_GameEventFormat];
+                EGameEventFormat format = Plugin.ArchipelagoHandler.slotData.NoFormat ? EGameEventFormat.MAX : CPlayerData.m_GameEventFormat;
+                int checknum = (++Plugin.SaveHandler.GetSaveData().PlayedGames[format])/2;
 
                 if (checknum != -1 && checknum <= Plugin.ArchipelagoHandler.slotData.PlayTableChecks)
                 {
-                    int formatId = Plugin.ArchipelagoHandler.slotData.NoFormat ? 12 : (int)CPlayerData.m_GameEventFormat;
-                    Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + (formatId * 15) + checknum - 1);
-                    UIInfoPanel.getInstance().UpdateFormatCount(CPlayerData.m_GameEventFormat, checknum);
+                    
+                    Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + ((int)format * 15) + checknum - 1);
+                    UIInfoPanel.getInstance().UpdateFormatCount(format, checknum);
                 }
             }
         }
