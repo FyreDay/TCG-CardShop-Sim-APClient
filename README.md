@@ -22,6 +22,6 @@ This is a visual studio project
 4. Rename the copy to ProjectSettings.props
 5. Update the path in ProjectSettings.props to be the TCG Card Shop SImulator Root folder
 
-Done! build as you wish
+Done! build with dotnet build
 
 
