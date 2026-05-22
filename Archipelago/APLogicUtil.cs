@@ -23,6 +23,10 @@ public class APLogicUtil
         {
             maxLevel+=5;
         }
+        if (maxLevel >= Plugin.ArchipelagoHandler.slotData.MaxLevel && GetRemainingLicenses(Plugin.ArchipelagoHandler.slotData.MaxLevel) <= 0)
+        {
+            return 1000;
+        }
         return maxLevel;
     }
     public static int GetRemainingLicenses(int nextLevel5)
@@ -83,12 +87,30 @@ public class APLogicUtil
     public static bool hasAllCardPacks()
     {
         return ((Plugin.ArchipelagoHandler.GetItemCount(190) > 0 || Plugin.ArchipelagoHandler.GetItemCount(1) > 0) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 2 || Plugin.ArchipelagoHandler.GetItemCount(1) > 3) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 4 || Plugin.ArchipelagoHandler.GetItemCount(1) > 5) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 6 || Plugin.ArchipelagoHandler.GetItemCount(1) > 7) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 8 || Plugin.ArchipelagoHandler.GetItemCount(1) > 9) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 10 || Plugin.ArchipelagoHandler.GetItemCount(1) > 11) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 12 || Plugin.ArchipelagoHandler.GetItemCount(1) > 13) &&
-            (Plugin.ArchipelagoHandler.GetItemCount(190) > 14 || Plugin.ArchipelagoHandler.GetItemCount(1) > 15));
+            (Plugin.ArchipelagoHandler.GetItemCount(2) > 0 || Plugin.ArchipelagoHandler.GetItemCount(3) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(4) > 0 || Plugin.ArchipelagoHandler.GetItemCount(5) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(6) > 0 || Plugin.ArchipelagoHandler.GetItemCount(7) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(8) > 0 || Plugin.ArchipelagoHandler.GetItemCount(9) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(10) > 0 || Plugin.ArchipelagoHandler.GetItemCount(11) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(12) > 0 || Plugin.ArchipelagoHandler.GetItemCount(13) > 0) &&
+            (Plugin.ArchipelagoHandler.GetItemCount(14) > 0 || Plugin.ArchipelagoHandler.GetItemCount(15) > 0));
+    }
+
+    public static List<EItemType> GetAllAvailableItems()
+    {
+        List<EItemType> items = new List<EItemType>();
+        if (Plugin.ArchipelagoHandler.GetItemCount(190) > 0)
+        {
+            items.Add(EItemType.BasicCardPack);
+        }
+        for (int i = 1; i < (int)EItemType.Max; i++)
+        {
+            if(Plugin.ArchipelagoHandler.GetItemCount(i) > 0)
+            {
+                items.Add((EItemType)i);
+            }
+        }
+
+        return items;
     }
 }

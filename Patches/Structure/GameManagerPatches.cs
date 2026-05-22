@@ -16,7 +16,6 @@ public class CGameManagerPatches
     [HarmonyPostfix]
     static void PostFix()
     {
-        Plugin.Logger.LogInfo("start game m loading");
         if (CPlayerData.m_HasFinishedTutorial)
         {
             CPlayerData.m_TutorialIndex = 16;
@@ -24,8 +23,6 @@ public class CGameManagerPatches
             CSingleton<TutorialManager>.Instance.gameObject.SetActive(value: false);
 
         }
-
-        Plugin.Logger.LogInfo("end game m loading");
     }
 
 }
@@ -36,7 +33,6 @@ public class ControllerPatches
     [HarmonyPostfix]
     static void OnFinishPostFix(CEventPlayer_FinishHideLoadingScreen evt)
     {
-        Plugin.Logger.LogInfo("hide loading");
         if (CPlayerData.m_HasFinishedTutorial)
         {
             Plugin.SetSceneLoaded();
@@ -45,7 +41,6 @@ public class ControllerPatches
         {
             Plugin.SaveHandler.HandleNewGame();
         }
-        Plugin.Logger.LogInfo("finsih hide loading");
     }
 }
 
@@ -83,7 +78,8 @@ public class GameUIScreenPatches
         int licenses_required = APLogicUtil.GetRemainingLicenses(nextlevel);
         if (licenses_required > 0 && CPlayerData.m_ShopLevel + 2 == nextlevel)
         {
-            LevelLocked.text = $"Level Locked. Find {licenses_required} more Licenses to levelup";
+            var plural = licenses_required > 1 ? "s" : "";
+            LevelLocked.text = $"Level Locked. Find {licenses_required} more License{plural} to levelup";
         }
         else
         {

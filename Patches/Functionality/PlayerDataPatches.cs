@@ -104,13 +104,17 @@ public class PlayerDataPatches
         }
     }
 
-
+    public static bool stopCountingCard = false;
     [HarmonyPatch(typeof(CPlayerData), "AddCard")]
     class AddCard
     {
         [HarmonyPrefix]
         static void Prefix(CardData cardData, int addAmount)
         {
+            if (stopCountingCard)
+            {
+                return;
+            }
             if (cardData.cardGrade > 0)
             {
                 Plugin.SaveHandler.AddCard(cardData, Constants.GRADE_ACHIEVEMENT_TYPE);

@@ -339,6 +339,9 @@ public class UIInfoPanel : MonoBehaviour
         Plugin.Logger.LogInfo($"Update format {packType} count to {count}");
         switch (packType)
         {
+            case EGameEventFormat.MAX:
+                StandardCount.text = $"{count}";
+                break;
             case EGameEventFormat.Standard:
                 StandardCount.text = $"{count}";
                 break;

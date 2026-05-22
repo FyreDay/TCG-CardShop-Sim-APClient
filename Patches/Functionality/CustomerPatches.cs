@@ -92,6 +92,59 @@ public class CustomerPatches
         }
     }
 
+    [HarmonyPatch(typeof(CustomerManager), "EvaluateTargetBuyItemList")]
+    public static class TargetBuyList
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(Customer __instance)
+        {
+            if (CPlayerData.m_CurrentDay % 7 != 0 && __instance.m_TargetBuyItemList.Count != 0)
+            {
+                return false;
+            }
+            __instance.m_TargetBuyItemList.Clear();
+
+            int num = 2 + (CPlayerData.m_ShopLevel + 1) / 10;
+            if (num > 8)
+            {
+                num = 8;
+            }
+
+            List<EItemType> itemTypeListOnShelf = ShelfManager.GetItemTypeListOnShelf();
+            for (int i = 0; i < itemTypeListOnShelf.Count; i++)
+            {
+                if (itemTypeListOnShelf.Count <= 0)
+                {
+                    break;
+                }
+
+                int index = UnityEngine.Random.Range(0, itemTypeListOnShelf.Count);
+                __instance.m_TargetBuyItemList.Add(itemTypeListOnShelf[index]);
+                itemTypeListOnShelf.RemoveAt(index);
+                if (__instance.m_TargetBuyItemList.Count >= num)
+                {
+                    break;
+                }
+            }
+            if (Plugin.IsGameReady())
+            {
+                List<EItemType> unlockedAP = Archipelago.APLogicUtil.GetAllAvailableItems();
+                for (int j = 0; j < unlockedAP.Count; j++)
+                {
+                    int index2 = UnityEngine.Random.Range(0, unlockedAP.Count);
+                    __instance.m_TargetBuyItemList.Add(unlockedAP[index2]);
+                    unlockedAP.RemoveAt(index2);
+                    if (__instance.m_TargetBuyItemList.Count >= num + num / 2)
+                    {
+                        break;
+                    }
+                }
+            }
+            CPlayerData.m_TargetBuyItemList = __instance.m_TargetBuyItemList;
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(Customer), "ActivateCustomer")]
     public static class Activate
     {
@@ -190,6 +243,7 @@ public class CustomerPatches
 
             bool active = CPlayerData.GetCardAmount(__instance.m_CardData_L) == 0;
             __instance.m_IsNewUI.SetActive(active);
+            //problem line
             __instance.m_CardUI_L.SetCardUI(__instance.m_CardData_L);
             __instance.m_CardUI_Album_L.SetCardUI(__instance.m_CardData_L);
             __instance.m_AlbumCardCount_L.text = "X" + CPlayerData.GetCardAmount(__instance.m_CardData_L);
@@ -299,7 +353,7 @@ public class CustomerPatches
                         flag = !flag;
                     }
 
-                    for (; !flag2 || k >= 100000; k++)
+                    for (; !flag2 || k < 100000; k++)
                     {
                         num2 = UnityEngine.Random.Range(0, maxExclusive);
                         __instance.m_CardData_R = CPlayerData.GetCardData(num2, eCardExpansionType, flag);
@@ -317,7 +371,29 @@ public class CustomerPatches
                 __instance.m_CardData_R = customerTradeData.m_CardData_R;
             }
 
-            if (flag2)
+
+            if (__instance.m_CardData_R == null)
+            {
+                Plugin.Logger.LogWarning("No valid trade card found. Falling back to money purchase.");
+
+                __instance.m_IsTrading = false;
+
+                __instance.m_CustomerTradingText.SetActive(false);
+                __instance.m_CustomerSellingText.SetActive(true);
+
+                __instance.m_TradeGrp_R.SetActive(false);
+                __instance.m_SellGrp_R.SetActive(true);
+
+                num3 = CPlayerData.GetCardMarketPrice(__instance.m_CardData_L);
+
+                __instance.m_MarketPrice_L.text =
+                    LocalizationManager.GetTranslation("Market Price") +
+                    " : " +
+                    GameInstance.GetPriceString(num3);
+
+                return false;
+            }
+            if (flag2 && __instance.m_CardData_R != null)
             {
                 __instance.m_CardUI_R.SetCardUI(__instance.m_CardData_R);
                 __instance.m_CardUI_Album.SetCardUI(__instance.m_CardData_R);
