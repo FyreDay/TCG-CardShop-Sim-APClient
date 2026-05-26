@@ -71,7 +71,7 @@ public class SlotData
         PlayTableChecks = int.Parse(slotDict.GetValueOrDefault("PlayTableChecks").ToString());
 
         Deathlink = slotDict.GetValueOrDefault("Deathlink").ToString() == "1";
-        Deathlink = slotDict.GetValueOrDefault("NoFormat").ToString() == "1";
+        NoFormat = slotDict.GetValueOrDefault("NoFormat").ToString() == "1";
         CardSanity = int.Parse(slotDict.GetValueOrDefault("CardSanity").ToString());
 
         pg1IndexMapping = PgStrToDict(slotDict.GetValueOrDefault("ShopPg1Mapping").ToString());
