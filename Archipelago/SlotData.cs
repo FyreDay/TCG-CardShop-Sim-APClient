@@ -47,9 +47,20 @@ public class SlotData
         CollectionGoalPercent = int.Parse(slotDict.GetValueOrDefault("CollectionGoalPercent").ToString());
         GhostGoalAmount = int.Parse(slotDict.GetValueOrDefault("GhostGoalAmount").ToString());
 
-        OpenAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(slotDict.GetValueOrDefault("OpenAchievements").ToString());
-        SellAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(slotDict.GetValueOrDefault("SellAchievements").ToString());
-        GradeAchievementData = JsonConvert.DeserializeObject<List<AchievementData>>(slotDict.GetValueOrDefault("GradeAchievements").ToString());
+        var openJson = slotDict.GetValueOrDefault("OpenAchievements")?.ToString();
+        OpenAchievementData = string.IsNullOrEmpty(openJson)
+            ? new List<AchievementData>()
+            : JsonConvert.DeserializeObject<List<AchievementData>>(openJson);
+
+        var sellJson = slotDict.GetValueOrDefault("SellAchievements")?.ToString();
+        SellAchievementData = string.IsNullOrEmpty(sellJson)
+            ? new List<AchievementData>()
+            : JsonConvert.DeserializeObject<List<AchievementData>>(sellJson);
+
+        var gradeJson = slotDict.GetValueOrDefault("GradeAchievements")?.ToString();
+        GradeAchievementData = string.IsNullOrEmpty(gradeJson)
+            ? new List<AchievementData>()
+            : JsonConvert.DeserializeObject<List<AchievementData>>(gradeJson);
 
         AutoRenovate = slotDict.GetValueOrDefault("AutoRenovate").ToString() == "1";
         ExtraStartingItemChecks = int.Parse(slotDict.GetValueOrDefault("ExtraStartingItemChecks").ToString());

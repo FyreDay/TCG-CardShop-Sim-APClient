@@ -111,6 +111,7 @@ public class Plugin : BaseUnityPlugin
             myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.GetAchievementHandler().achievementsByType);
 
         UIInfoPanel.getInstance().setVisable(false);
+        ConnectionMenu.setVisable(false);
         SaveHandler.UpdateSanityUI();
         ItemHandler.FlushQueue();
         Logger.LogInfo("Finish AP scene load");
@@ -189,7 +190,7 @@ public class Plugin : BaseUnityPlugin
         ConnectionHotKey = Config.Bind(
             "Hotkeys",
             "Toggle Connection Window",
-            KeyCode.F6, // Default key
+            KeyCode.F8, // Default key
             "Press this key to toggle AP Connection GUI"
         );
         LogToggleKey = Config.Bind(
@@ -201,7 +202,7 @@ public class Plugin : BaseUnityPlugin
         HistoryToggleKey = Config.Bind(
             "Hotkeys",
             "Toggle AP Console History",
-            KeyCode.F8, // Default key
+            KeyCode.F6, // Default key
             "Press this key to toggle AP Console History"
         );
         LastUsedIP = Config.Bind("Connection", "LastUsedIP", "", "The last server IP entered.");

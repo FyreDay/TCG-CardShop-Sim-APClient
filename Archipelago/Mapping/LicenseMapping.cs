@@ -15,7 +15,9 @@ public class LicenseMapping
         int baseAmount = Plugin.ArchipelagoHandler.slotData.SellCheckAmount;
         int startingAmount = Plugin.ArchipelagoHandler.slotData.startingItems.Contains(id) ? Plugin.ArchipelagoHandler.slotData.ExtraStartingItemChecks : 0;
         var list = new List<(int id, int count)>();
+
         int amountInBox = InventoryBase.GetRestockDataUsingItemType(type).OrderBy(x => x.amount).FirstOrDefault().amount;
+        Plugin.Logger.LogInfo($"Amount in box for {type}: {amountInBox}");
         for (int i = 1; i <= baseAmount + startingAmount; i++)
         {
             list.Add((SELL_CHECK_START_ID + (id * 16) + (i - 1), amountInBox * i));

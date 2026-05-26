@@ -43,6 +43,7 @@ public class ControllerPatches
         }
         else
         {
+            Plugin.Logger.LogInfo("call handle new game");
             Plugin.SaveHandler.HandleNewGame();
         }
         Plugin.Logger.LogInfo("finsih hide loading");

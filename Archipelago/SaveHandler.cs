@@ -43,6 +43,10 @@ public class APSaveData
         ProcessedIndex = 0;
         Luck = 0;
         StoredXP = 0;
+        foundCards = new FoundCards();
+        GhostCardsSold = 0;
+        numLicensesOwned = 0;
+        CustomerMoneyMult = 0;
     }
 }
 public class SaveHandler
@@ -85,7 +89,7 @@ public class SaveHandler
     public void HandleNewGame()
     {
         var newSave = new APSaveData();
-        newSave.foundCards = new FoundCards();
+        
 
         for (int packType = 0; packType < (int)ECollectionPackType.MAX; packType++)
         {
@@ -282,23 +286,39 @@ public class SaveHandler
     {
         System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/APSaves/");
         CSaveLoad.m_SavedGame = CGameData.instance;
-
-        string unityJson = JsonUtility.ToJson(CGameData.instance, true);
-
-        var combined = new CombinedSaveWrapper
-        {
-            UnityGameData = unityJson,
-            ModData = saveData
-        };
+        string finalPath = getJsonSavePath();
+        string tempPath = finalPath + ".tmp";
 
         try
         {
+            string unityJson = JsonUtility.ToJson(CGameData.instance, true);
+
+            var combined = new CombinedSaveWrapper
+            {
+                UnityGameData = unityJson,
+                ModData = saveData
+            };
+
             string combinedJson = JsonConvert.SerializeObject(combined, Formatting.Indented);
-            File.WriteAllText(getJsonSavePath(), combinedJson);
+            File.WriteAllText(tempPath, combinedJson);
+
+            FileInfo fi = new FileInfo(tempPath);
+            using (var fs = fi.Open(FileMode.Open))
+            {
+                fs.Flush(true);
+            }
+            if (File.Exists(finalPath))
+                File.Replace(tempPath, finalPath, null);
+            else
+                File.Move(tempPath, finalPath);
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogError("Error saving combined JSON: " + ex);
+            Plugin.Logger.LogError("Save failed: " + ex);
+
+            // cleanup bad temp file
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
         }
     }
 
@@ -321,13 +341,7 @@ public class SaveHandler
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(combined.UnityGameData))
-            {
-                Plugin.Logger.LogInfo("gamedata");
-                CGameData gameData = JsonUtility.FromJson<CGameData>(combined.UnityGameData);
-                CSaveLoad.m_SavedGame = gameData;
-                Plugin.Logger.LogInfo("gamedata done");
-            }
+            
 
             if (combined.ModData != null)
             {
@@ -340,6 +354,13 @@ public class SaveHandler
                 Plugin.Logger.LogInfo("moddata done");
             }
             Plugin.Logger.LogInfo("Completed AP Save Load");
+            if (!string.IsNullOrEmpty(combined.UnityGameData))
+            {
+                Plugin.Logger.LogInfo("gamedata");
+                CGameData gameData = JsonUtility.FromJson<CGameData>(combined.UnityGameData);
+                CSaveLoad.m_SavedGame = gameData;
+                Plugin.Logger.LogInfo("gamedata done");
+            }
             return true;
         }
         catch
