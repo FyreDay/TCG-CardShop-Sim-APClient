@@ -74,7 +74,7 @@ public class ItemHandler : MonoBehaviour
             Plugin.SaveHandler.Save(Constants.SAVE_SLOT);
     }
 
-
+    
     private void ProcessItem(int index, ItemInfo item)
     {
         if (index < Plugin.SaveHandler.GetSaveData().ProcessedIndex)
@@ -192,8 +192,13 @@ public class ItemHandler : MonoBehaviour
                 case GenericItemMapping.ONE_GHOST_CARD:
                     addRandomGhosts(1);
                     return;
-
             }
+
+            if((int)PlayTableMapping.GetFormatFromInt((int)item.ItemId) != -1)
+            {
+                UIInfoPanel.getInstance().UpdateFormatAvailability(PlayTableMapping.GetFormatFromInt((int)item.ItemId));
+            }
+
 
             if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
             {
@@ -260,6 +265,11 @@ public class ItemHandler : MonoBehaviour
                 {
                     screen.Init();
 
+                }
+                
+                if (FurnatureMapping.getIdFromType(EObjectType.CardShelf) == item.ItemId)
+                {
+                    Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
                 }
                 return;
             }

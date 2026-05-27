@@ -137,11 +137,6 @@ public class SaveHandler
 
         saveData = newSave;
         achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
-
-        for (int packtype = 0; packtype < (int)ECollectionPackType.MAX; packtype++)
-        {
-            UIInfoPanel.getInstance().UpdateCardCollection((ECollectionPackType)packtype, 0);
-        }
     }
 
     private bool trackFoils(bool foil, int cardSanity)

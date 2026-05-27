@@ -1,14 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
-using System;
-using ApClient;
-using ApClient.ui;
-using System.Linq;
-using UnityEngine.UI;
-using ApClient.data;
+﻿using ApClient;
 using ApClient.Archipelago;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
 
 public class UIInfoPanel : MonoBehaviour
 {
@@ -61,6 +60,7 @@ public class UIInfoPanel : MonoBehaviour
                 case "Destiny Epic Count": Instance.destinyEpicCount = tmp; break;
                 case "Destiny Legendary Count": Instance.destinyLegendaryCount = tmp; break;
 
+                case "Generic Count": Instance.GenericCount = tmp; break;
                 case "Standard Count": Instance.StandardCount = tmp; break;
                 case "Pauper Count": Instance.PauperCount = tmp; break;
                 case "Fire Count": Instance.FireCount = tmp; break;
@@ -73,6 +73,20 @@ public class UIInfoPanel : MonoBehaviour
                 case "EX Count": Instance.EXCount = tmp; break;
                 case "Full Art Count": Instance.FullArtCount = tmp; break;
                 case "Foil Count": Instance.FoilCount = tmp; break;
+
+                case "Generic Total": Instance.GenericTotal = tmp; break;
+                case "Standard Total": Instance.StandardTotal = tmp; break;
+                case "Pauper Total": Instance.PauperTotal = tmp; break;
+                case "Fire Total": Instance.FireTotal = tmp; break;
+                case "Earth Total": Instance.EarthTotal = tmp; break;
+                case "Water Total": Instance.WaterTotal = tmp; break;
+                case "Wind Total": Instance.WindTotal = tmp; break;
+                case "1st Ed Total": Instance.FirstEdTotal = tmp; break;
+                case "Silver Total": Instance.SilverTotal = tmp; break;
+                case "Gold Total": Instance.GoldTotal = tmp; break;
+                case "EX Total": Instance.EXTotal = tmp; break;
+                case "Full Art Total": Instance.FullArtTotal = tmp; break;
+                case "Foil Total": Instance.FoilTotal = tmp; break;
 
                 case "Basic Total": 
                     Instance.basicCountTotal = tmp;
@@ -121,6 +135,32 @@ public class UIInfoPanel : MonoBehaviour
             }
         }
 
+        Plugin.Logger.LogInfo($"find button listeners");
+        foreach (var panel in apinfoobject.GetComponentsInChildren<Image>(true))
+        {
+            switch (panel.name)
+            {
+                case "Generic Panel": Instance.GenericImage = panel; break;
+                case "Standard Panel": Instance.StandardImage = panel; break;
+                case "Pauper Panel": Instance.PauperImage = panel; break;
+                case "Fire Panel": Instance.FireImage = panel; break;
+                case "Earth Panel": Instance.EarthImage = panel; break;
+                case "Water Panel": Instance.WaterImage = panel; break;
+                case "Wind Panel": Instance.WindImage = panel; break;
+                case "1st Ed Panel": Instance.FirstEdImage = panel; break;
+                case "Silver Panel": Instance.SilverImage = panel; break;
+                case "Gold Panel": Instance.GoldImage = panel; break;
+                case "EX Panel": Instance.EXImage = panel; break;
+                case "Full Art Panel": Instance.FullArtImage = panel; break;
+                case "Foil Panel": Instance.FoilImage = panel; break;
+            }
+        }
+        Plugin.Logger.LogInfo($"Set button listeners");
+        Plugin.Logger.LogInfo($"Set button listeners {Instance.GenericImage != null}");
+        Plugin.Logger.LogInfo($"Set button listeners {Instance.StandardImage != null}");
+        Plugin.Logger.LogInfo($"Set button listeners {Instance.PauperImage != null}");
+        Plugin.Logger.LogInfo($"Set button listeners {Instance.FireImage != null}");
+
         Instance.cardOpenButton.onClick.AddListener(() => {
             Instance.UpdateAchievementList(Instance.cardOpenItems);
             Instance.currentCardItems = Instance.cardOpenItems;
@@ -148,6 +188,18 @@ public class UIInfoPanel : MonoBehaviour
 
         Instance.GhostGoalUI = apinfoobject.GetComponentsInChildren<Transform>(true)
             .FirstOrDefault(t => t.name == "GhostGoal");
+
+        Instance.GenericEventGroup = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "Generic Group");
+
+        Instance.Formats1 = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "Formats1");
+
+        Instance.Formats2 = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "Formats2");
+
+        Instance.Formats3 = apinfoobject.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(t => t.name == "Formats3");
 
         switch(Plugin.ArchipelagoHandler.slotData.Goal)
         {
@@ -199,6 +251,11 @@ public class UIInfoPanel : MonoBehaviour
 
         Instance.UpdateProductList(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var sr = apinfoobject.GetComponentInChildren<ScrollRect>(true);
+
+        for (int packtype = 0; packtype < (int)ECollectionPackType.MAX; packtype++)
+        {
+            Instance.UpdateCardCollection((ECollectionPackType)packtype, 0);
+        }
     }
 
     public static UIInfoPanel getInstance()
@@ -243,6 +300,26 @@ public class UIInfoPanel : MonoBehaviour
     public TextMeshProUGUI destinyEpicCount;
     public TextMeshProUGUI destinyLegendaryCount;
 
+    public Transform GenericEventGroup;
+    public Transform Formats1;
+    public Transform Formats2;
+    public Transform Formats3;
+
+    public Image GenericImage;
+    public Image StandardImage;
+    public Image PauperImage;
+    public Image FireImage;
+    public Image EarthImage;
+    public Image WaterImage;
+    public Image WindImage;
+    public Image FirstEdImage;
+    public Image SilverImage;
+    public Image GoldImage;
+    public Image EXImage;
+    public Image FullArtImage;
+    public Image FoilImage;
+
+    public TextMeshProUGUI GenericCount;
     public TextMeshProUGUI StandardCount;
     public TextMeshProUGUI PauperCount;
     public TextMeshProUGUI FireCount;
@@ -255,6 +332,20 @@ public class UIInfoPanel : MonoBehaviour
     public TextMeshProUGUI EXCount;
     public TextMeshProUGUI FullArtCount;
     public TextMeshProUGUI FoilCount;
+
+    public TextMeshProUGUI GenericTotal;
+    public TextMeshProUGUI StandardTotal;
+    public TextMeshProUGUI PauperTotal;
+    public TextMeshProUGUI FireTotal;
+    public TextMeshProUGUI EarthTotal;
+    public TextMeshProUGUI WaterTotal;
+    public TextMeshProUGUI WindTotal;
+    public TextMeshProUGUI FirstEdTotal;
+    public TextMeshProUGUI SilverTotal;
+    public TextMeshProUGUI GoldTotal;
+    public TextMeshProUGUI EXTotal;
+    public TextMeshProUGUI FullArtTotal;
+    public TextMeshProUGUI FoilTotal;
 
     public TextMeshProUGUI basicCountTotal;
     public TextMeshProUGUI rareCountTotal;
@@ -334,13 +425,107 @@ public class UIInfoPanel : MonoBehaviour
         licensesText.text = $"{value}";
     }
 
+    public void InitializeEventGames(bool allevents,int total)
+    {
+        Plugin.Logger.LogInfo($"generic: {GenericImage != null}");
+        GenericImage.color = Color.red.AlphaMultiplied(0.4f);
+        StandardImage.color = Color.red.AlphaMultiplied(0.4f);
+        PauperImage.color = Color.red.AlphaMultiplied(0.4f);
+        FireImage.color = Color.red.AlphaMultiplied(0.4f);
+        EarthImage.color = Color.red.AlphaMultiplied(0.4f);
+        WaterImage.color = Color.red.AlphaMultiplied(0.4f);
+        WindImage.color = Color.red.AlphaMultiplied(0.4f);
+        FirstEdImage.color = Color.red.AlphaMultiplied(0.4f);
+        SilverImage.color = Color.red.AlphaMultiplied(0.4f);
+        GoldImage.color = Color.red.AlphaMultiplied(0.4f);
+        EXImage.color = Color.red.AlphaMultiplied(0.4f);
+        FullArtImage.color = Color.red.AlphaMultiplied(0.4f);
+        FoilImage.color = Color.red.AlphaMultiplied(0.4f);
+
+        if (allevents)
+        {
+            Plugin.Logger.LogInfo($"generic 2: {GenericEventGroup.gameObject != null}");
+            GenericEventGroup.gameObject.SetActive(false);
+            Plugin.Logger.LogInfo($"standartd: {StandardTotal != null}");
+            StandardTotal.text = $"{total}";
+            PauperTotal.text = $"{total}";
+            FireTotal.text = $"{total}";
+            EarthTotal.text = $"{total}";
+            WaterTotal.text = $"{total}";
+            WindTotal.text = $"{total}";
+            FirstEdTotal.text = $"{total}";
+            SilverTotal.text = $"{total}";
+            GoldTotal.text = $"{total}";
+            EXTotal.text = $"{total}";
+            FullArtTotal.text = $"{total}";
+            FoilTotal.text = $"{total}";
+        }
+        else
+        {
+            Plugin.Logger.LogInfo($"formats: {Formats1.gameObject != null}");
+            Formats1.gameObject.SetActive(false);
+            Formats2.gameObject.SetActive(false);
+            Formats3.gameObject.SetActive(false);
+            Plugin.Logger.LogInfo($"total: {GenericTotal != null}");
+            GenericTotal.text = $"{total}";
+        }
+    }
+
+    public void UpdateFormatAvailability(EGameEventFormat packType)
+    {
+        Color c = new(0x2A, 0x2A, 0x8E, 0.4f);
+        switch (packType)
+        {
+            
+            case EGameEventFormat.MAX:
+                GenericImage.color = c;
+                break;
+            case EGameEventFormat.Standard:
+                StandardImage.color = c;
+                break;
+            case EGameEventFormat.Pauper:
+                PauperImage.color = c;
+                break;
+            case EGameEventFormat.FireCup:
+                FireImage.color = c;
+                break;
+            case EGameEventFormat.EarthCup:
+                EarthImage.color = c;
+                break;
+            case EGameEventFormat.WaterCup:
+                WaterImage.color = c;
+                break;
+            case EGameEventFormat.WindCup:
+                WindImage.color = c;
+                break;
+            case EGameEventFormat.FirstEditionVintage:
+                FirstEdImage.color = c;
+                break;
+            case EGameEventFormat.SilverBorder:
+                SilverImage.color = c;
+                break;
+            case EGameEventFormat.GoldBorder:
+                GoldImage.color = c;
+                break;
+            case EGameEventFormat.ExBorder:
+                EXImage.color = c;
+                break;
+            case EGameEventFormat.FullArtBorder:
+                FullArtImage.color = c;
+                break;
+            case EGameEventFormat.Foil:
+                FoilImage.color = c;
+                break;
+        }
+    }
+
     public void UpdateFormatCount(EGameEventFormat packType, int count)
     {
         Plugin.Logger.LogInfo($"Update format {packType} count to {count}");
         switch (packType)
         {
             case EGameEventFormat.MAX:
-                StandardCount.text = $"{count}";
+                GenericCount.text = $"{count}";
                 break;
             case EGameEventFormat.Standard:
                 StandardCount.text = $"{count}";

@@ -1,4 +1,5 @@
 ﻿using ApClient.Archipelago;
+using ApClient.Archipelago.Mapping;
 using ApClient.Patches.Functionality;
 using ApClient.UI;
 using BepInEx;
@@ -111,10 +112,12 @@ public class Plugin : BaseUnityPlugin
             myAssetBundle.LoadAsset<GameObject>("Product"), SaveHandler.GetAchievementHandler().achievementsByType);
 
         UIInfoPanel.getInstance().setVisable(false);
+        UIInfoPanel.getInstance().InitializeEventGames(!ArchipelagoHandler.slotData.NoFormat, ArchipelagoHandler.slotData.PlayTableChecks);
         ConnectionMenu.setVisable(false);
         SaveHandler.UpdateSanityUI();
         ItemHandler.FlushQueue();
         Logger.LogInfo("Finish AP scene load");
+
     }
 
     public static bool IsGameReady()

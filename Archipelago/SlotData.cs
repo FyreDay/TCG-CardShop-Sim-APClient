@@ -39,6 +39,8 @@ public class SlotData
     public bool Deathlink { get; private set; }
     public bool NoFormat { get; internal set; }
 
+    public int BulkBoxChecks { get; internal set; }
+
     public SlotData(Dictionary<string, object> slotDict)
     {
         MaxLevel = int.Parse(slotDict.GetValueOrDefault("MaxLevel").ToString());
@@ -65,6 +67,7 @@ public class SlotData
         AutoRenovate = slotDict.GetValueOrDefault("AutoRenovate").ToString() == "1";
         ExtraStartingItemChecks = int.Parse(slotDict.GetValueOrDefault("ExtraStartingItemChecks").ToString());
         SellCheckAmount = int.Parse(slotDict.GetValueOrDefault("SellCheckAmount").ToString());
+        BulkBoxChecks = int.Parse(slotDict.GetValueOrDefault("BulkBoxChecks").ToString());
         CardOpeningCheckDifficulty = int.Parse(slotDict.GetValueOrDefault("CardOpeningCheckDifficulty").ToString());
         CardSellingCheckDifficulty = int.Parse(slotDict.GetValueOrDefault("CardSellingCheckDifficulty").ToString());
         CardGradingCheckDifficulty = int.Parse(slotDict.GetValueOrDefault("CardGradingCheckDifficulty").ToString());

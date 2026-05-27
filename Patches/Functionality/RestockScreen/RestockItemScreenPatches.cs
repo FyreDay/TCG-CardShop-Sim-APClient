@@ -11,6 +11,14 @@ public class RestockItemScreenPatches
     [HarmonyPatch(typeof(RestockItemScreen), "EvaluateRestockItemPanelUI")]
     public class Evaluate
     {
+        private static List<EItemType> multipleBoxedItems = new List<EItemType> {
+            EItemType.Deodorant,
+            EItemType.DeckBox1,
+            EItemType.DeckBox2,
+            EItemType.DeckBox3,
+            EItemType.DeckBox4,
+        };
+
         [HarmonyPrefix]
         static bool EvaluateRestockItemPanelUI(RestockItemScreen __instance, int pageIndex)
         {
@@ -52,13 +60,18 @@ public class RestockItemScreenPatches
                 {
                     if (list[k] == CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType)
                     {
-                        if (InventoryBase.ItemTypeToCollectionPackType(list[k]) != ECollectionPackType.None || list[k] == EItemType.Deodorant)
+                        if (InventoryBase.ItemTypeToCollectionPackType(list[k]) != ECollectionPackType.None || multipleBoxedItems.Contains(list[k]))
                         {
                             if (Plugin.ArchipelagoHandler.GetItemCount((int)list[k]) > 1)
                             {
                                 if (CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox)
                                 {
                                     __instance.m_CurrentRestockDataIndexList.Add(l);
+                                    Plugin.Logger.LogInfo($"Adding " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].name} " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].amount} " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType} " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} ");
                                 }
                                 
                             }
@@ -66,6 +79,11 @@ public class RestockItemScreenPatches
                             {
                                 if (!CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox)
                                 {
+                                    Plugin.Logger.LogInfo($"Adding " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].name} " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].amount} " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType} " +
+                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} ");
                                     __instance.m_CurrentRestockDataIndexList.Add(l);
                                 }
                             }

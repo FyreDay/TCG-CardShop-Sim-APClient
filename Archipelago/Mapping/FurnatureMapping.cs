@@ -19,6 +19,17 @@ public class FurnatureMapping
             ProgressiveNum = progressiveNum;
         }
     }
+    public static long getIdFromType(EObjectType type)
+    {
+        var mapping = Furnature.Find(f => f.type == type);
+        if (mapping == null)
+        {
+            Plugin.Logger.LogError($"Could not find mapping for furnature type {type}");
+            return -1;
+        }
+        return mapping.id;
+    }
+
     public static List<FurnatureTypeToId> Furnature = new()
     {
         new FurnatureTypeToId(EObjectType.CabinetA, 227,1), 

@@ -1,4 +1,5 @@
-﻿using ApClient.ui;
+﻿using ApClient.Archipelago.Mapping;
+using ApClient.ui;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -171,18 +172,29 @@ public class AchievementHandler
 
     public void UpdateAvailability(List<ECollectionPackType> packTypes)
     {
+
         ulong selectedMask = 0;
 
+        
         foreach (var p in packTypes)
         {
+            Plugin.Logger.LogInfo($"Updating achievement availability with pack: {p.ToString()}");
             selectedMask |= 1UL << (int)p;
         }
-
-        foreach (var list in achievementsByType.Values)
+        long t = FurnatureMapping.getIdFromType(EObjectType.CardShelf);
+        foreach (var kvp in achievementsByType)
         {
+            string achievementType = kvp.Key;
+            List<CompiledAchievement> list = kvp.Value;
+
             foreach (var ach in list)
             {
                 bool matches = (ach.cardPackMask & selectedMask) != 0;
+                
+                if (matches && achievementType == Constants.SELL_ACHIEVEMENT_TYPE)
+                {
+                    matches = Plugin.ArchipelagoHandler.GetItemCount(t) > 0;
+                }
                 if (matches) {
                     Plugin.Logger.LogInfo($"Set Available {ach.data.name}");
                 }

@@ -96,6 +96,23 @@ public class APLogicUtil
             (Plugin.ArchipelagoHandler.GetItemCount(14) > 0 || Plugin.ArchipelagoHandler.GetItemCount(15) > 0));
     }
 
+    public static List<ECollectionPackType> GetAllAvailablePacks()
+    {
+        List<ECollectionPackType> packs = new List<ECollectionPackType>();
+        if (Plugin.ArchipelagoHandler.GetItemCount(190) > 0)
+        {
+            packs.Add(ECollectionPackType.BasicCardPack);
+        }
+        for (int i = 1; i < 15; i+=2)
+        {
+            if (Plugin.ArchipelagoHandler.GetItemCount(i) > 0 || Plugin.ArchipelagoHandler.GetItemCount(i+1) > 0)
+            {
+                packs.Add((ECollectionPackType)((i + 1) / 2));
+            }
+        }
+        return packs;
+    }
+
     public static List<EItemType> GetAllAvailableItems()
     {
         List<EItemType> items = new List<EItemType>();
