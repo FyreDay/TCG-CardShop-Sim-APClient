@@ -67,7 +67,10 @@ public class SlotData
         AutoRenovate = slotDict.GetValueOrDefault("AutoRenovate").ToString() == "1";
         ExtraStartingItemChecks = int.Parse(slotDict.GetValueOrDefault("ExtraStartingItemChecks").ToString());
         SellCheckAmount = int.Parse(slotDict.GetValueOrDefault("SellCheckAmount").ToString());
-        BulkBoxChecks = int.Parse(slotDict.GetValueOrDefault("BulkBoxChecks").ToString());
+        BulkBoxChecks = int.TryParse(
+            slotDict.GetValueOrDefault("BulkBoxChecks")?.ToString(),
+            out int result
+        ) ? result : 0;
         CardOpeningCheckDifficulty = int.Parse(slotDict.GetValueOrDefault("CardOpeningCheckDifficulty").ToString());
         CardSellingCheckDifficulty = int.Parse(slotDict.GetValueOrDefault("CardSellingCheckDifficulty").ToString());
         CardGradingCheckDifficulty = int.Parse(slotDict.GetValueOrDefault("CardGradingCheckDifficulty").ToString());

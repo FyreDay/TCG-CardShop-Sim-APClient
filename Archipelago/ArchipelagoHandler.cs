@@ -154,7 +154,7 @@ public class ArchipelagoHandler : MonoBehaviour
             !message.Parts.Any(x => x.Text.Contains(Session!.Players.GetPlayerName(Session.ConnectionInfo.Slot))))
             return;
         if (message.Parts.Length == 1)
-        {
+        {   
             messageStr = message.Parts[0].Text;
         }
         else

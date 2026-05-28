@@ -170,7 +170,15 @@ public class CustomerPatches
             if (totalPlayTime > 0f)
             {
                 EGameEventFormat format = Plugin.ArchipelagoHandler.slotData.NoFormat ? EGameEventFormat.MAX : CPlayerData.m_GameEventFormat;
-                int checknum = (++Plugin.SaveHandler.GetSaveData().PlayedGames[format])/2;
+                var save = Plugin.SaveHandler.GetSaveData();
+                if (!save.PlayedGames.ContainsKey(format))
+                {
+                    Plugin.Logger.LogWarning($"Initializing missing PlayedGames key: {format}");
+                    save.PlayedGames[format] = 0;
+                }
+
+                
+                int checknum = (++save.PlayedGames[format])/2;
 
                 if (checknum != -1 && checknum <= Plugin.ArchipelagoHandler.slotData.PlayTableChecks)
                 {

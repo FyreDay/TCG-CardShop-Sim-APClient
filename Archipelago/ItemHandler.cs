@@ -206,7 +206,7 @@ public class ItemHandler : MonoBehaviour
                 int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
                 var list = InventoryBase.GetRestockDataUsingItemType(type);
                 var indexList = InventoryBase.GetRestockDataIndexList(type);
-                if (num == 1 && list[1].licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1)
+                if (num == 1 && list.First().licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1)
                 {
                     ItemData itemData = InventoryBase.GetItemData(type);
                     PopupTextPatches.ShowCustomText($"{itemData.GetName()} Now Available");
@@ -281,6 +281,7 @@ public class ItemHandler : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             List<EMonsterType> availabletypes = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
+            Plugin.Logger.LogInfo($"Available ghost monster types: {string.Join(", ", availabletypes)}");
             CPlayerData.AddCard(new CardData
             {
                 isFoil = UnityEngine.Random.Range(0F, 1F) > 0.5,

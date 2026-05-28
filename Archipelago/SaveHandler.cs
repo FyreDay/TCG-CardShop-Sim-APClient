@@ -251,6 +251,17 @@ public class SaveHandler
 
     public CardData NewRandomCard()
     {
+        if (Plugin.SaveHandler.saveData.foundCards.notfound.Count < 0)
+        {
+            var cardData = new CardData();
+
+            cardData.expansionType = (ECardExpansionType)(1);
+            cardData.borderType = (ECardBorderType)(1);
+            cardData.isFoil = true;
+            cardData.monsterType = (EMonsterType)(1);
+            cardData.cardGrade = 0;
+            return cardData;
+        }
         int id = Plugin.SaveHandler.saveData.foundCards.notfound[UnityEngine.Random.RandomRangeInt(0, Plugin.SaveHandler.saveData.foundCards.notfound.Count)];
         CardData data = CardMapping.getCardFromId(id);
         if(data == null)

@@ -38,7 +38,7 @@ public class RestockItemUIPatches
         static void PostFix(RestockItemPanelUI __instance)
         {
             List<(int id, int count)> goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]).ToList();
-
+            Plugin.Logger.LogInfo($"Goals for {(int)__instance.m_ItemType} : {string.Join(", ", goals.Select(g => $"{g.id}:{g.count}"))}");
             Init.SetGoalText(__instance, goals);
 
             if (Init.CardBoxes.Contains(__instance.m_ItemType))
@@ -217,7 +217,7 @@ public class RestockItemUIPatches
             {
 
                 List<(int id, int count)> goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]).ToList();
-
+                Plugin.Logger.LogInfo($"Goals for {(int)__instance.m_ItemType} : {string.Join(", ", goals.Select(g => $"{g.id}:{g.count}"))}");
                 SetGoalText(__instance, goals);
 
                 if (CardBoxes.Contains(__instance.m_ItemType))

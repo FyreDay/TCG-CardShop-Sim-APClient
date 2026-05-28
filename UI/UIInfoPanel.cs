@@ -516,6 +516,8 @@ public class UIInfoPanel : MonoBehaviour
             case EGameEventFormat.Foil:
                 FoilImage.color = c;
                 break;
+            case EGameEventFormat.None:
+                break;
         }
     }
 
@@ -525,43 +527,94 @@ public class UIInfoPanel : MonoBehaviour
         switch (packType)
         {
             case EGameEventFormat.MAX:
-                GenericCount.text = $"{count}";
+                if (GenericCount != null)
+                {
+                    GenericCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.Standard:
-                StandardCount.text = $"{count}";
+                if (StandardCount != null)
+                {
+                    StandardCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.Pauper:
-                PauperCount.text = $"{count}";
+                if (PauperCount != null)
+                {
+                    PauperCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.FireCup:
-                FireCount.text = $"{count}";
+                if (FireCount != null)
+                {
+                    FireCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.EarthCup:
-                EarthCount.text = $"{count}";
+                if (EarthCount != null)
+                {
+                    EarthCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.WaterCup:
-                WaterCount.text = $"{count}";
+                if (WaterCount != null)
+                {
+                    WaterCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.WindCup:
-                WindCount.text = $"{count}";
+                if (WindCount != null)
+                {
+                    WindCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.FirstEditionVintage:
-                FirstEdCount.text = $"{count}";
+                if (FirstEdCount != null)
+                {
+                    FirstEdCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.SilverBorder:
-                SilverCount.text = $"{count}";
+                if (SilverCount != null)
+                {
+                    SilverCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.GoldBorder:
-                GoldCount.text = $"{count}";
+                if (GoldCount != null)
+                {
+                    GoldCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.ExBorder:
-                EXCount.text = $"{count}";
+                if (EXCount != null)
+                {
+                    EXCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.FullArtBorder:
-                FullArtCount.text = $"{count}";
+                if (FullArtCount != null)
+                {
+                    FullArtCount.text = $"{count}";
+                }
                 break;
+
             case EGameEventFormat.Foil:
-                FoilCount.text = $"{count}";
+                if (FoilCount != null)
+                {
+                    FoilCount.text = $"{count}";
+                }
                 break;
         }
     }

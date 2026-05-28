@@ -18,12 +18,11 @@ public class LicenseMapping
         try
         {
             int amountInBox = 0;
-            if (!BoxOverrideAmount.TryGetValue(type, out int overrideAmount))
+            if (!BoxOverrideAmount.TryGetValue(type, out amountInBox))
             {
                 amountInBox = InventoryBase.GetRestockDataUsingItemType(type).OrderBy(x => x.amount).FirstOrDefault().amount;
-                Plugin.Logger.LogInfo($"Amount in box for {InventoryBase.GetRestockDataUsingItemType(type).First().name} : {type}: {amountInBox}");
             }
-
+            Plugin.Logger.LogInfo($"Amount in box for {InventoryBase.GetRestockDataUsingItemType(type).First().name} : {type}: {amountInBox}");
             for (int i = 1; i <= baseAmount + startingAmount; i++)
             {
                 list.Add((SELL_CHECK_START_ID + (id * 16) + (i - 1), amountInBox * i));
