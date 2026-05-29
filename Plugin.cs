@@ -88,7 +88,7 @@ public class Plugin : BaseUnityPlugin
         BundleMetadata metadata = JsonConvert.DeserializeObject<BundleMetadata>( metadataText.text);
 
         var modversionSplit = metadata.bundleVersion.Split(".");
-        var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
+        var pluginVersionSplit = ("1.0.0").Split(".");//MyPluginInfo.PLUGIN_VERSION.Split(".");
         if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
         {
             ConnectionMenu.SetState($"Wrong asset version. Needs {metadata.bundleVersion}", false);
@@ -268,12 +268,12 @@ public class Plugin : BaseUnityPlugin
         LastUsedSlot = Config.Bind("Connection", "LastUsedSlot", "", "The last player slot name entered.");
     }
 
-    public static bool Connect(string ip, string password, string slot)
+    public static async Task<bool> ConnectAsync(string ip, string password, string slot)
     {
         LastUsedIP.Value = ip;
         LastUsedPassword.Value = password;
         LastUsedSlot.Value = slot;
-        SaveHandler = ArchipelagoHandler.connect(ip, password, slot);
+        SaveHandler = await ArchipelagoHandler.ConnectAsync(ip, password, slot);
         if (SaveHandler != null)
         {
             Util.RunTitleInteractableSaveLogic();

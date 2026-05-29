@@ -30,7 +30,7 @@ public class ArchipelagoHandler : MonoBehaviour
     public bool disconnecting = false;
 
     public bool IsConnected => Session?.Socket.Connected ?? false;
-    public SaveHandler connect(string ip, string password, string slot)
+    public async Task<SaveHandler> ConnectAsync(string ip, string password, string slot)
     {
         _locationsToCheck = new ConcurrentQueue<long>();
         Session = ArchipelagoSessionFactory.CreateSession(ip);
@@ -59,8 +59,10 @@ public class ArchipelagoHandler : MonoBehaviour
             var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
             if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
             {
+                Plugin.Logger.LogError($"AP world version {modversion} is not compatible with plugin version {MyPluginInfo.PLUGIN_VERSION}");
+                await Session.Socket.DisconnectAsync();
                 ConnectionMenu.SetState($"AP Requires Mod v{modversion}", false);
-                Session.Socket.DisconnectAsync();
+                
                 return null;
             }
             
@@ -180,10 +182,9 @@ public class ArchipelagoHandler : MonoBehaviour
 
     private void OnSocketClosed(string reason)
     {
-        StopAllCoroutines();
         //todo:go to main menu
         APConsole.Instance.Log($"Socket closed: {reason}");
-        Plugin.Cleanup();
+        Plugin.ClearSave();
     }
 
     private void OnHint(Hint[] hints)

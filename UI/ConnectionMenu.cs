@@ -30,6 +30,11 @@ public class ConnectionMenu : MonoBehaviour
 
     public static bool showGUI = true;
     private static string state = "Not Connected";
+
+    public static bool ButtonInteractable()
+    {
+        return connectButton.interactable;
+    }
     public static void SetState(string newState, bool buttonActive)
     {
         state = newState;
@@ -156,16 +161,16 @@ public class ConnectionMenu : MonoBehaviour
             stateLabel.text = state;
     }
 
-    private static void OnConnectPressed()
+    private static async void OnConnectPressed()
     {
         Debug.Log("Connect pressed!");
 
-        bool success = Plugin.Connect(ipField.text, passField.text, slotField.text);
+        bool success = await Plugin.ConnectAsync(ipField.text, passField.text, slotField.text);
         if (success)
         {
             SetState("Connected", false);
         }
-        else
+        else if(!state.Contains("AP Requires Mod"))
         {
             SetState("Connection Failed", true);
         }
