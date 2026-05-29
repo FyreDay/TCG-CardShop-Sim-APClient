@@ -32,11 +32,11 @@ public class FurnatureMapping
 
     public static List<FurnatureTypeToId> Furnature = new()
     {
-        new FurnatureTypeToId(EObjectType.CabinetA, 227,1), 
-        new FurnatureTypeToId(EObjectType.ShelfSmallB, 227,2), 
-        new FurnatureTypeToId(EObjectType.Shelf2X2, 227,3), 
-        new FurnatureTypeToId(EObjectType.ShelfSmall, 227,4), 
-        new FurnatureTypeToId(EObjectType.Shelf, 227,5),
+        new FurnatureTypeToId(EObjectType.CabinetA, 231,1), 
+        new FurnatureTypeToId(EObjectType.ShelfSmallB, 231,2), 
+        new FurnatureTypeToId(EObjectType.Shelf2X2, 231,3), 
+        new FurnatureTypeToId(EObjectType.ShelfSmall, 231,4), 
+        new FurnatureTypeToId(EObjectType.Shelf, 231,5),
         new FurnatureTypeToId(EObjectType.LongShelfA, 236, 1),
         new FurnatureTypeToId(EObjectType.LShapedShelf, 236, 2),
         new FurnatureTypeToId(EObjectType.BoxShelf, 236, 3),

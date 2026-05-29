@@ -15,6 +15,14 @@ public class EmployeePatches
         static void Postfix(HireWorkerPanelUI __instance, HireWorkerScreen hireWorkerScreen, int index)
         {
             //Plugin.Log($"Employee Index: {index}");
+            if(Plugin.ArchipelagoHandler.slotData.StartingEmployeeIndex == index)
+            {
+                __instance.m_IsHired = true;
+
+                __instance.m_HiredText.SetActive(value: true);
+                __instance.m_PurchaseBtn.SetActive(value: false);
+                __instance.m_HireFeeText.gameObject.SetActive(value: false);
+            }
             var val = EmployeeMapping.mapping[index];
             __instance.m_LevelRequirementText.text = $"Requires AP Worker Unlock";
 

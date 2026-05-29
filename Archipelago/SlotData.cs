@@ -40,6 +40,7 @@ public class SlotData
     public bool NoFormat { get; internal set; }
 
     public int BulkBoxChecks { get; internal set; }
+    public int StartingEmployeeIndex { get; internal set; }
 
     public SlotData(Dictionary<string, object> slotDict)
     {
@@ -66,6 +67,7 @@ public class SlotData
 
         AutoRenovate = slotDict.GetValueOrDefault("AutoRenovate").ToString() == "1";
         ExtraStartingItemChecks = int.Parse(slotDict.GetValueOrDefault("ExtraStartingItemChecks").ToString());
+        StartingEmployeeIndex = int.Parse(slotDict.GetValueOrDefault("StartingEmployeeIndex").ToString());
         SellCheckAmount = int.Parse(slotDict.GetValueOrDefault("SellCheckAmount").ToString());
         BulkBoxChecks = int.TryParse(
             slotDict.GetValueOrDefault("BulkBoxChecks")?.ToString(),

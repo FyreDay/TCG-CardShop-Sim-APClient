@@ -1,6 +1,7 @@
 ﻿using ApClient.Archipelago;
 using ApClient.Archipelago.Mapping;
 using ApClient.assets;
+using ApClient.mapping;
 using ApClient.Patches.Functionality;
 using ApClient.UI;
 using BepInEx;
@@ -153,6 +154,23 @@ public class Plugin : BaseUnityPlugin
         ConnectionMenu.setVisable(false);
         SaveHandler.UpdateSanityUI();
         ItemHandler.FlushQueue();
+
+        if (ArchipelagoHandler.slotData.StartingEmployeeIndex != -1 && !CPlayerData.GetIsWorkerHired(ArchipelagoHandler.slotData.StartingEmployeeIndex))
+        {
+            CPlayerData.SetIsWorkerHired(ArchipelagoHandler.slotData.StartingEmployeeIndex, isHired: true);
+
+            CSingleton<WorkerManager>.Instance.ActivateWorker(ArchipelagoHandler.slotData.StartingEmployeeIndex, resetTask: true);
+            int num = 0;
+            for (int i = 0; i < CPlayerData.m_IsWorkerHired.Count; i++)
+            {
+                if (CPlayerData.m_IsWorkerHired[i])
+                {
+                    num++;
+                }
+            }
+
+            AchievementManager.OnStaffHired(num);
+        }
         Logger.LogInfo("Finish AP scene load");
 
     }
