@@ -21,7 +21,8 @@ public class APConsole : MonoBehaviour
     private Color BackColor = new Color(0, 0, 0, 0.8f);
 
     private const int MaxHistoryEntries = 1000;
-    
+    private GraphicRaycaster _raycaster;
+
     private const CursorLockMode DefaultCursorMode = CursorLockMode.Locked;
     private const bool DefaultCursorVisible = false;
 
@@ -356,6 +357,7 @@ public class APConsole : MonoBehaviour
         txt.font = _font;
         txt.wordSpacing = 20f;
         txt.alignment = TextAlignmentOptions.MidlineLeft;
+        txt.raycastTarget = false;
         return txt;
     }
 
@@ -371,6 +373,7 @@ public class APConsole : MonoBehaviour
         var imgNew = go.AddComponent<Image>();
         imgNew.color = BackColor;
         imgNew.type = Image.Type.Sliced;
+        imgNew.raycastTarget = false;
         return imgNew;
     }
 
@@ -502,6 +505,7 @@ public class APConsole : MonoBehaviour
 
         if (_showHistory)
         {
+            _raycaster.enabled = true;
             foreach (var e in _visibleEntries)
             {
                 if (e.text != null) { e.text.gameObject.SetActive(false); _textPool.Enqueue(e.text); }
@@ -513,6 +517,7 @@ public class APConsole : MonoBehaviour
         }
         else
         {
+            _raycaster.enabled = false;
             Cursor.lockState = DefaultCursorMode;
             Cursor.visible = DefaultCursorVisible;
             _messageParent.gameObject.SetActive(_showConsole);
@@ -543,6 +548,7 @@ public class APConsole : MonoBehaviour
     {
         var canvasObj = new GameObject("APConsoleCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
         canvasObj.transform.SetParent(transform);
+        _raycaster = canvasObj.GetComponent<GraphicRaycaster>();
 
         var canvas = canvasObj.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;

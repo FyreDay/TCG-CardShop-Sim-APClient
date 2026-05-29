@@ -1,5 +1,6 @@
 ﻿using ApClient.Archipelago;
 using ApClient.Archipelago.Mapping;
+using ApClient.assets;
 using ApClient.Patches.Functionality;
 using ApClient.UI;
 using BepInEx;
@@ -7,12 +8,14 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using I2.Loc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Profiling.Memory.Experimental;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -76,8 +79,25 @@ public class Plugin : BaseUnityPlugin
         string bundlePath = Path.Combine(assetsFolder, "apinfoui"); // Make sure "myAssetBundle" is the correct file name
         // Load the asset bundle
         myAssetBundle = AssetBundle.LoadFromFile(bundlePath);
+        foreach (string name in myAssetBundle.GetAllAssetNames())
+        {
+            Plugin.Logger.LogInfo(name);
+        }
+        TextAsset metadataText = myAssetBundle.LoadAsset<TextAsset>("metadata");
+        BundleMetadata metadata = JsonConvert.DeserializeObject<BundleMetadata>( metadataText.text);
 
-        _ = ConnectionMenu.Instance;
+        var modversionSplit = metadata.bundleVersion.Split(".");
+        var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
+        if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
+        {
+            ConnectionMenu.SetState($"Wrong asset version. Needs {metadata.bundleVersion}", false);
+        }
+        else
+        {
+            Logger.LogInfo($"Loaded asset bundle version {metadata.bundleVersion}");
+        }
+
+            _ = ConnectionMenu.Instance;
     }
 
     private void OnSceneLoad(Scene scene, LoadSceneMode mode)
