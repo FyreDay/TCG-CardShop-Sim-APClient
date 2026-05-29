@@ -24,4 +24,4 @@ This is a visual studio project
 
 Done! build with dotnet build
 
-
+You can find the source assets for unity 2021.3.38f1 [at this repository](https://github.com/FyreDay/TCGCardShopSimulator-Assets)
