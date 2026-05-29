@@ -269,7 +269,15 @@ public class ItemHandler : MonoBehaviour
                 
                 if (FurnatureMapping.getIdFromType(EObjectType.CardShelf) == item.ItemId)
                 {
+                    Plugin.Logger.LogInfo("Card shelf unlocked, updating achievement availability");
                     Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
+                }
+
+                if (FurnatureMapping.getIdFromType(EObjectType.PlayTable) == item.ItemId)
+                {
+                    Plugin.Logger.LogInfo("Play Table Unlocked");
+                    UIInfoPanel.getInstance().UpdateFormatAvailability(EGameEventFormat.Standard);
+                    UIInfoPanel.getInstance().UpdateFormatAvailability(EGameEventFormat.MAX);
                 }
                 return;
             }

@@ -96,20 +96,21 @@ public class CustomerPatches
     public static class TargetBuyList
     {
         [HarmonyPrefix]
-        public static bool Prefix(Customer __instance)
+        public static bool Prefix(CustomerManager __instance)
         {
+            Plugin.Logger.LogInfo($"Evaluating target buy item list {__instance.m_TargetBuyItemList == null} {CPlayerData.Instance == null}");
             if (CPlayerData.m_CurrentDay % 7 != 0 && __instance.m_TargetBuyItemList.Count != 0)
             {
                 return false;
             }
             __instance.m_TargetBuyItemList.Clear();
-
+            Plugin.Logger.LogInfo("2");
             int num = 2 + (CPlayerData.m_ShopLevel + 1) / 10;
             if (num > 8)
             {
                 num = 8;
             }
-
+            Plugin.Logger.LogInfo("3");
             List<EItemType> itemTypeListOnShelf = ShelfManager.GetItemTypeListOnShelf();
             for (int i = 0; i < itemTypeListOnShelf.Count; i++)
             {
@@ -126,6 +127,7 @@ public class CustomerPatches
                     break;
                 }
             }
+            Plugin.Logger.LogInfo("4");
             if (Plugin.IsGameReady())
             {
                 List<EItemType> unlockedAP = Archipelago.APLogicUtil.GetAllAvailableItems();

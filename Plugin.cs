@@ -99,7 +99,7 @@ public class Plugin : BaseUnityPlugin
 
     public static void SetSceneLoaded()
     {
-        Logger.LogInfo("start AP scene load");
+        Logger.LogInfo("start APClient scene initialization");
         GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
 
         var apinfoobject = Instantiate(myGameObject);
@@ -113,6 +113,23 @@ public class Plugin : BaseUnityPlugin
 
         UIInfoPanel.getInstance().setVisable(false);
         UIInfoPanel.getInstance().InitializeEventGames(!ArchipelagoHandler.slotData.NoFormat, ArchipelagoHandler.slotData.PlayTableChecks);
+        List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
+
+        for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)
+        {
+            if (!CPlayerData.m_IsItemLicenseUnlocked[i])
+                continue;
+
+            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
+
+            if (packType != ECollectionPackType.None)
+            {
+                ownedPacks.Add(packType);
+            }
+        }
+
+        SaveHandler.GetAchievementHandler().UpdateAvailability(ownedPacks);
+        
         ConnectionMenu.setVisable(false);
         SaveHandler.UpdateSanityUI();
         ItemHandler.FlushQueue();
@@ -231,6 +248,9 @@ public class Plugin : BaseUnityPlugin
 
     public static async Task Disconnect()
     {
+
+        Cleanup();
+
         if (ArchipelagoHandler != null)
         {
             try
@@ -242,10 +262,12 @@ public class Plugin : BaseUnityPlugin
                 Plugin.Logger.LogWarning($"Disconnect error: {ex}");
             }
         }
-        SaveHandler.Save(Constants.SAVE_SLOT);
-        SaveHandler = null;
+    }
+
+    public static void Cleanup() {
         ConnectionMenu.setVisable(true);
         ConnectionMenu.SetState("Not Connected", true);
+        ClearSave();
     }
 
     public static void ClearSave()
@@ -273,7 +295,7 @@ public class Plugin : BaseUnityPlugin
     private void OnDestroy()
     {
         Plugin.Logger.LogInfo("WHAT IS HAPPENING AHHHHHHHHHHA");
-        _ = ArchipelagoHandler.DisconnectAsync();
+        //_ = ArchipelagoHandler.DisconnectAsync();
         this.Harmony.UnpatchSelf();
     }
 }

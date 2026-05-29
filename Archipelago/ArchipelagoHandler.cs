@@ -27,6 +27,8 @@ public class ArchipelagoHandler : MonoBehaviour
     DeathLinkService deathLinkService = null;
     
     private ConcurrentQueue<long> _locationsToCheck = new ConcurrentQueue<long>();
+    public bool disconnecting = false;
+
     public bool IsConnected => Session?.Socket.Connected ?? false;
     public SaveHandler connect(string ip, string password, string slot)
     {
@@ -87,8 +89,9 @@ public class ArchipelagoHandler : MonoBehaviour
 
     public async Task DisconnectAsync()
     {
-        if (Session == null)
+        if (Session == null || !disconnecting)
             return;
+        disconnecting = false;
         await Session.Socket.DisconnectAsync();
         Session = null;
         deathLinkService = null;
@@ -180,7 +183,7 @@ public class ArchipelagoHandler : MonoBehaviour
         StopAllCoroutines();
         //todo:go to main menu
         APConsole.Instance.Log($"Socket closed: {reason}");
-        _ = Plugin.Disconnect();
+        Plugin.Cleanup();
     }
 
     private void OnHint(Hint[] hints)

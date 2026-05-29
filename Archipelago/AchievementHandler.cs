@@ -143,23 +143,6 @@ public class AchievementHandler
             }
         }
 
-        List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
-
-        for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)
-        {
-            if (!CPlayerData.m_IsItemLicenseUnlocked[i])
-                continue;
-
-            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
-
-            if (packType != ECollectionPackType.None)
-            {
-                ownedPacks.Add(packType);
-            }
-        }
-
-        UpdateAvailability(ownedPacks);
-
     }
    
     public void SetHinted(long achievementId)
@@ -172,16 +155,15 @@ public class AchievementHandler
 
     public void UpdateAvailability(List<ECollectionPackType> packTypes)
     {
-
         ulong selectedMask = 0;
 
-        
         foreach (var p in packTypes)
         {
             Plugin.Logger.LogInfo($"Updating achievement availability with pack: {p.ToString()}");
             selectedMask |= 1UL << (int)p;
         }
-        long t = FurnatureMapping.getIdFromType(EObjectType.CardShelf);
+        bool hascardtable = Plugin.ArchipelagoHandler.GetItemCount(FurnatureMapping.getIdFromType(EObjectType.CardShelf)) > 0;
+        Plugin.Logger.LogInfo($"has card table {hascardtable}");
         foreach (var kvp in achievementsByType)
         {
             string achievementType = kvp.Key;
@@ -189,11 +171,16 @@ public class AchievementHandler
 
             foreach (var ach in list)
             {
+                if (ach.Available)
+                {
+                    continue;
+                }
                 bool matches = (ach.cardPackMask & selectedMask) != 0;
                 
                 if (matches && achievementType == Constants.SELL_ACHIEVEMENT_TYPE)
                 {
-                    matches = Plugin.ArchipelagoHandler.GetItemCount(t) > 0;
+                    matches = hascardtable;
+                    
                 }
                 if (matches) {
                     Plugin.Logger.LogInfo($"Set Available {ach.data.name}");

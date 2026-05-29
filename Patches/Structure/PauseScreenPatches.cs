@@ -16,6 +16,7 @@ public class PauseScreenPatches
     [HarmonyPostfix]
     static void MainMenuPostfix()
     {
+        Plugin.ArchipelagoHandler.disconnecting = true;
         _ = Plugin.Disconnect();
     }
 

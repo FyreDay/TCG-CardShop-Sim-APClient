@@ -8,13 +8,16 @@ namespace ApClient.Patches.Structure;
 
 public class PhonePatches
 {
+
+    private static GameObject apButton;
+
     [HarmonyPatch(typeof(PhoneManager), "Awake")]
     public static class PhoneManager_Awake_Patch
     {
         [HarmonyPostfix]
         public static void Postfix(PhoneManager __instance)
         {
-            
+
             // Ensure UI is ready
             var phoneScreen = __instance.m_UI_PhoneScreen;
             if (phoneScreen == null)
@@ -24,29 +27,34 @@ public class PhonePatches
             if (phoneScreen.m_PhoneButtonList.Count == 0)
                 return;
 
+            if (apButton != null)
+            {
+                Plugin.Logger.LogInfo("AP app already exists, skipping button creation.");
+                return;
+            }
             Transform referenceGrp = phoneScreen.transform.Find("ScreenGrp/AnimGrp/PhoneButtonGrp_CustomerReview");
 
             // Instantiate as sibling, parent = the button container
             Transform parentContainer = referenceGrp.parent;
 
-            GameObject newButtonObj = UnityEngine.Object.Instantiate(referenceGrp.gameObject, parentContainer);
-            newButtonObj.name = "PhoneButtonGrp_APInfo";
+            apButton = UnityEngine.Object.Instantiate(referenceGrp.gameObject, parentContainer);
+            apButton.name = "PhoneButtonGrp_APInfo";
 
-            RectTransform rt = newButtonObj.GetComponent<RectTransform>();
+            RectTransform rt = apButton.GetComponent<RectTransform>();
             rt.anchoredPosition += new Vector2(-6, 12);
 
-            Image bg = newButtonObj.transform.Find("BG").GetComponent<Image>();
-            Image border = newButtonObj.transform.Find("BG2").GetComponent<Image>();
+            Image bg = apButton.transform.Find("BG").GetComponent<Image>();
+            Image border = apButton.transform.Find("BG2").GetComponent<Image>();
 
             //bg.color = Color.green;
             border.color = Color.white;
 
-            TextMeshProUGUI tmpText = newButtonObj.transform.Find("Text").GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI tmpText = apButton.transform.Find("Text").GetComponent<TextMeshProUGUI>();
             tmpText.text = "";
             //tmpText.text = "AP Info";
             //tmpText.color = Color.cyan;
 
-            Transform iconRoot = newButtonObj.transform.Find("Icon");
+            Transform iconRoot = apButton.transform.Find("Icon");
 
             Transform icon1 = iconRoot.Find("Icon (1)");
             Transform icon2 = iconRoot.Find("Icon (2)");
@@ -76,7 +84,7 @@ public class PhonePatches
                     Debug.LogWarning("Could not find Icon child on button!");
                 }
             }
-            ControllerButton controllerButton = newButtonObj.GetComponent<ControllerButton>();
+            ControllerButton controllerButton = apButton.GetComponent<ControllerButton>();
             Button newButton = controllerButton.m_Button;
             if (newButton != null)
             {
@@ -110,8 +118,7 @@ public class PhonePatches
         [HarmonyPostfix]
         static void OnFinishPostFix(UI_PhoneScreen __instance)
         {
-            Plugin.Logger.LogInfo($"button count: { __instance.m_PhoneButtonList.Count}");
-
+            Plugin.Logger.LogInfo($"button count: {__instance.m_PhoneButtonList.Count}");
         }
     }
 }
