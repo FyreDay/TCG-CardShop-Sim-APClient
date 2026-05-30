@@ -108,7 +108,6 @@ public class APLogicUtil
             if (Plugin.ArchipelagoHandler.GetItemCount(i) > 0 || Plugin.ArchipelagoHandler.GetItemCount(i+1) > 0)
             {
                 packs.Add((ECollectionPackType)((i + 1) / 2));
-                Plugin.Logger.LogInfo($"Adding pack {(ECollectionPackType)((i + 1) / 2)} with counts pack {Plugin.ArchipelagoHandler.GetItemCount(i)} and box {Plugin.ArchipelagoHandler.GetItemCount(i + 1)}");
             }
         }
         return packs;

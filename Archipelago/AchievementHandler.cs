@@ -159,11 +159,9 @@ public class AchievementHandler
 
         foreach (var p in packTypes)
         {
-            Plugin.Logger.LogInfo($"Updating achievement availability with pack: {p.ToString()}");
             selectedMask |= 1UL << (int)p;
         }
         bool hascardtable = Plugin.ArchipelagoHandler.GetItemCount(FurnatureMapping.getIdFromType(EObjectType.CardShelf)) > 0;
-        Plugin.Logger.LogInfo($"has card table {hascardtable}");
         foreach (var kvp in achievementsByType)
         {
             string achievementType = kvp.Key;
@@ -181,9 +179,6 @@ public class AchievementHandler
                 {
                     matches = hascardtable;
                     
-                }
-                if (matches) {
-                    Plugin.Logger.LogInfo($"Set Available {ach.data.name}");
                 }
                 ach.Available = matches;
             }
@@ -214,7 +209,6 @@ public class AchievementHandler
             
             if (!Matches(a, mask, achievementType))
                 continue;
-            Plugin.Logger.LogInfo($"Match! : {card.monsterType} : {a.data.name}");
             a.progress++;
 
             var saveEntry = saveDataRef.achievementSave.Achievements[achievementType][a.id];

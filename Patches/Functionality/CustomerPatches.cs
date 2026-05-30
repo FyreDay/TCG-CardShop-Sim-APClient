@@ -98,19 +98,18 @@ public class CustomerPatches
         [HarmonyPrefix]
         public static bool Prefix(CustomerManager __instance)
         {
-            Plugin.Logger.LogInfo($"Evaluating target buy item list {__instance.m_TargetBuyItemList == null} {CPlayerData.Instance == null}");
             if (CPlayerData.m_CurrentDay % 7 != 0 && __instance.m_TargetBuyItemList.Count != 0)
             {
                 return false;
             }
             __instance.m_TargetBuyItemList.Clear();
-            Plugin.Logger.LogInfo("2");
+            
             int num = 2 + (CPlayerData.m_ShopLevel + 1) / 10;
             if (num > 8)
             {
                 num = 8;
             }
-            Plugin.Logger.LogInfo("3");
+            
             List<EItemType> itemTypeListOnShelf = ShelfManager.GetItemTypeListOnShelf();
             for (int i = 0; i < itemTypeListOnShelf.Count; i++)
             {
@@ -127,7 +126,7 @@ public class CustomerPatches
                     break;
                 }
             }
-            Plugin.Logger.LogInfo("4");
+            
             if (Plugin.IsGameReady())
             {
                 List<EItemType> unlockedAP = Archipelago.APLogicUtil.GetAllAvailableItems();
@@ -171,12 +170,14 @@ public class CustomerPatches
         {
             if (totalPlayTime > 0f)
             {
-                EGameEventFormat format = Plugin.ArchipelagoHandler.slotData.NoFormat ? EGameEventFormat.MAX : CPlayerData.m_GameEventFormat;
+
+                EGameEventFormat format = EGameEventFormat.ExBorder;// Plugin.ArchipelagoHandler.slotData.NoFormat ? EGameEventFormat.MAX : CPlayerData.m_GameEventFormat;
                 var save = Plugin.SaveHandler.GetSaveData();
+                Plugin.Logger.LogInfo($"format: {format} num {save.PlayedGames[format]}");
                 if (!save.PlayedGames.ContainsKey(format))
                 {
                     Plugin.Logger.LogWarning($"Initializing missing PlayedGames key: {format}");
-                    save.PlayedGames[format] = 0;
+                    
                 }
 
                 

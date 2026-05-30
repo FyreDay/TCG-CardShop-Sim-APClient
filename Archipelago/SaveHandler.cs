@@ -163,11 +163,6 @@ public class SaveHandler
 
     public void AddCard(CardData card, string achievementType)
     {
-        Plugin.Logger.LogInfo($"Added new card : {card.monsterType} : {achievementType}");
-        foreach (var pair in saveData.foundCards.foundByPackType)
-        {
-            Plugin.Logger.LogInfo($"packtype: {pair.Key} : {pair.Value.Count} cards found");
-        }
         if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE
             && saveData.foundCards.foundByPackType.TryGetValue(card.GetPackType(), out List<int> found))
         {
@@ -179,62 +174,70 @@ public class SaveHandler
                 {
                     found.Insert(~index, id);
 
-                    int foil = Plugin.ArchipelagoHandler.slotData.CardSanity;
-                    switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+                    int sanity = Plugin.ArchipelagoHandler.slotData.CardSanity;
+                    if (sanity > 0 && Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty > 0)
                     {
-                        case 0: UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), found.Count); break;
-                        case 1:
-                            if ((int)card.borderType <= 1 && trackFoils(card.isFoil, foil))
-                            {
-                                UpdateCardCount(card);
-                            }
-                            break;
-                        case 2:
-                            if ((int)card.borderType <= 3 && trackFoils(card.isFoil, foil))
-                            {
-                                UpdateCardCount(card);
-                            }
-                            break;
-                        case 3:
-                            if ((int)card.borderType <= 4 && trackFoils(card.isFoil, foil))
-                            {
-                                UpdateCardCount(card);
-                            }
-                            break;
+                        switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+                        {
+                            case 1:
+                                if ((int)card.borderType <= 1 && trackFoils(card.isFoil, sanity))
+                                {
+                                    UpdateCardCount(card);
+                                }
+                                break;
+                            case 2:
+                                if ((int)card.borderType <= 3 && trackFoils(card.isFoil, sanity))
+                                {
+                                    UpdateCardCount(card);
+                                }
+                                break;
+                            case 3:
+                                if ((int)card.borderType <= 4 && trackFoils(card.isFoil, sanity))
+                                {
+                                    UpdateCardCount(card);
+                                }
+                                break;
 
-                        case 4:
-                            if (trackFoils(card.isFoil, foil))
-                            {
-                                UpdateCardCount(card);
-                            }
-                            break;
+                            case 4:
+                                if (trackFoils(card.isFoil, sanity))
+                                {
+                                    UpdateCardCount(card);
+                                }
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        UpdateCardCount(card);
                     }
 
                 }
             }
             if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
             {
-                decimal countCollected = 0;
-                foreach (var pair in saveData.foundCards.foundByPackType)
-                {
-                    countCollected += pair.Value.Count;
-                }
-                decimal percentCollected = countCollected / (decimal)(countCollected + saveData.foundCards.notfound.Count);
-                UIInfoPanel.getInstance().setPercentGoalCollected(percentCollected * 100);
-                if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100
-                    && APLogicUtil.hasAllCardPacks())
-                {
-                    Plugin.ArchipelagoHandler.Release();
-                }
+                CheckForCardCollectionGoal();
             }
-
-            //TODO: Update AP UI with Each Pack Count
         }
-        Plugin.Logger.LogInfo($"Completed card add");
         Plugin.ArchipelagoHandler.CompleteLocationChecks(achievementHandler.OnCard(card, achievementType));
 
         UIInfoPanel.getInstance().Refresh();
 
+    }
+
+    public void CheckForCardCollectionGoal()
+    {
+        decimal countCollected = 0;
+        foreach (var pair in saveData.foundCards.foundByPackType)
+        {
+            countCollected += pair.Value.Count;
+        }
+        decimal percentCollected = countCollected / (decimal)(countCollected + saveData.foundCards.notfound.Count);
+        UIInfoPanel.getInstance().setPercentGoalCollected(percentCollected * 100);
+        if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100
+            && APLogicUtil.hasAllCardPacks())
+        {
+            Plugin.ArchipelagoHandler.Release();
+        }
     }
 
     public void checkWithServer(HashSet<long> checkedLocations)
@@ -338,9 +341,7 @@ public class SaveHandler
         try
         {
             string text = File.ReadAllText(jsonpath);
-            Plugin.Logger.LogInfo("read");
             var combined = JsonConvert.DeserializeObject<CombinedSaveWrapper>(text);
-            Plugin.Logger.LogInfo("deserialize");
             if (combined == null)
             {
                 Plugin.Logger.LogError("Combined save wrapper is null!");
@@ -351,21 +352,13 @@ public class SaveHandler
 
             if (combined.ModData != null)
             {
-                Plugin.Logger.LogInfo("moddata");
                 saveData = combined.ModData;
-                Plugin.Logger.LogInfo("get moddata");
                 achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
-                Plugin.Logger.LogInfo("after achievment");
-                
-                Plugin.Logger.LogInfo("moddata done");
             }
-            Plugin.Logger.LogInfo("Completed AP Save Load");
             if (!string.IsNullOrEmpty(combined.UnityGameData))
             {
-                Plugin.Logger.LogInfo("gamedata");
                 CGameData gameData = JsonUtility.FromJson<CGameData>(combined.UnityGameData);
                 CSaveLoad.m_SavedGame = gameData;
-                Plugin.Logger.LogInfo("gamedata done");
             }
             return true;
         }
@@ -374,13 +367,5 @@ public class SaveHandler
             Plugin.Logger.LogError("Failed to retrieve save data");
         }
         return true;
-    }
-
-    public void UpdateSanityUI()
-    {
-        for (int packtype = 0; packtype < (int)ECollectionPackType.GhostPack; packtype++)
-        {
-            UIInfoPanel.getInstance().UpdateCardCollection((ECollectionPackType)packtype, 0);// saveData.foundCards.sanityCount[(ECollectionPackType)packtype]);
-        }
     }
 }

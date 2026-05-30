@@ -29,7 +29,7 @@ public class PhonePatches
 
             if (apButton != null)
             {
-                Plugin.Logger.LogInfo("AP app already exists, skipping button creation.");
+                Plugin.Logger.LogWarning("AP app already exists, skipping button creation.");
                 return;
             }
             Transform referenceGrp = phoneScreen.transform.Find("ScreenGrp/AnimGrp/PhoneButtonGrp_CustomerReview");
@@ -88,37 +88,15 @@ public class PhonePatches
             Button newButton = controllerButton.m_Button;
             if (newButton != null)
             {
-                Plugin.Logger.LogInfo("button not null");
                 newButton.onClick.AddListener(() =>
                 {
                     if (UIInfoPanel.getInstance() != null)
                     {
-                        Plugin.Logger.LogInfo("ap info open!!!");
                         UIInfoPanel.getInstance().setVisable(true);
-                    }
-                    else
-                    {
-                        Plugin.Logger.LogError("ap info nullllll");
                     }
 
                 });
             }
-            else
-            {
-                Plugin.Logger.LogError("button is nullllllllllllllllllll");
-            }
-        }
-    }
-
-
-    [HarmonyPatch(typeof(UI_PhoneScreen))]
-    public class ControllerPatches
-    {
-        [HarmonyPatch("OnOpenScreen")]
-        [HarmonyPostfix]
-        static void OnFinishPostFix(UI_PhoneScreen __instance)
-        {
-            Plugin.Logger.LogInfo($"button count: {__instance.m_PhoneButtonList.Count}");
         }
     }
 }

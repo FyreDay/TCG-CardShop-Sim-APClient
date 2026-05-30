@@ -68,7 +68,7 @@ public class ArchipelagoHandler : MonoBehaviour
             
             slotData = new SlotData(loginSuccess.SlotData);
 
-            if (Plugin.EnabledDeathLink())
+            if (slotData.Deathlink)
             {
                 deathLinkService = Session.CreateDeathLinkService();
                 deathLinkService.EnableDeathLink();
@@ -113,7 +113,7 @@ public class ArchipelagoHandler : MonoBehaviour
         if (Plugin.EnabledDeathLink())
         {
             Plugin.Logger.LogInfo("Sent Death!");
-            deathLinkService.SendDeathLink(new DeathLink(Plugin.LastUsedSlot.Value, Plugin.LastUsedSlot.Value + " Died to Not Paying Bills."));
+            deathLinkService.SendDeathLink(new DeathLink(Plugin.LastUsedSlot.Value, Plugin.LastUsedSlot.Value + " Stunk up the place!"));
         }
     }
     public void Release()

@@ -56,7 +56,6 @@ public class ConnectionMenu : MonoBehaviour
 
     private static void Create()
     {
-        Plugin.Logger.LogInfo("Creating Connection Menu UI...");
         if (_instance != null)
             return;
 

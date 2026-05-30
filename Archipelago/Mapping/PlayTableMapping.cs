@@ -27,6 +27,11 @@ public class PlayTableMapping
         };
     }
 
+    public static int getItemIdFromFormat(EGameEventFormat format)
+    {
+        return (int)format + FormatStartingId;
+    }
+
     public static int PlayCheckStartingId = 300;
     public static int FormatStartingId = 207;
 }

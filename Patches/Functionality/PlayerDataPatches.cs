@@ -93,7 +93,6 @@ public class PlayerDataPatches
             {
                 //UIInfoPanel.getInstance().UpdateImportantLicenses(GetImportantData());
 
-                Plugin.Logger.LogInfo($"Shop Level: {CPlayerData.m_ShopLevel} checkId {LevelMapping.startValue + CPlayerData.m_ShopLevel}");
                 Plugin.ArchipelagoHandler.CompleteLocationChecks(LevelMapping.startValue + CPlayerData.m_ShopLevel);
                 if (Plugin.ArchipelagoHandler.slotData.Goal == 0 && CPlayerData.m_ShopLevel + 1 >= Plugin.ArchipelagoHandler.slotData.MaxLevel)
                 {

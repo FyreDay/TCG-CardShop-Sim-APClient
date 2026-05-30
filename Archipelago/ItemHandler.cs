@@ -229,6 +229,11 @@ public class ItemHandler : MonoBehaviour
                     screen.OnPressChangePageButton(screen.m_PageIndex);
 
                 }
+
+                if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
+                {
+                    Plugin.SaveHandler.CheckForCardCollectionGoal();
+                }
                 return;
             }
 
@@ -269,15 +274,12 @@ public class ItemHandler : MonoBehaviour
                 
                 if (FurnatureMapping.getIdFromType(EObjectType.CardShelf) == item.ItemId)
                 {
-                    Plugin.Logger.LogInfo("Card shelf unlocked, updating achievement availability");
                     Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
                 }
 
                 if (FurnatureMapping.getIdFromType(EObjectType.PlayTable) == item.ItemId)
                 {
-                    Plugin.Logger.LogInfo("Play Table Unlocked");
-                    UIInfoPanel.getInstance().UpdateFormatAvailability(EGameEventFormat.Standard);
-                    UIInfoPanel.getInstance().UpdateFormatAvailability(EGameEventFormat.MAX);
+                    UIInfoPanel.getInstance().CheckAllFormatsAvailability();
                 }
                 return;
             }
@@ -289,7 +291,6 @@ public class ItemHandler : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             List<EMonsterType> availabletypes = InventoryBase.GetShownMonsterList(ECardExpansionType.Ghost);
-            Plugin.Logger.LogInfo($"Available ghost monster types: {string.Join(", ", availabletypes)}");
             CPlayerData.AddCard(new CardData
             {
                 isFoil = UnityEngine.Random.Range(0F, 1F) > 0.5,

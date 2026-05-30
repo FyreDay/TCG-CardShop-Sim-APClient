@@ -26,9 +26,6 @@ public class RestockItemUIPatches
             }
             else
             {
-                Plugin.Logger.LogInfo((Plugin.ArchipelagoHandler.GetItemCount(__instance.m_ItemType == EItemType.BasicCardPack ? 190 : (long)__instance.m_ItemType)) > 1);
-                Plugin.Logger.LogInfo(CPlayerData.m_ShopLevel + 1 >= __instance.m_LevelRequired);
-                Plugin.Logger.LogInfo(APLogicUtil.GetRemainingLicenses(__instance.m_LevelRequired) <= 0);
                 PopupTextPatches.ShowCustomText("Item Locked");
                 return false;
             }
@@ -38,7 +35,6 @@ public class RestockItemUIPatches
         static void PostFix(RestockItemPanelUI __instance)
         {
             List<(int id, int count)> goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]).ToList();
-            Plugin.Logger.LogInfo($"Goals for {(int)__instance.m_ItemType} : {string.Join(", ", goals.Select(g => $"{g.id}:{g.count}"))}");
             Init.SetGoalText(__instance, goals);
 
             if (Init.CardBoxes.Contains(__instance.m_ItemType))
@@ -217,7 +213,6 @@ public class RestockItemUIPatches
             {
 
                 List<(int id, int count)> goals = LicenseMapping.GetLocations(__instance.m_ItemType).Where(i => i.count > CPlayerData.m_StockSoldList[(int)__instance.m_ItemType]).ToList();
-                Plugin.Logger.LogInfo($"Goals for {(int)__instance.m_ItemType} : {string.Join(", ", goals.Select(g => $"{g.id}:{g.count}"))}");
                 SetGoalText(__instance, goals);
 
                 if (CardBoxes.Contains(__instance.m_ItemType))

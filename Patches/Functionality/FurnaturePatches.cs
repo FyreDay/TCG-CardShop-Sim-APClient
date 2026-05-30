@@ -26,9 +26,7 @@ public class FurnaturePatches
             }
             int numowned = Plugin.ArchipelagoHandler.GetItemCount(FurnatureMapping.Furnature[index].id);
             bool hasAPItem = numowned >= FurnatureMapping.Furnature[index].ProgressiveNum;
-            Plugin.Logger.LogInfo($"{index} : {FurnatureMapping.Furnature[index].type} : {FurnatureMapping.Furnature[index].id} : {FurnatureMapping.Furnature[index].ProgressiveNum} : {numowned} : {hasAPItem}");
-
-
+            
             if (!hasAPItem)
             {
                 __instance.m_LevelRequirementText.text = "License Locked by AP";

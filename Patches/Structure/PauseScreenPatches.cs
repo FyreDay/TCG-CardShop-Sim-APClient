@@ -25,7 +25,6 @@ public class PauseScreenPatches
     [HarmonyPrefix]
     static bool SavePrefix()
     {
-        Plugin.Logger.LogInfo("AP Save");
         CSingleton<CGameManager>.Instance.m_CurrentSaveLoadSlotSelectedIndex = Constants.SAVE_SLOT;
         CSingleton<CGameManager>.Instance.m_IsManualSaveLoad = true;
         CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();

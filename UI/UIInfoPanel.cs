@@ -1,5 +1,7 @@
 ﻿using ApClient;
 using ApClient.Archipelago;
+using ApClient.Archipelago.Mapping;
+using ApClient.mapping;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,17 +23,24 @@ public class UIInfoPanel : MonoBehaviour
         Instance.productPrefab = productPrefab;
 
         int mult = 0;
-        switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+        if (Plugin.ArchipelagoHandler.slotData.CardSanity > 0)
         {
-            case 0: mult = 12; break;
-            case 1: mult = 1; break;
-            case 2: mult = 3; break;
-            case 3: mult = 4; break;
-            case 4: mult = 6; break;
+            switch (Plugin.ArchipelagoHandler.slotData.CardOpeningCheckDifficulty)
+            {
+                case 0: mult = 12; break;
+                case 1: mult = 1; break;
+                case 2: mult = 3; break;
+                case 3: mult = 4; break;
+                case 4: mult = 6; break;
+            }
+            if (mult != 12 && Plugin.ArchipelagoHandler.slotData.CardSanity == 2)
+            {
+                mult *= 2;
+            }
         }
-        if(mult != 12 && Plugin.ArchipelagoHandler.slotData.CardSanity == 2)
+        else
         {
-            mult *= 2;
+            mult = 12;
         }
 
         foreach (var tmp in apinfoobject.GetComponentsInChildren<TextMeshProUGUI>(true))
@@ -51,14 +60,15 @@ public class UIInfoPanel : MonoBehaviour
                 case "CurrentGhostsSold": Instance.currentGhostsSold = tmp; break;
                 case "GhostGoalText": Instance.ghostGoalText = tmp; break;
 
-                case "Basic Count": Instance.basicCount = tmp; break;
-                case "Rare Count": Instance.rareCount = tmp; break;
-                case "Epic Count": Instance.epicCount = tmp; break;
-                case "Legendary Count": Instance.legendaryCount = tmp; break;
-                case "Destiny Basic Count": Instance.destinyBasicCount = tmp; break;
-                case "Destiny Rare Count": Instance.destinyRareCount = tmp; break;
-                case "Destiny Epic Count": Instance.destinyEpicCount = tmp; break;
-                case "Destiny Legendary Count": Instance.destinyLegendaryCount = tmp; break;
+                case "Basic Count": 
+                    Instance.basicCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.BasicCardPack); break;
+                case "Rare Count": Instance.rareCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.RareCardPack); break;
+                case "Epic Count": Instance.epicCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.EpicCardPack); break;
+                case "Legendary Count": Instance.legendaryCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.LegendaryCardPack); break;
+                case "Destiny Basic Count": Instance.destinyBasicCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.DestinyBasicCardPack); break;
+                case "Destiny Rare Count": Instance.destinyRareCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.DestinyRareCardPack); break;
+                case "Destiny Epic Count": Instance.destinyEpicCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.DestinyEpicCardPack); break;
+                case "Destiny Legendary Count": Instance.destinyLegendaryCount = tmp; Instance.setCardCollectionCount(ECollectionPackType.DestinyLegendaryCardPack); break;
 
                 case "Generic Count": Instance.GenericCount = tmp; break;
                 case "Standard Count": Instance.StandardCount = tmp; break;
@@ -135,7 +145,6 @@ public class UIInfoPanel : MonoBehaviour
             }
         }
 
-        Plugin.Logger.LogInfo($"find button listeners");
         foreach (var panel in apinfoobject.GetComponentsInChildren<Image>(true))
         {
             switch (panel.name)
@@ -155,11 +164,6 @@ public class UIInfoPanel : MonoBehaviour
                 case "Foil Panel": Instance.FoilImage = panel; break;
             }
         }
-        Plugin.Logger.LogInfo($"Set button listeners");
-        Plugin.Logger.LogInfo($"Set button listeners {Instance.GenericImage != null}");
-        Plugin.Logger.LogInfo($"Set button listeners {Instance.StandardImage != null}");
-        Plugin.Logger.LogInfo($"Set button listeners {Instance.PauperImage != null}");
-        Plugin.Logger.LogInfo($"Set button listeners {Instance.FireImage != null}");
 
         Instance.cardOpenButton.onClick.AddListener(() => {
             Instance.UpdateAchievementList(Instance.cardOpenItems);
@@ -255,6 +259,17 @@ public class UIInfoPanel : MonoBehaviour
         for (int packtype = 0; packtype < (int)ECollectionPackType.MAX; packtype++)
         {
             Instance.UpdateCardCollection((ECollectionPackType)packtype, 0);
+        }
+
+        if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
+        {
+            decimal countCollected = 0;
+            foreach (var pair in Plugin.SaveHandler.GetSaveData().foundCards.foundByPackType)
+            {
+                countCollected += pair.Value.Count;
+            }
+            decimal percentCollected = countCollected / (decimal)(countCollected + Plugin.SaveHandler.GetSaveData().foundCards.notfound.Count);
+            Instance.setPercentGoalCollected(percentCollected * 100);
         }
     }
 
@@ -363,11 +378,9 @@ public class UIInfoPanel : MonoBehaviour
     public List<CompiledAchievement> currentCardItems;
     public void setVisable(bool visable)
     {
-        Plugin.Logger.LogInfo("toggle Ap info");
         showGUI = visable;
         if (window != null)
         {
-            Plugin.Logger.LogInfo("instance not null");
             window.SetActive(visable);
             UpdateAchievementList(cardOpenItems);
             int maxLevel = APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel);
@@ -389,7 +402,6 @@ public class UIInfoPanel : MonoBehaviour
         {
             return;
         }
-        Plugin.Logger.LogInfo($"Toggle AP Info: {visible}");
         showGUI = visible;
 
         if (window == null)
@@ -406,9 +418,13 @@ public class UIInfoPanel : MonoBehaviour
         yield return new WaitForSeconds(delay);
         if (!showGUI) // confirm it's still meant to be hidden
         {
-            Plugin.Logger.LogInfo("Hiding info screen after delay");
             window.SetActive(false);
         }
+    }
+
+    public void setCardCollectionCount(ECollectionPackType type)
+    {
+        Instance.UpdateCardCollection(type, Plugin.SaveHandler.GetSaveData().foundCards.sanityCount[type]);
     }
     public void SetLevelMax(int value)
     {
@@ -427,7 +443,6 @@ public class UIInfoPanel : MonoBehaviour
 
     public void InitializeEventGames(bool allevents,int total)
     {
-        Plugin.Logger.LogInfo($"generic: {GenericImage != null}");
         GenericImage.color = Color.red.AlphaMultiplied(0.4f);
         StandardImage.color = Color.red.AlphaMultiplied(0.4f);
         PauperImage.color = Color.red.AlphaMultiplied(0.4f);
@@ -444,9 +459,7 @@ public class UIInfoPanel : MonoBehaviour
 
         if (allevents)
         {
-            Plugin.Logger.LogInfo($"generic 2: {GenericEventGroup.gameObject != null}");
             GenericEventGroup.gameObject.SetActive(false);
-            Plugin.Logger.LogInfo($"standartd: {StandardTotal != null}");
             StandardTotal.text = $"{total}";
             PauperTotal.text = $"{total}";
             FireTotal.text = $"{total}";
@@ -462,68 +475,89 @@ public class UIInfoPanel : MonoBehaviour
         }
         else
         {
-            Plugin.Logger.LogInfo($"formats: {Formats1.gameObject != null}");
             Formats1.gameObject.SetActive(false);
             Formats2.gameObject.SetActive(false);
             Formats3.gameObject.SetActive(false);
-            Plugin.Logger.LogInfo($"total: {GenericTotal != null}");
             GenericTotal.text = $"{total}";
         }
+        CheckAllFormatsAvailability();
     }
 
-    public void UpdateFormatAvailability(EGameEventFormat packType)
+    public void CheckAllFormatsAvailability()
     {
-        Color c = new(0x2A, 0x2A, 0x8E, 0.4f);
-        switch (packType)
+        if(Plugin.ArchipelagoHandler.slotData.NoFormat)
+        {
+            UpdateFormatAvailability(EGameEventFormat.MAX);
+        }
+
+        for (int i = 0; i < (int)EGameEventFormat.MAX; i++)
+        {
+            if (Plugin.ArchipelagoHandler.GetItemCount(PlayTableMapping.FormatStartingId + i) > 0)
+            {
+
+                UpdateFormatAvailability((EGameEventFormat)i);
+            }
+        }
+
+    }
+
+    private Color formatAvailableColor = new(.164f, .164f, .55f, 0.4f);
+    public void UpdateFormatAvailability(EGameEventFormat eventType)
+    {
+        if(Plugin.ArchipelagoHandler.GetItemCount(FurnatureMapping.getIdFromType(EObjectType.PlayTable)) == 0)
+        {
+            return;
+        }
+
+        switch (eventType)
         {
             
             case EGameEventFormat.MAX:
-                GenericImage.color = c;
-                break;
+                GenericImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.Standard:
-                StandardImage.color = c;
-                break;
+                StandardImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.Pauper:
-                PauperImage.color = c;
-                break;
+                PauperImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.FireCup:
-                FireImage.color = c;
-                break;
+                FireImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.EarthCup:
-                EarthImage.color = c;
-                break;
+                EarthImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.WaterCup:
-                WaterImage.color = c;
-                break;
+                WaterImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.WindCup:
-                WindImage.color = c;
-                break;
+                WindImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.FirstEditionVintage:
-                FirstEdImage.color = c;
-                break;
+                FirstEdImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.SilverBorder:
-                SilverImage.color = c;
-                break;
+                SilverImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.GoldBorder:
-                GoldImage.color = c;
-                break;
+                GoldImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.ExBorder:
-                EXImage.color = c;
-                break;
+                EXImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.FullArtBorder:
-                FullArtImage.color = c;
-                break;
+                FullArtImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.Foil:
-                FoilImage.color = c;
-                break;
+                FoilImage.color = formatAvailableColor;
+                return;
             case EGameEventFormat.None:
-                break;
+                return;
         }
     }
 
     public void UpdateFormatCount(EGameEventFormat packType, int count)
     {
-        Plugin.Logger.LogInfo($"Update format {packType} count to {count}");
         switch (packType)
         {
             case EGameEventFormat.MAX:
@@ -651,8 +685,6 @@ public class UIInfoPanel : MonoBehaviour
     }
     public void UpdateAchievementList(List<CompiledAchievement> items)
     {
-
-        Plugin.Logger.LogInfo($"Update list {items.Count}");
         foreach (Transform child in achievementContent)
         {
             Destroy(child.gameObject);

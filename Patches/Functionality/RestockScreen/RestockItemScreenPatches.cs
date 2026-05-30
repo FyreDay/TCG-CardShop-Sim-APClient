@@ -67,11 +67,6 @@ public class RestockItemScreenPatches
                                 if (CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox)
                                 {
                                     __instance.m_CurrentRestockDataIndexList.Add(l);
-                                    Plugin.Logger.LogInfo($"Adding " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].name} " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].amount} " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType} " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} ");
                                 }
                                 
                             }
@@ -79,18 +74,12 @@ public class RestockItemScreenPatches
                             {
                                 if (!CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox)
                                 {
-                                    Plugin.Logger.LogInfo($"Adding " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].name} " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].amount} " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].itemType} " +
-                                        $"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} ");
                                     __instance.m_CurrentRestockDataIndexList.Add(l);
                                 }
                             }
                             continue;
                             
                         }
-                        //Plugin.Logger.LogInfo($"{CSingleton<InventoryBase>.Instance.m_StockItemData_SO.m_RestockDataList[l].isBigBox} : {list[k]}");
                         __instance.m_CurrentRestockDataIndexList.Add(l);
                     }
                 }

@@ -117,7 +117,7 @@ public class SlotData
             }
             catch
             {
-                Plugin.Logger.LogInfo($" FAILED {prop.Name} : {prop.Value}");
+                Plugin.Logger.LogError($" FAILED {prop.Name} : {prop.Value}");
             }
         }
 

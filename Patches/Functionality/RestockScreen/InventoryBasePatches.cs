@@ -54,10 +54,10 @@ public class InventoryBasePatches
         [HarmonyPostfix]
         static void StartPatch(InventoryBase __instance)
         {
-            for (int i = 0; i < __instance.m_ObjectData_SO.m_FurniturePurchaseDataList.Count; i++)
-            {
-                Plugin.Logger.LogInfo(__instance.m_ObjectData_SO.m_FurniturePurchaseDataList[i].objectType);
-            }
+            //for (int i = 0; i < __instance.m_ObjectData_SO.m_FurniturePurchaseDataList.Count; i++)
+            //{
+            //    Plugin.Logger.LogInfo(__instance.m_ObjectData_SO.m_FurniturePurchaseDataList[i].objectType);
+            //}
 
             var stockData = __instance.m_StockItemData_SO;
             stockData.m_ShownItemType = UpdateShopList(Plugin.ArchipelagoHandler.slotData.pg1IndexMapping, stockData);

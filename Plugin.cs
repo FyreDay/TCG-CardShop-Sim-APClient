@@ -80,10 +80,7 @@ public class Plugin : BaseUnityPlugin
         string bundlePath = Path.Combine(assetsFolder, "apinfoui"); // Make sure "myAssetBundle" is the correct file name
         // Load the asset bundle
         myAssetBundle = AssetBundle.LoadFromFile(bundlePath);
-        foreach (string name in myAssetBundle.GetAllAssetNames())
-        {
-            Plugin.Logger.LogInfo(name);
-        }
+
         TextAsset metadataText = myAssetBundle.LoadAsset<TextAsset>("metadata");
         BundleMetadata metadata = JsonConvert.DeserializeObject<BundleMetadata>( metadataText.text);
 
@@ -91,7 +88,8 @@ public class Plugin : BaseUnityPlugin
         var pluginVersionSplit = ("1.0.0").Split(".");//MyPluginInfo.PLUGIN_VERSION.Split(".");
         if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
         {
-            ConnectionMenu.SetState($"Wrong asset version. Needs {metadata.bundleVersion}", false);
+            ConnectionMenu.SetState($"Wrong asset version. Needs {modversionSplit[0]}.{modversionSplit[1]}.X", false);
+            Logger.LogError($"Loaded asset bundle version {metadata.bundleVersion} does not match plugin major and minor version {MyPluginInfo.PLUGIN_VERSION}");
         }
         else
         {
@@ -120,7 +118,6 @@ public class Plugin : BaseUnityPlugin
 
     public static void SetSceneLoaded()
     {
-        Logger.LogInfo("start APClient scene initialization");
         GameObject myGameObject = myAssetBundle.LoadAsset<GameObject>("APInfo");
 
         var apinfoobject = Instantiate(myGameObject);
@@ -152,7 +149,6 @@ public class Plugin : BaseUnityPlugin
         SaveHandler.GetAchievementHandler().UpdateAvailability(ownedPacks);
         
         ConnectionMenu.setVisable(false);
-        SaveHandler.UpdateSanityUI();
         ItemHandler.FlushQueue();
 
         if (ArchipelagoHandler.slotData.StartingEmployeeIndex != -1 && !CPlayerData.GetIsWorkerHired(ArchipelagoHandler.slotData.StartingEmployeeIndex))
@@ -171,7 +167,6 @@ public class Plugin : BaseUnityPlugin
 
             AchievementManager.OnStaffHired(num);
         }
-        Logger.LogInfo("Finish AP scene load");
 
     }
 
@@ -195,7 +190,6 @@ public class Plugin : BaseUnityPlugin
         // Toggle with hotkey
         if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
         {
-            Logger.LogInfo("close custom window");
             UIInfoPanel.getInstance().DelaySetVisable(false);
 
         }
@@ -332,7 +326,7 @@ public class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
-        Plugin.Logger.LogInfo("WHAT IS HAPPENING AHHHHHHHHHHA");
+        Plugin.Logger.LogInfo("Unloading AP Mod");
         //_ = ArchipelagoHandler.DisconnectAsync();
         this.Harmony.UnpatchSelf();
     }
