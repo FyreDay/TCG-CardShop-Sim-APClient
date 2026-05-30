@@ -31,3 +31,14 @@ public class ScannerAwakePatches
         //}
     }
 }
+
+[HarmonyPatch(typeof(UI_BarcodeScannerScreen))]
+public class BarcodePatches
+{
+    [HarmonyPatch("GetRestockIndex")]
+    [HarmonyPostfix]
+    static void PostFix(ref int __result)
+    {
+        Plugin.Logger.LogInfo($"{__result}");
+    }
+}

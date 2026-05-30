@@ -25,7 +25,7 @@ public class ArchipelagoHandler : MonoBehaviour
     public SlotData slotData;
     private ArchipelagoSession Session { get; set; }
     DeathLinkService deathLinkService = null;
-    
+
     private ConcurrentQueue<long> _locationsToCheck = new ConcurrentQueue<long>();
     public bool disconnecting = false;
 
@@ -62,10 +62,10 @@ public class ArchipelagoHandler : MonoBehaviour
                 Plugin.Logger.LogError($"AP world version {modversion} is not compatible with plugin version {MyPluginInfo.PLUGIN_VERSION}");
                 await Session.Socket.DisconnectAsync();
                 ConnectionMenu.SetState($"AP Requires Mod v{modversion}", false);
-                
+
                 return null;
             }
-            
+
             slotData = new SlotData(loginSuccess.SlotData);
 
             if (slotData.Deathlink)
@@ -87,7 +87,7 @@ public class ArchipelagoHandler : MonoBehaviour
         return null;
     }
 
-    
+
 
     public async Task DisconnectAsync()
     {
@@ -159,7 +159,7 @@ public class ArchipelagoHandler : MonoBehaviour
             !message.Parts.Any(x => x.Text.Contains(Session!.Players.GetPlayerName(Session.ConnectionInfo.Slot))))
             return;
         if (message.Parts.Length == 1)
-        {   
+        {
             messageStr = message.Parts[0].Text;
         }
         else
@@ -203,7 +203,8 @@ public class ArchipelagoHandler : MonoBehaviour
         return Session.Locations.AllLocationsChecked.ToHashSet();
     }
 
-    void OnDestroy() { 
+    void OnDestroy()
+    {
         Session!.Socket.ErrorReceived -= OnError;
         Session!.MessageLog.OnMessageReceived -= OnMessageReceived;
         Session!.Socket.ErrorReceived -= OnError;

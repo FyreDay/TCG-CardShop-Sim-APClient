@@ -31,7 +31,7 @@ public class APSaveData
 {
     public PlayerAchievementSave achievementSave { get; set; }
     public FoundCards foundCards { get; set; }
-    public int ProcessedIndex { get; set; }
+    public int NextExpectedIndex { get; set; }
     public int Luck { get; set; }
     public int GhostCardsSold { get; set; }
     public int StoredXP { get; set; }
@@ -40,7 +40,7 @@ public class APSaveData
     public Dictionary<EGameEventFormat, int> PlayedGames = new();
 
     public APSaveData() {
-        ProcessedIndex = 0;
+        NextExpectedIndex = 0;
         Luck = 0;
         StoredXP = 0;
         foundCards = new FoundCards();
@@ -153,14 +153,14 @@ public class SaveHandler
 
         return true;
     }
-
+    
     private void UpdateCardCount(CardData card)
     {
         saveData.foundCards.sanityCount[card.GetPackType()] += 1;
         UIInfoPanel.getInstance().UpdateCardCollection(card.GetPackType(), saveData.foundCards.sanityCount[card.GetPackType()]);
         Plugin.ArchipelagoHandler.CompleteLocationChecks(CardMapping.getId(card));
     }
-
+    //TODO: Fix method since its not tracking foils correctly (all foil must count as non-foil)
     public void AddCard(CardData card, string achievementType)
     {
         if (achievementType == Constants.OPEN_ACHIEVEMENT_TYPE
@@ -240,12 +240,6 @@ public class SaveHandler
         }
     }
 
-    public void checkWithServer(HashSet<long> checkedLocations)
-    {
-        achievementHandler.CheckWithHashSet(checkedLocations);
-        Save(Constants.SAVE_SLOT);
-    }
-
     public void AddGhostSold()
     {
         saveData.GhostCardsSold++;
@@ -254,7 +248,7 @@ public class SaveHandler
 
     public CardData NewRandomCard()
     {
-        if (Plugin.SaveHandler.saveData.foundCards.notfound.Count < 0)
+        if (Plugin.SaveHandler.saveData.foundCards.notfound.Count <= 0)
         {
             var cardData = new CardData();
 
@@ -290,12 +284,49 @@ public class SaveHandler
     {
         return $"{this.GetBaseDirectory()}/APSaves/{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
     }
+
+    private string getJsonBackupSavePath()
+    {
+        return $"{this.GetBaseDirectory()}/APSaves/backup_{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
+    }
     public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getGdSavePath()); }
+
+    public static bool ValidateSavedSlotData(string filePath)
+    {
+        if (File.Exists(filePath))
+        {
+            try
+            {
+                string text = File.ReadAllText(filePath);
+                var combined = JsonConvert.DeserializeObject<CombinedSaveWrapper>(text);
+                var test = JsonUtility.FromJson<CGameData>(combined.UnityGameData);
+                if (combined.ModData == null)
+                {
+                    return false;
+                }
+                if (combined.ModData.foundCards == null)
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError(ex);
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    private int m_ValidateSaveCount = 0;
     public void Save(int saveSlotIndex)
     {
         System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/APSaves/");
         CSaveLoad.m_SavedGame = CGameData.instance;
         string finalPath = getJsonSavePath();
+        string backupPath = getJsonBackupSavePath();
         string tempPath = finalPath + ".tmp";
 
         try
@@ -311,15 +342,41 @@ public class SaveHandler
             string combinedJson = JsonConvert.SerializeObject(combined, Formatting.Indented);
             File.WriteAllText(tempPath, combinedJson);
 
-            FileInfo fi = new FileInfo(tempPath);
-            using (var fs = fi.Open(FileMode.Open))
+            if (ValidateSavedSlotData(tempPath))
             {
-                fs.Flush(true);
+                if (File.Exists(finalPath))
+                {
+                    if (File.Exists(backupPath))
+                    {
+                        File.Delete(backupPath);
+                    }
+
+                    File.Move(finalPath, backupPath);
+                }
+
+                if (File.Exists(tempPath))
+                {
+                    File.Move(tempPath, finalPath);
+                }
+
+                m_ValidateSaveCount = 0;
+                Plugin.Logger.LogInfo("Save process done");
+                CEventManager.QueueEvent(new CEventPlayer_OnSaveStatusUpdated(isSuccess: true, isAutosaving: false));
             }
-            if (File.Exists(finalPath))
-                File.Replace(tempPath, finalPath, null);
             else
-                File.Move(tempPath, finalPath);
+            {
+                m_ValidateSaveCount++;
+                Plugin.Logger.LogError("ValidateSavedSlotData Save file invalid, try resave m_ValidateSaveCount " + m_ValidateSaveCount);
+                if (m_ValidateSaveCount < 10)
+                {
+                    Save(saveSlotIndex);
+                    return;
+                }
+
+                Plugin.Logger.LogError("Error - Cannot save");
+                CEventManager.QueueEvent(new CEventPlayer_OnSaveStatusUpdated(isSuccess: false, isAutosaving: false));
+            }
+
         }
         catch (Exception ex)
         {
@@ -333,7 +390,17 @@ public class SaveHandler
 
     public bool Load()
     {
-        string jsonpath = getJsonSavePath();
+        return loadFromPath(getJsonSavePath());
+    }
+
+    public bool LoadBackup()
+    {
+        return loadFromPath(getJsonBackupSavePath());
+    }
+
+    private bool loadFromPath(string jsonpath) 
+    {
+        
 
         if (!File.Exists(jsonpath))
             return false;
@@ -362,10 +429,11 @@ public class SaveHandler
             }
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             Plugin.Logger.LogError("Failed to retrieve save data");
+            Plugin.Logger.LogError(ex);
+            return false;
         }
-        return true;
     }
 }

@@ -19,7 +19,6 @@ public class SaveLoadPatches
         static bool SavePrefix(int saveSlotIndex, bool skipJSONSave = false)
         {
             Plugin.SaveHandler.Save(saveSlotIndex);
-            CEventManager.QueueEvent(new CEventPlayer_OnSaveStatusUpdated(isSuccess: true, isAutosaving: false));
             return false;
         }
     }
@@ -31,9 +30,13 @@ public class SaveLoadPatches
         {
             if (!Plugin.SaveHandler.Load())
             {
-                Plugin.Logger.LogError("Cannot load Saves for AP Client");
-                __result = false;
-                return false;
+                Plugin.Logger.LogError("Failed to load save. Trying backup File");
+                if (!Plugin.SaveHandler.LoadBackup())
+                {
+                    Plugin.Logger.LogError("Failed to load backup save. Giving up");
+                    __result = false;
+                    return false;
+                }
             }
             //Plugin.SaveHandler.checkWithServer(Plugin.ArchipelagoHandler.GetCheckedLocations());
             __result = true;

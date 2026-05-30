@@ -28,36 +28,66 @@ public class ItemHandler : MonoBehaviour
 {
     private Queue<ItemWrapper> cachedItems = new Queue<ItemWrapper>();
 
+
+    private volatile bool saveDirty;
+    private float nextSaveTime;
+
+    private void MarkSaveDirty()
+    {
+        saveDirty = true;
+        nextSaveTime = Time.realtimeSinceStartup + 2f;
+    }
+
+    private void Update()
+    {
+        if (saveDirty && Time.realtimeSinceStartup >= nextSaveTime)
+        {
+            
+
+            try
+            {
+                Plugin.SaveHandler.Save(Constants.SAVE_SLOT);
+                saveDirty = false;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError(ex);
+            }
+        }
+    }
     public void HandleItem(int index, ItemInfo item, bool save = true)
     {
-        try
+        if (!Plugin.IsGameReady())
         {
-            if (!Plugin.IsGameReady())
-            {
-                APConsole.Instance.DebugLog($"Game not ready, caching item: {item.ItemName} (index {index})");
-                cachedItems.Enqueue(new ItemWrapper(index, item));
-                return;
-            }
-
-            if (cachedItems.Count > 0)
-            {
-                APConsole.Instance.DebugLog($"Processing {cachedItems.Count} cached items...");
-                FlushQueue();
-            }
-
-            ProcessItem(index, item);
+            APConsole.Instance.DebugLog($"Game not ready, caching item: {item.ItemName} (index {index})");
+            cachedItems.Enqueue(new ItemWrapper(index, item));
+            return;
         }
-        catch (Exception ex)
+        Util.RunOnMainThread(() =>
         {
-            APConsole.Instance.DebugLog($"HandleItem Error: {ex}");
-        }
+            try
+            {
+                if (cachedItems.Count > 0)
+                {
+                    APConsole.Instance.DebugLog($"Processing {cachedItems.Count} cached items...");
+                    FlushQueue();
+                }
+
+                ProcessItem(index, item);
+
+                MarkSaveDirty();
+            }
+            catch (Exception ex)
+            {
+                APConsole.Instance.DebugLog($"HandleItem Error: {ex}");
+            }
+        });
     }
 
     public void FlushQueue()
     {
         if (!Plugin.IsGameReady())
         {
-            APConsole.Instance.DebugLog("Attempted to flush queue but game is not ready");
             return;
         }
 
@@ -66,224 +96,223 @@ public class ItemHandler : MonoBehaviour
         {
             var itemWrapper = cachedItems.Dequeue();
             ProcessItem(itemWrapper.Index, itemWrapper.Info);
+
             processedCount++;
         }
 
         APConsole.Instance.DebugLog($"Flushed {processedCount} cached items");
         if (processedCount > 0)
-            Plugin.SaveHandler.Save(Constants.SAVE_SLOT);
+            MarkSaveDirty();
     }
 
     
     private void ProcessItem(int index, ItemInfo item)
     {
-        if (index < Plugin.SaveHandler.GetSaveData().ProcessedIndex)
+        if (index < Plugin.SaveHandler.GetSaveData().NextExpectedIndex)
         {
-            APConsole.Instance.DebugLog($"Item {index} already processed (current: {Plugin.SaveHandler.GetSaveData().ProcessedIndex})");
+            APConsole.Instance.DebugLog($"Item {index} already processed (current: {Plugin.SaveHandler.GetSaveData().NextExpectedIndex})");
             return;
         }
-        Util.RunOnMainThread(() =>
+        
+        Plugin.SaveHandler.GetSaveData().NextExpectedIndex++;
+
+        switch (item.ItemId)
         {
-            Plugin.SaveHandler.GetSaveData().ProcessedIndex++;
+            case GenericItemMapping.SMALL_MONEY:
+                CEventManager.QueueEvent(new CEventPlayer_AddCoin(10 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
+                return;
+            case GenericItemMapping.MEDIUM_MONEY:
+                CEventManager.QueueEvent(new CEventPlayer_AddCoin(20 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
+                return;
+            case GenericItemMapping.LARGE_MONEY:
+                CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
+                return;
+            case GenericItemMapping.SMALL_XP:
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 400))));
+                return;
+            case GenericItemMapping.MEDIUM_XP:
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 800))));
+                return;
+            case GenericItemMapping.LARGE_XP:
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 1500))));
+                return;
+            case GenericItemMapping.RANDOM_CARD:
+                CPlayerData.AddCard(Plugin.SaveHandler.NewRandomCard(), 1);
+                return;
 
-            switch (item.ItemId)
-            {
-                case GenericItemMapping.SMALL_MONEY:
-                    CEventManager.QueueEvent(new CEventPlayer_AddCoin(10 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
-                    return;
-                case GenericItemMapping.MEDIUM_MONEY:
-                    CEventManager.QueueEvent(new CEventPlayer_AddCoin(20 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
-                    return;
-                case GenericItemMapping.LARGE_MONEY:
-                    CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
-                    return;
-                case GenericItemMapping.SMALL_XP:
-                    CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 400))));
-                    return;
-                case GenericItemMapping.MEDIUM_XP:
-                    CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 800))));
-                    return;
-                case GenericItemMapping.LARGE_XP:
-                    CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 1500))));
-                    return;
-                case GenericItemMapping.RANDOM_CARD:
-                    CPlayerData.AddCard(Plugin.SaveHandler.NewRandomCard(), 1);
-                    return;
-
-                case GenericItemMapping.PROGRESSIVE_CUSTOMER_MONEY:
-                    Plugin.SaveHandler.GetSaveData().CustomerMoneyMult += 0.1f;
-                    return;
-                case GenericItemMapping.INCREASE_CARD_LUCK:
-                    if (Plugin.SaveHandler.GetSaveData().Luck >= 100)
-                    {
-                        CEventManager.QueueEvent(new CEventPlayer_AddCoin(400 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
-                    }
-                    else
-                    {
-                        Plugin.SaveHandler.GetSaveData().Luck += 1;
-                    }
-                    return;
-                case GenericItemMapping.DECREASE_CARD_LUCK_TRAP:
-                    Plugin.SaveHandler.GetSaveData().Luck -= Plugin.SaveHandler.GetSaveData().Luck > 0 ? 1 : 0;
-                    return;
-                case GenericItemMapping.CURRENCY_TRAP:
-                    //make this check to make sure you are not in a transaction
-                    //CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.Range(0, 8);
-                    return;
-                case GenericItemMapping.STINK_TRAP:
-                    List<Customer> list = CSingleton<CustomerManager>.Instance.m_CustomerList;
-                    foreach (Customer c in list)
-                    {
-                        c.SetSmelly();
-                    }
-                    return;
-                case GenericItemMapping.LIGHT_TRAP:
-                    Util.Instance.StartCoroutine(ToggleLightMultipleTimes());
-                    return;
-                case GenericItemMapping.CREDIT_CARD_FAILURE_TRAP:
-                    remainingTime += 60f;
-
-                    if (!timerRunning)
-                    {
-                        cashOnlyCoroutine = Util.Instance.StartCoroutine(CashOnlyTimerCoroutine());
-                    }
-                    return;
-                case GenericItemMapping.SHOP_EXPANSION_A:
-                    if (Plugin.ArchipelagoHandler.slotData.AutoRenovate)
-                    {
-                        CSingleton<UnlockRoomManager>.Instance.StartUnlockNextRoom();
-                    }
-                    return;
-                case GenericItemMapping.SHOP_EXPANSION_B:
-                    if (!CPlayerData.m_IsWarehouseRoomUnlocked)
-                    {
-                        CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
-
-                        SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
-                        return;
-                    }
-                    if (Plugin.ArchipelagoHandler.slotData.AutoRenovate)
-                    {
-                        CSingleton<UnlockRoomManager>.Instance.StartUnlockNextWarehouseRoom();
-
-                    }
-                    if (CPlayerData.m_IsWarehouseRoomUnlocked)
-                    {
-                        CSingleton<UnlockRoomManager>.Instance.EvaluateWarehouseRoomOpenClose();
-
-                    }
-                    return;
-                case GenericItemMapping.SCANNER:
-                    CPlayerData.m_IsScannerRestockUnlocked = true;
-                    CEventManager.QueueEvent(new CEventPlayer_ScannerRestockUnlocked());
-                    return;
-                case GenericItemMapping.FIVE_GHOST_CARD:
-                    addRandomGhosts(5);
-                    return;
-                case GenericItemMapping.FOUR_GHOST_CARD:
-                    addRandomGhosts(4);
-                    return;
-                case GenericItemMapping.THREE_GHOST_CARD:
-                    addRandomGhosts(3);
-                    return;
-                case GenericItemMapping.TWO_GHOST_CARD:
-                    addRandomGhosts(2);
-                    return;
-                case GenericItemMapping.ONE_GHOST_CARD:
-                    addRandomGhosts(1);
-                    return;
-            }
-
-            if((int)PlayTableMapping.GetFormatFromInt((int)item.ItemId) != -1)
-            {
-                UIInfoPanel.getInstance().UpdateFormatAvailability(PlayTableMapping.GetFormatFromInt((int)item.ItemId));
-            }
-
-
-            if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
-            {
-                EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
-                int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
-                var list = InventoryBase.GetRestockDataUsingItemType(type);
-                var indexList = InventoryBase.GetRestockDataIndexList(type);
-                if (num == 1 && list.First().licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1)
+            case GenericItemMapping.PROGRESSIVE_CUSTOMER_MONEY:
+                Plugin.SaveHandler.GetSaveData().CustomerMoneyMult += 0.1f;
+                return;
+            case GenericItemMapping.INCREASE_CARD_LUCK:
+                if (Plugin.SaveHandler.GetSaveData().Luck >= 100)
                 {
-                    ItemData itemData = InventoryBase.GetItemData(type);
-                    PopupTextPatches.ShowCustomText($"{itemData.GetName()} Now Available");
+                    CEventManager.QueueEvent(new CEventPlayer_AddCoin(400 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
                 }
-                else if (num > 1 && indexList.Count > 1)
+                else
                 {
-                    CPlayerData.SetUnlockItemLicense(indexList[1]);
-                }
-
-                var screen = FindObjectOfType<RestockItemScreen>();
-                if (screen != null)
-                {
-                    screen.OnPressChangePageButton(screen.m_PageIndex);
-
-                }
-
-                screen = FindObjectOfType<RestockItemBoardGameScreen>();
-                if (screen != null)
-                {
-                    screen.OnPressChangePageButton(screen.m_PageIndex);
-
-                }
-
-                if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
-                {
-                    Plugin.SaveHandler.CheckForCardCollectionGoal();
+                    Plugin.SaveHandler.GetSaveData().Luck += 1;
                 }
                 return;
-            }
-
-
-            if (EmployeeMapping.getindexFromId((int)item.ItemId) != -1)
-            {
-                int employeeIndex = EmployeeMapping.getindexFromId((int)item.ItemId);
-                //cannot run uless level fully loaded
-                var screen = FindObjectOfType<HireWorkerScreen>();
-
-                HireWorkerPanelUI[] allpanels = FindObjectsOfType<HireWorkerPanelUI>();
-                HireWorkerPanelUI panel = null;
-                foreach (HireWorkerPanelUI screenItem in allpanels)
+            case GenericItemMapping.DECREASE_CARD_LUCK_TRAP:
+                Plugin.SaveHandler.GetSaveData().Luck -= Plugin.SaveHandler.GetSaveData().Luck > 0 ? 1 : 0;
+                return;
+            case GenericItemMapping.CURRENCY_TRAP:
+                //make this check to make sure you are not in a transaction
+                //CSingleton<CGameManager>.Instance.m_CurrencyType = (EMoneyCurrencyType)UnityEngine.Random.Range(0, 8);
+                return;
+            case GenericItemMapping.STINK_TRAP:
+                List<Customer> list = CSingleton<CustomerManager>.Instance.m_CustomerList;
+                foreach (Customer c in list)
                 {
-                    if (screenItem.m_Index == employeeIndex)
-                    {
-                        panel = screenItem;
-                        break;
-                    }
+                    c.SetSmelly();
                 }
-                if (panel == null)
+                return;
+            case GenericItemMapping.LIGHT_TRAP:
+                Util.Instance.StartCoroutine(ToggleLightMultipleTimes());
+                return;
+            case GenericItemMapping.CREDIT_CARD_FAILURE_TRAP:
+                remainingTime += 60f;
+
+                if (!timerRunning)
                 {
+                    cashOnlyCoroutine = Util.Instance.StartCoroutine(CashOnlyTimerCoroutine());
+                }
+                return;
+            case GenericItemMapping.SHOP_EXPANSION_A:
+                if (Plugin.ArchipelagoHandler.slotData.AutoRenovate)
+                {
+                    CSingleton<UnlockRoomManager>.Instance.StartUnlockNextRoom();
+                }
+                return;
+            case GenericItemMapping.SHOP_EXPANSION_B:
+                if (!CPlayerData.m_IsWarehouseRoomUnlocked)
+                {
+                    CSingleton<UnlockRoomManager>.Instance.SetUnlockWarehouseRoom(true);
+
+                    SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
                     return;
                 }
-                panel.m_HiredText.SetActive(value: false);
-                panel.m_PurchaseBtn.SetActive(value: true);
-                return;
-            }
-
-            if (FurnatureMapping.Furnature.Where(f => f.id == item.ItemId).Any())
-            {
-                var screen = UnityEngine.Object.FindObjectOfType<FurnitureShopUIScreen>();
-                if (screen != null)
+                if (Plugin.ArchipelagoHandler.slotData.AutoRenovate)
                 {
-                    screen.Init();
+                    CSingleton<UnlockRoomManager>.Instance.StartUnlockNextWarehouseRoom();
 
                 }
+                if (CPlayerData.m_IsWarehouseRoomUnlocked)
+                {
+                    CSingleton<UnlockRoomManager>.Instance.EvaluateWarehouseRoomOpenClose();
+
+                }
+                return;
+            case GenericItemMapping.SCANNER:
+                CPlayerData.m_IsScannerRestockUnlocked = true;
+                CEventManager.QueueEvent(new CEventPlayer_ScannerRestockUnlocked());
+                return;
+            case GenericItemMapping.FIVE_GHOST_CARD:
+                addRandomGhosts(5);
+                return;
+            case GenericItemMapping.FOUR_GHOST_CARD:
+                addRandomGhosts(4);
+                return;
+            case GenericItemMapping.THREE_GHOST_CARD:
+                addRandomGhosts(3);
+                return;
+            case GenericItemMapping.TWO_GHOST_CARD:
+                addRandomGhosts(2);
+                return;
+            case GenericItemMapping.ONE_GHOST_CARD:
+                addRandomGhosts(1);
+                return;
+        }
+
+        if((int)PlayTableMapping.GetFormatFromInt((int)item.ItemId) != -1)
+        {
+            UIInfoPanel.getInstance().UpdateFormatAvailability(PlayTableMapping.GetFormatFromInt((int)item.ItemId));
+        }
+
+
+        if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
+        {
+            EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
+            int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
+            var list = InventoryBase.GetRestockDataUsingItemType(type);
+            var indexList = InventoryBase.GetRestockDataIndexList(type);
+            if (num == 1 && list.First().licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1)
+            {
+                ItemData itemData = InventoryBase.GetItemData(type);
+                PopupTextPatches.ShowCustomText($"{itemData.GetName()} Now Available");
+            }
+            else if (num > 1 && indexList.Count > 1)
+            {
+                CPlayerData.SetUnlockItemLicense(indexList[1]);
+            }
+
+            var screen = FindObjectOfType<RestockItemScreen>();
+            if (screen != null)
+            {
+                screen.OnPressChangePageButton(screen.m_PageIndex);
+
+            }
+
+            screen = FindObjectOfType<RestockItemBoardGameScreen>();
+            if (screen != null)
+            {
+                screen.OnPressChangePageButton(screen.m_PageIndex);
+
+            }
+
+            if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
+            {
+                Plugin.SaveHandler.CheckForCardCollectionGoal();
+            }
+            return;
+        }
+
+
+        if (EmployeeMapping.getindexFromId((int)item.ItemId) != -1)
+        {
+            int employeeIndex = EmployeeMapping.getindexFromId((int)item.ItemId);
+            //cannot run uless level fully loaded
+            var screen = FindObjectOfType<HireWorkerScreen>();
+
+            HireWorkerPanelUI[] allpanels = FindObjectsOfType<HireWorkerPanelUI>();
+            HireWorkerPanelUI panel = null;
+            foreach (HireWorkerPanelUI screenItem in allpanels)
+            {
+                if (screenItem.m_Index == employeeIndex)
+                {
+                    panel = screenItem;
+                    break;
+                }
+            }
+            if (panel == null)
+            {
+                return;
+            }
+            panel.m_HiredText.SetActive(value: false);
+            panel.m_PurchaseBtn.SetActive(value: true);
+            return;
+        }
+
+        if (FurnatureMapping.Furnature.Where(f => f.id == item.ItemId).Any())
+        {
+            var screen = UnityEngine.Object.FindObjectOfType<FurnitureShopUIScreen>();
+            if (screen != null)
+            {
+                screen.Init();
+
+            }
                 
-                if (FurnatureMapping.getIdFromType(EObjectType.CardShelf) == item.ItemId)
-                {
-                    Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
-                }
-
-                if (FurnatureMapping.getIdFromType(EObjectType.PlayTable) == item.ItemId)
-                {
-                    UIInfoPanel.getInstance().CheckAllFormatsAvailability();
-                }
-                return;
+            if (FurnatureMapping.getIdFromType(EObjectType.CardShelf) == item.ItemId)
+            {
+                Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
             }
-        });
+
+            if (FurnatureMapping.getIdFromType(EObjectType.PlayTable) == item.ItemId)
+            {
+                UIInfoPanel.getInstance().CheckAllFormatsAvailability();
+            }
+            return;
+        }
     }
 
     private void addRandomGhosts(int count)
