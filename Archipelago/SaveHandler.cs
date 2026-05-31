@@ -275,10 +275,6 @@ public class SaveHandler
     {
         return Application.persistentDataPath;
     }
-    private string getGdSavePath()
-    {
-        return $"{this.GetBaseDirectory()}/APSaves/{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.gd";
-    }
 
     private string getJsonSavePath()
     {
@@ -289,7 +285,7 @@ public class SaveHandler
     {
         return $"{this.GetBaseDirectory()}/APSaves/backup_{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
     }
-    public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getGdSavePath()); }
+    public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getJsonBackupSavePath()); }
 
     public static bool ValidateSavedSlotData(string filePath)
     {

@@ -131,10 +131,16 @@ public class PlayerDataPatches
         {
             if (!Plugin.IsGameReady()) return;
 
-            foreach (RestockData data in InventoryBase.GetRestockDataUsingItemType(InventoryBase.GetRestockData(index).itemType))
+            var datas = InventoryBase.GetRestockDataUsingItemType(InventoryBase.GetRestockData(index).itemType);
+            bool hasItem = false;
+            foreach (var data in datas)
             {
-                if (CPlayerData.GetIsItemLicenseUnlocked(data.index)) return;
+                if(CPlayerData.GetIsItemLicenseUnlocked(datas[1].index))
+                {
+                    hasItem = true;
+                }
             }
+            if (hasItem) { return; }
 
             Plugin.SaveHandler.GetSaveData().numLicensesOwned++;
             UIInfoPanel.getInstance().SetLicensesToLevel(APLogicUtil.GetRemainingLicenses(APLogicUtil.GetMaxLevel(CPlayerData.m_ShopLevel)));
@@ -145,22 +151,8 @@ public class PlayerDataPatches
         static void Postfix(int index)
         {
             CSingleton<GameUIScreen>.Instance.EvaluateShopLevelAndExp();
-            List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
 
-            for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)
-            {
-                if (!CPlayerData.m_IsItemLicenseUnlocked[i])
-                    continue;
-
-                ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
-
-                if (packType != ECollectionPackType.None)
-                {
-                    ownedPacks.Add(packType);
-                }
-            }
-
-            Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(ownedPacks);
+            Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
         }
     }
 

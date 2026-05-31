@@ -131,22 +131,8 @@ public class Plugin : BaseUnityPlugin
 
         UIInfoPanel.getInstance().setVisable(false);
         UIInfoPanel.getInstance().InitializeEventGames(!ArchipelagoHandler.slotData.NoFormat, ArchipelagoHandler.slotData.PlayTableChecks);
-        List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
 
-        for (int i = 0; i < CPlayerData.m_IsItemLicenseUnlocked.Count; i++)
-        {
-            if (!CPlayerData.m_IsItemLicenseUnlocked[i])
-                continue;
-
-            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
-
-            if (packType != ECollectionPackType.None)
-            {
-                ownedPacks.Add(packType);
-            }
-        }
-
-        SaveHandler.GetAchievementHandler().UpdateAvailability(ownedPacks);
+        SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
         
         ConnectionMenu.setVisable(false);
         ItemHandler.FlushQueue();
@@ -306,7 +292,8 @@ public class Plugin : BaseUnityPlugin
     {
         if(SaveHandler != null && IsGameReady())
         {
-            SaveHandler.Save(Constants.SAVE_SLOT);
+            CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
+            CSingleton<CGameManager>.Instance.SaveGameData(0);
         }
         SaveHandler = null;
     }

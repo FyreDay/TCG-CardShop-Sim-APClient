@@ -184,6 +184,9 @@ public class ArchipelagoHandler : MonoBehaviour
     {
         //todo:go to main menu
         APConsole.Instance.Log($"Socket closed: {reason}");
+        CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
+        CSingleton<CGameManager>.Instance.SaveGameData(0);
+        CSingleton<CGameManager>.Instance.LoadMainLevelAsync("Title");
         Plugin.ClearSave();
     }
 

@@ -98,22 +98,25 @@ public class APLogicUtil
 
     public static List<ECollectionPackType> GetAllAvailablePacks()
     {
-        List<ECollectionPackType> packs = new List<ECollectionPackType>();
-        if (Plugin.ArchipelagoHandler.GetItemCount(190) > 0)
+        List<ECollectionPackType> ownedPacks = new List<ECollectionPackType>();
+
+        for (int i = (int)EItemType.BasicCardPack; i <= (int)EItemType.DestinyLegendaryCardBox; i++)
         {
-            packs.Add(ECollectionPackType.BasicCardPack);
-        }
-        for (int i = 1; i < 15; i+=2)
-        {
-            if (Plugin.ArchipelagoHandler.GetItemCount(i) > 0 || Plugin.ArchipelagoHandler.GetItemCount(i+1) > 0)
+            if (!CPlayerData.m_IsItemLicenseUnlocked[i])
+                continue;
+
+            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
+
+            if (packType != ECollectionPackType.None && (int)Plugin.ArchipelagoHandler.slotData.pg1IndexMapping[i] <= CPlayerData.m_ShopLevel+1)
             {
-                packs.Add((ECollectionPackType)((i + 1) / 2));
+                Plugin.Logger.LogInfo($"Adding pack {packType} to owned packs");
+                ownedPacks.Add(packType);
             }
         }
-        return packs;
+        return ownedPacks;
     }
 
-    public static List<EItemType> GetAllAvailableItems()
+public static List<EItemType> GetAllAvailableItems()
     {
         List<EItemType> items = new List<EItemType>();
         if (Plugin.ArchipelagoHandler.GetItemCount(190) > 0)

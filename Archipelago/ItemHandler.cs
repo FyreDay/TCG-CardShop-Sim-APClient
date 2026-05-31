@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Device;
 
 namespace ApClient.Archipelago;
 
@@ -46,12 +47,13 @@ public class ItemHandler : MonoBehaviour
 
             try
             {
-                Plugin.SaveHandler.Save(Constants.SAVE_SLOT);
+                CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
+                CSingleton<CGameManager>.Instance.SaveGameData(0);
                 saveDirty = false;
             }
             catch (Exception ex)
             {
-                Plugin.Logger.LogError(ex);
+                Plugin.Logger.LogError(ex.ToString());
             }
         }
     }
@@ -204,7 +206,25 @@ public class ItemHandler : MonoBehaviour
                 }
                 return;
             case GenericItemMapping.SCANNER:
+                if (CPlayerData.m_IsScannerRestockUnlocked)
+                {
+                    return;
+                }
                 CPlayerData.m_IsScannerRestockUnlocked = true;
+                ScannerRestockScreen screen = FindObjectOfType<ScannerRestockScreen>();
+                if (screen != null)
+                {
+
+                    for (int i = 0; i < screen.m_LockedDisableList.Count; i++)
+                    {
+                        screen.m_LockedDisableList[i].SetActive(value: true);
+                    }
+
+                    screen.EvaluatePanelUIPage(screen.m_PageIndex);
+                    screen.UpdateTotalCostAndBoxCount();
+                    screen.m_UnlockScreenAnim.Play();
+                }
+                
                 CEventManager.QueueEvent(new CEventPlayer_ScannerRestockUnlocked());
                 return;
             case GenericItemMapping.FIVE_GHOST_CARD:
@@ -243,7 +263,9 @@ public class ItemHandler : MonoBehaviour
             }
             else if (num > 1 && indexList.Count > 1)
             {
-                CPlayerData.SetUnlockItemLicense(indexList[1]);
+                if (CPlayerData.GetIsItemLicenseUnlocked(indexList[0])){
+                    CPlayerData.SetUnlockItemLicense(indexList[1]);
+                }
             }
 
             var screen = FindObjectOfType<RestockItemScreen>();
