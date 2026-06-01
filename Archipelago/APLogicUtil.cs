@@ -107,7 +107,7 @@ public class APLogicUtil
             int unlockLevel = -1;
             foreach (int index in unlockIndexes)
             {
-                Plugin.Logger.LogInfo($"Unlock index {index} {InventoryBase.GetRestockData(index).name} hasitem {CPlayerData.GetIsItemLicenseUnlocked(index)} {InventoryBase.GetRestockData(index).licenseShopLevelRequired}");
+                //Plugin.Logger.LogInfo($"Unlock index {index} {InventoryBase.GetRestockData(index).name} hasitem {CPlayerData.GetIsItemLicenseUnlocked(index)} {InventoryBase.GetRestockData(index).licenseShopLevelRequired}");
                 if (CPlayerData.GetIsItemLicenseUnlocked(index))
                 {
                     int level = InventoryBase.GetRestockData(index).licenseShopLevelRequired;
@@ -123,10 +123,9 @@ public class APLogicUtil
             }
 
             ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType((EItemType)i);
-            Plugin.Logger.LogInfo($"Pack type for item {(EItemType)i} is {packType} lvl required {unlockLevel} at lvl {CPlayerData.m_ShopLevel + 1}");
+            //Plugin.Logger.LogInfo($"Pack type for item {(EItemType)i} is {packType} lvl required {unlockLevel} at lvl {CPlayerData.m_ShopLevel + 1}");
             if (packType != ECollectionPackType.None && unlockLevel <= CPlayerData.m_ShopLevel+1)
             {
-                Plugin.Logger.LogInfo($"Adding pack {packType} to owned packs");
                 ownedPacks.Add(packType);
             }
         }
