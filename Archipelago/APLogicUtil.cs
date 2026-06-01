@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace ApClient.Archipelago;
@@ -102,12 +103,28 @@ public class APLogicUtil
 
         for (int i = (int)EItemType.BasicCardPack; i <= (int)EItemType.DestinyLegendaryCardBox; i++)
         {
-            if (!CPlayerData.m_IsItemLicenseUnlocked[i])
+            List<int> unlockIndexes = InventoryBase.GetRestockDataIndexList((EItemType)i);
+            int unlockLevel = -1;
+            foreach (int index in unlockIndexes)
+            {
+                Plugin.Logger.LogInfo($"Unlock index {index} {InventoryBase.GetRestockData(index).name} hasitem {CPlayerData.GetIsItemLicenseUnlocked(index)} {InventoryBase.GetRestockData(index).licenseShopLevelRequired}");
+                if (CPlayerData.GetIsItemLicenseUnlocked(index))
+                {
+                    int level = InventoryBase.GetRestockData(index).licenseShopLevelRequired;
+                    if (unlockLevel == -1 || InventoryBase.GetRestockData(index).licenseShopLevelRequired < unlockLevel)
+                    {
+                        unlockLevel = level;
+                    }
+                }
+            }
+            if(unlockLevel == -1)
+            {
                 continue;
+            }
 
-            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType(InventoryBase.GetRestockData(i).itemType);
-
-            if (packType != ECollectionPackType.None && (int)Plugin.ArchipelagoHandler.slotData.pg1IndexMapping[i] <= CPlayerData.m_ShopLevel+1)
+            ECollectionPackType packType = InventoryBase.ItemTypeToCollectionPackType((EItemType)i);
+            Plugin.Logger.LogInfo($"Pack type for item {(EItemType)i} is {packType} lvl required {unlockLevel} at lvl {CPlayerData.m_ShopLevel + 1}");
+            if (packType != ECollectionPackType.None && unlockLevel <= CPlayerData.m_ShopLevel+1)
             {
                 Plugin.Logger.LogInfo($"Adding pack {packType} to owned packs");
                 ownedPacks.Add(packType);
