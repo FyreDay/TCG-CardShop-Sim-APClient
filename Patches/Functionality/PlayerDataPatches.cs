@@ -135,7 +135,7 @@ public class PlayerDataPatches
             bool hasItem = false;
             foreach (var data in datas)
             {
-                if(CPlayerData.GetIsItemLicenseUnlocked(datas[1].index))
+                if(CPlayerData.GetIsItemLicenseUnlocked(data.index))
                 {
                     hasItem = true;
                 }

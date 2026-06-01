@@ -103,13 +103,13 @@ public class CustomerPatches
                 return false;
             }
             __instance.m_TargetBuyItemList.Clear();
-            
+
             int num = 2 + (CPlayerData.m_ShopLevel + 1) / 10;
             if (num > 8)
             {
                 num = 8;
             }
-            
+
             List<EItemType> itemTypeListOnShelf = ShelfManager.GetItemTypeListOnShelf();
             for (int i = 0; i < itemTypeListOnShelf.Count; i++)
             {
@@ -126,7 +126,7 @@ public class CustomerPatches
                     break;
                 }
             }
-            
+
             if (Plugin.IsGameReady())
             {
                 List<EItemType> unlockedAP = Archipelago.APLogicUtil.GetAllAvailableItems();
@@ -141,6 +141,7 @@ public class CustomerPatches
                     }
                 }
             }
+
             CPlayerData.m_TargetBuyItemList = __instance.m_TargetBuyItemList;
             return false;
         }
@@ -155,10 +156,10 @@ public class CustomerPatches
             float old = __instance.m_MaxMoney;
             if (Plugin.IsGameReady())
             {
-                __instance.m_MaxMoney = __instance.m_MaxMoney * Plugin.SaveHandler.GetSaveData().CustomerMoneyMult;
+                __instance.m_MaxMoney = __instance.m_MaxMoney * (1 + Plugin.SaveHandler.GetSaveData().CustomerMoneyMult);
             }
             //__instance.m_IsChattyCustomer = true;
-            //Plugin.Log($"Customer spawned with {__instance.m_MaxMoney} instead of {old}");
+            Plugin.Logger.LogInfo($"Customer spawned with {__instance.m_MaxMoney} instead of {old}");
         }
     }
 
@@ -171,7 +172,7 @@ public class CustomerPatches
             if (totalPlayTime > 0f)
             {
 
-                EGameEventFormat format = EGameEventFormat.ExBorder;// Plugin.ArchipelagoHandler.slotData.NoFormat ? EGameEventFormat.MAX : CPlayerData.m_GameEventFormat;
+                EGameEventFormat format = Plugin.ArchipelagoHandler.slotData.NoFormat ? EGameEventFormat.MAX : CPlayerData.m_GameEventFormat;
                 var save = Plugin.SaveHandler.GetSaveData();
                 Plugin.Logger.LogInfo($"format: {format} num {save.PlayedGames[format]}");
                 if (!save.PlayedGames.ContainsKey(format))
