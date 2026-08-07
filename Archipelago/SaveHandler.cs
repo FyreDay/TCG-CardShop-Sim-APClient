@@ -247,7 +247,8 @@ public class SaveHandler
     }
 
     public CardData NewRandomCard()
-    {
+    {   
+        Plugin.Logger.LogInfo("Getting new random card");
         if (Plugin.SaveHandler.saveData.foundCards.notfound.Count <= 0)
         {
             var cardData = new CardData();
@@ -257,6 +258,7 @@ public class SaveHandler
             cardData.isFoil = true;
             cardData.monsterType = (EMonsterType)(1);
             cardData.cardGrade = 0;
+            Plugin.Logger.LogInfo("Finished default card");
             return cardData;
         }
         int id = Plugin.SaveHandler.saveData.foundCards.notfound[UnityEngine.Random.RandomRangeInt(0, Plugin.SaveHandler.saveData.foundCards.notfound.Count)];
@@ -267,6 +269,7 @@ public class SaveHandler
             return NewRandomCard();
         }
         data.isNew = true;
+        Plugin.Logger.LogInfo("Finished new random card");
         return data;
     }
 

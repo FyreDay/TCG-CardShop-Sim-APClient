@@ -41,14 +41,14 @@ public class CustomerPatches
         public static void Postfix(Item item)
         {
             CPlayerData.m_StockSoldList[(int)item.GetItemType()]++;
-            //Plugin.Log($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
+            Plugin.Logger.LogInfo($"{item} has sold {CPlayerData.m_StockSoldList[(int)item.GetItemType()]} times");
             var locations = LicenseMapping.GetLocations(item.GetItemType());
             foreach (var loc in locations)
             {
                 int amount = CPlayerData.m_StockSoldList[(int)item.GetItemType()];
                 if (loc.count == amount)
                 {
-                    //Plugin.Log($"{item.GetItemType()} has {locations.Count()} goals left");
+                    Plugin.Logger.LogInfo($"{item.GetItemType()} has {locations.Count()} goals left");
                     Plugin.ArchipelagoHandler.CompleteLocationChecks(loc.id);
                 }
             }
@@ -186,7 +186,7 @@ public class CustomerPatches
 
                 if (checknum != -1 && checknum <= Plugin.ArchipelagoHandler.slotData.PlayTableChecks)
                 {
-                    
+                    Plugin.Logger.LogInfo($"Completing location check for format {format} and check number {checknum} and ID {PlayTableMapping.PlayCheckStartingId + ((int)format * 15) + checknum - 1}");
                     Plugin.ArchipelagoHandler.CompleteLocationChecks(PlayTableMapping.PlayCheckStartingId + ((int)format * 15) + checknum - 1);
                     UIInfoPanel.getInstance().UpdateFormatCount(format, checknum);
                 }

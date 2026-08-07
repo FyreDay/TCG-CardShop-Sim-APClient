@@ -26,13 +26,11 @@ public class ArchipelagoHandler : MonoBehaviour
     private ArchipelagoSession Session { get; set; }
     DeathLinkService deathLinkService = null;
 
-    private ConcurrentQueue<long> _locationsToCheck = new ConcurrentQueue<long>();
     public bool disconnecting = false;
 
     public bool IsConnected => Session?.Socket.Connected ?? false;
     public async Task<SaveHandler> ConnectAsync(string ip, string password, string slot)
     {
-        _locationsToCheck = new ConcurrentQueue<long>();
         Session = ArchipelagoSessionFactory.CreateSession(ip);
         Session.MessageLog.OnMessageReceived += OnMessageReceived;
         Session.Socket.ErrorReceived += OnError;
@@ -74,6 +72,7 @@ public class ArchipelagoHandler : MonoBehaviour
                 deathLinkService.EnableDeathLink();
                 deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
                 {
+
                     if (Plugin.EnabledDeathLink())
                     {
                         APLogicUtil.TriggerDeathlinkLogic();
@@ -186,8 +185,9 @@ public class ArchipelagoHandler : MonoBehaviour
         APConsole.Instance.Log($"Socket closed: {reason}");
         CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
         CSingleton<CGameManager>.Instance.SaveGameData(0);
-        CSingleton<CGameManager>.Instance.LoadMainLevelAsync("Title");
         Plugin.ClearSave();
+        CSingleton<CGameManager>.Instance.LoadMainLevelAsync("Title");
+        
     }
 
     private void OnHint(Hint[] hints)

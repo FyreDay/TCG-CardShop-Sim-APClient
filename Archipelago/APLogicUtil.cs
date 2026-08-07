@@ -60,29 +60,33 @@ public class APLogicUtil
 
     public static void TriggerDeathlinkLogic()
     {
-        PopupTextPatches.ShowCustomText("Deathlink Has Caused Customers to Leave!");
-        foreach (Customer c in CSingleton<CustomerManager>.Instance.m_CustomerList)
+        Util.RunOnMainThread(() =>
         {
-            if (!(UnityEngine.Random.Range(0, 1f) < Constants.SHOPLIFT_CHANCE))
+            
+            PopupTextPatches.ShowCustomText("Deathlink Has Caused Customers to Leave!");
+            foreach (Customer c in CSingleton<CustomerManager>.Instance.m_CustomerList)
             {
-                continue;
-            }
-            List<string> list = new List<string>();
-            if (c.m_ItemInBagList.Count > 0 || c.m_CardInBagList.Count > 0)
-            {
-                list.Add(LocalizationManager.GetTranslation("Im Going to Shoplift"));
-            }
-            else
-            {
-                list.Add(LocalizationManager.GetTranslation("Im leaving"));
-            }
-            c.PopupText(list, 100);
-            c.m_CustomerTournamentData.m_IsTournamentCustomer = false;
-            c.m_ItemInBagList.Clear();
-            c.m_CardInBagList.Clear();
-            c.ExitShop();
+                if (!(UnityEngine.Random.Range(0, 1f) < Constants.SHOPLIFT_CHANCE))
+                {
+                    continue;
+                }
+                List<string> list = new List<string>();
+                if (c.m_ItemInBagList.Count > 0 || c.m_CardInBagList.Count > 0)
+                {
+                    list.Add(LocalizationManager.GetTranslation("Im Going to Shoplift"));
+                }
+                else
+                {
+                    list.Add(LocalizationManager.GetTranslation("Im leaving"));
+                }
+                c.PopupText(list, 100);
+                c.m_CustomerTournamentData.m_IsTournamentCustomer = false;
+                c.m_ItemInBagList.Clear();
+                c.m_CardInBagList.Clear();
+                c.ExitShop();
 
-        }
+            }
+        });
     }
 
     public static bool hasAllCardPacks()
