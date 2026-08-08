@@ -11,6 +11,22 @@ public class LicenseMapping
     public const int BASIC_CARD_PACK_ID = 190;
     public static List<(int id, int count)> GetLocations(EItemType type)
     {
+        if (type == EItemType.BulkBox_TetramonBaseGradeUG ||
+            type == EItemType.BulkBox_TetramonBaseGradeHG ||
+            type == EItemType.BulkBox_TetramonBaseGradeMG ||
+            type == EItemType.BulkBox_TetramonBaseGradePG)
+        {
+            type = EItemType.BulkBox_TetramonBase;
+        }
+
+        if (type == EItemType.BulkBox_TetramonDestinyGradeUG ||
+            type == EItemType.BulkBox_TetramonDestinyGradeHG ||
+            type == EItemType.BulkBox_TetramonDestinyGradeMG ||
+            type == EItemType.BulkBox_TetramonDestinyGradePG)
+        {
+            type = EItemType.BulkBox_TetramonDestiny;
+        }
+
         int id = type == EItemType.BasicCardPack ? 190 : (int)type;
         int baseAmount = Plugin.ArchipelagoHandler.slotData.SellCheckAmount;
         int startingAmount = Plugin.ArchipelagoHandler.slotData.startingItems.Contains(id) ? Plugin.ArchipelagoHandler.slotData.ExtraStartingItemChecks : 0;
