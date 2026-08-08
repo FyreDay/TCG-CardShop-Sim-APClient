@@ -38,6 +38,7 @@ public class SlotData
     public int CardSanity { get; private set; }
     public bool Deathlink { get; private set; }
     public bool NoFormat { get; internal set; }
+    public bool GradingLocked { get; internal set; }
 
     public int BulkBoxChecks { get; internal set; }
     public int StartingEmployeeIndex { get; internal set; }
@@ -87,6 +88,8 @@ public class SlotData
         pg3IndexMapping = PgStrToDict(slotDict.GetValueOrDefault("ShopPg3Mapping").ToString());
         ttIndexMapping = PgStrToDict(slotDict.GetValueOrDefault("ShopTTMapping").ToString());
         startingItems = StrToList(slotDict.GetValueOrDefault("StartingIds").ToString());
+
+        GradingLocked = slotDict.GetValueOrDefault("grading_locked", "0").ToString() == "1";
     }
 
     public Dictionary<string, List<AchievementData>> GetAchievementDefinitions()

@@ -34,5 +34,7 @@ namespace ApClient.mapping
         public const long THREE_GHOST_CARD = 328;
         public const long FOUR_GHOST_CARD = 329;
         public const long FIVE_GHOST_CARD = 330;
+
+        public const long GRADING_UNLOCK = 340;
     }
 }

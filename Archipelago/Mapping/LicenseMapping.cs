@@ -9,22 +9,31 @@ public class LicenseMapping
 {
     public const int SELL_CHECK_START_ID = 3000;
     public const int BASIC_CARD_PACK_ID = 190;
+    public const int SELL_CHECKS_BULK_BOX_TETRA = 5000;
+    public const int SELL_CHECKS_BULK_BOX_DESTINY = 5020;
     public static List<(int id, int count)> GetLocations(EItemType type)
     {
+        int start_id = SELL_CHECK_START_ID;
         if (type == EItemType.BulkBox_TetramonBaseGradeUG ||
             type == EItemType.BulkBox_TetramonBaseGradeHG ||
             type == EItemType.BulkBox_TetramonBaseGradeMG ||
-            type == EItemType.BulkBox_TetramonBaseGradePG)
+            type == EItemType.BulkBox_TetramonBaseGradePG ||
+            type == EItemType.BulkBox_TetramonBase
+            )
         {
             type = EItemType.BulkBox_TetramonBase;
+            start_id = SELL_CHECKS_BULK_BOX_TETRA;
+
         }
 
         if (type == EItemType.BulkBox_TetramonDestinyGradeUG ||
             type == EItemType.BulkBox_TetramonDestinyGradeHG ||
             type == EItemType.BulkBox_TetramonDestinyGradeMG ||
-            type == EItemType.BulkBox_TetramonDestinyGradePG)
+            type == EItemType.BulkBox_TetramonDestinyGradePG ||
+            type == EItemType.BulkBox_TetramonDestiny)
         {
             type = EItemType.BulkBox_TetramonDestiny;
+            start_id = SELL_CHECKS_BULK_BOX_DESTINY;
         }
 
         int id = type == EItemType.BasicCardPack ? 190 : (int)type;
@@ -40,7 +49,7 @@ public class LicenseMapping
             }
             for (int i = 1; i <= baseAmount + startingAmount; i++)
             {
-                list.Add((SELL_CHECK_START_ID + (id * 16) + (i - 1), amountInBox * i));
+                list.Add((start_id + (id * 16) + (i - 1), amountInBox * i));
             }
         }
         catch (Exception e)
