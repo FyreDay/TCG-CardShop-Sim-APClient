@@ -13,6 +13,7 @@ public class LicenseMapping
     public const int SELL_CHECKS_BULK_BOX_DESTINY = 5020;
     public static List<(int id, int count)> GetLocations(EItemType type)
     {
+        bool isBulkBox = false;
         int start_id = SELL_CHECK_START_ID;
         if (type == EItemType.BulkBox_TetramonBaseGradeUG ||
             type == EItemType.BulkBox_TetramonBaseGradeHG ||
@@ -23,7 +24,7 @@ public class LicenseMapping
         {
             type = EItemType.BulkBox_TetramonBase;
             start_id = SELL_CHECKS_BULK_BOX_TETRA;
-
+            isBulkBox = true;
         }
 
         if (type == EItemType.BulkBox_TetramonDestinyGradeUG ||
@@ -34,9 +35,12 @@ public class LicenseMapping
         {
             type = EItemType.BulkBox_TetramonDestiny;
             start_id = SELL_CHECKS_BULK_BOX_DESTINY;
+            isBulkBox = true;
         }
 
         int id = type == EItemType.BasicCardPack ? 190 : (int)type;
+
+        int final_id = isBulkBox ? start_id : start_id + (id * 16);
         int baseAmount = Plugin.ArchipelagoHandler.slotData.SellCheckAmount;
         int startingAmount = Plugin.ArchipelagoHandler.slotData.startingItems.Contains(id) ? Plugin.ArchipelagoHandler.slotData.ExtraStartingItemChecks : 0;
         var list = new List<(int id, int count)>();
@@ -49,7 +53,8 @@ public class LicenseMapping
             }
             for (int i = 1; i <= baseAmount + startingAmount; i++)
             {
-                list.Add((start_id + (id * 16) + (i - 1), amountInBox * i));
+                
+                list.Add((final_id + (i - 1), amountInBox * i));
             }
         }
         catch (Exception e)
