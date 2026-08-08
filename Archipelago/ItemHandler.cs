@@ -36,7 +36,7 @@ public class ItemHandler : MonoBehaviour
     private void MarkSaveDirty()
     {
         saveDirty = true;
-        nextSaveTime = Time.realtimeSinceStartup + 2f;
+        nextSaveTime = Time.realtimeSinceStartup + 120f;
     }
 
     private void Update()
