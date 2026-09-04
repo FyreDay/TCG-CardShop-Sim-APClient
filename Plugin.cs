@@ -173,7 +173,6 @@ public class Plugin : BaseUnityPlugin
         //    APLogicUtil.TriggerDeathlinkLogic();
         //}
 
-        // Toggle with hotkey
         if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
         {
             UIInfoPanel.getInstance().DelaySetVisable(false);
