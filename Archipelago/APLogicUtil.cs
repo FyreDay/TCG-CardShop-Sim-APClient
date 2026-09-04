@@ -70,6 +70,8 @@ public class APLogicUtil
                 {
                     continue;
                 }
+                if (c.m_IsAtPayingPosition)
+                    continue;
                 List<string> list = new List<string>();
                 if (c.m_ItemInBagList.Count > 0 || c.m_CardInBagList.Count > 0)
                 {
