@@ -29,6 +29,7 @@ public class InventoryBasePatches
     [HarmonyPatch(typeof(InventoryBase), "Start")]
     public class StartPatches
     {
+        
         private static List<EItemType> UpdateShopList(OrderedDictionary mapping, StockItemData_ScriptableObject stockData)
         {
             List<EItemType> itemTypes = new List<EItemType>();
@@ -39,7 +40,7 @@ public class InventoryBasePatches
 
                 foreach (RestockData restock in stockData.m_RestockDataList)
                 {
-
+                    Plugin.Logger.LogInfo($"Restock item: {restock.itemType} with index {(int)restock.itemType}");
                     if (restock.itemType == (EItemType)item.Key)
                     {
                         restock.licenseShopLevelRequired = (int)item.Value;
