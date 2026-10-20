@@ -16,12 +16,12 @@ namespace ApClient.mapping
             }
             //InventoryBase.GetMonsterData((EMonsterType)i).GetName();
             //Plugin.Logger.LogInfo($"{$"{cardData.monsterType} {cardData.borderType} {(cardData.isFoil ? "Foil" : "NonFoil")} {cardData.expansionType}"} : {0x1F290000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType}");
-            return 0x10000 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
+            return 1 << 51 | ((int)cardData.expansionType << 12) | ((int)cardData.borderType << 8) | ((cardData.isFoil ? 1 : 0) << 7) | (int)cardData.monsterType;
         }
 
         public static CardData getCardFromId(int id)
         {
-            if ((id & 0x10000) == 0)
+            if ((id & (1 << 51)) == 0)
                 return null;
 
             var cardData = new CardData();
