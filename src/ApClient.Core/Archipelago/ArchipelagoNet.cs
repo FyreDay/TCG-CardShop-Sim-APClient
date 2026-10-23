@@ -1,26 +1,16 @@
-﻿using ApClient.Archipelago;
-using ApClient.Core.Save;
-using ApClient.mapping;
-using ApClient.ui;
-using ApClient.UI;
-using Archipelago.MultiClient.Net;
+﻿using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
-using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Models;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace ApClient.Core.Archipelago;
 
-public class ArchipelagoNet : MonoBehaviour
+public class ArchipelagoNet
 {
     private ArchipelagoState state;
 
@@ -31,7 +21,7 @@ public class ArchipelagoNet : MonoBehaviour
     private ArchipelagoSession Session { get; set; }
     private DeathLinkService deathLinkService = null;
 
-    public async Task Connect(string ip, string password, string slot)
+    public async Task Connect(string ip, string password, string slot, string plugin_version)
     {
         if (Session != null)
         {
@@ -51,7 +41,7 @@ public class ArchipelagoNet : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Plugin.RunOnMainThread(() => state.onDisconnect("Failed to Connect"));
+            state.QueueNetworkEvent(() => state.OnDisconnect("Failed to Connect"));
             return;
         }
 
@@ -61,12 +51,12 @@ public class ArchipelagoNet : MonoBehaviour
 
             string modversion = loginSuccess.SlotData.GetValueOrDefault("ModVersion").ToString();
             var modversionSplit = modversion.Split(".");
-            var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
+            var pluginVersionSplit = plugin_version.Split(".");
             if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
             {
-                Plugin.Logger.LogError($"AP world version {modversion} is not compatible with plugin version {MyPluginInfo.PLUGIN_VERSION}");
+                Logger.Display($"AP world version {modversion} is not compatible with plugin version {plugin_version}");
                 await Session.Socket.DisconnectAsync();
-                Plugin.RunOnMainThread(() => state.onDisconnect($"AP Requires Mod v{modversion}"));
+                state.QueueNetworkEvent(() => state.OnDisconnect($"AP Requires Mod v{modversion}"));
                 return;
             }
 
@@ -78,14 +68,11 @@ public class ArchipelagoNet : MonoBehaviour
                 deathLinkService.EnableDeathLink();
                 deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
                 {
-                    Plugin.RunOnMainThread(() =>
-                    {
-                        state.doDeathlink();
-                    });
+                    state.QueueNetworkEvent(() => state.OnDeathlink());
                 };
             }
 
-            state.onConnect(slotData);
+            state.QueueNetworkEvent(() => state.OnConnect(slotData));
         }
 
         return;
@@ -98,7 +85,7 @@ public class ArchipelagoNet : MonoBehaviour
         await Session.Socket.DisconnectAsync();
         Session = null;
         deathLinkService = null;
-        APConsole.Instance.Log("Disconnected from Archipelago");
+        Logger.Log("Disconnected from Archipelago");
     }
 
     public ILocationCheckHelper GetLocationHelper()
@@ -124,7 +111,7 @@ public class ArchipelagoNet : MonoBehaviour
 
     public void SendDeath()
     {
-        deathLinkService.SendDeathLink(new DeathLink(Plugin.LastUsedSlot.Value, Plugin.LastUsedSlot.Value + " Stunk up the place!"));
+        deathLinkService.SendDeathLink(new DeathLink(Session.Players.ActivePlayer.Name, Session.Players.ActivePlayer.Alias + " Stunk up the place!"));
     }
     public void Release()
     {
@@ -141,64 +128,50 @@ public class ArchipelagoNet : MonoBehaviour
             {
                 var itemIndex = helper.Index;
                 var item = helper.DequeueItem();
-                Plugin.RunOnMainThread(() => state.QueueItem(itemIndex, item));
+                state.QueueNetworkEvent(() => state.QueueItem(itemIndex, item));
             }
         }
         catch (Exception ex)
         {
-            APConsole.Instance.Log($"ItemReceived Error: {ex}");
+            Logger.Log($"ItemReceived Error: {ex}");
             throw;
         }
     }
 
     private void OnMessageReceived(LogMessage message)
     {
-        string messageStr;
-        if (message.Parts.Any(x => x.Type == MessagePartType.Player) &&
-            Plugin.FilterLog != null &&
-            Plugin.FilterLog.Value &&
-            !message.Parts.Any(x => x.Text.Contains(Session!.Players.GetPlayerName(Session.ConnectionInfo.Slot))))
-            return;
-        if (message.Parts.Length == 1)
-        {
-            messageStr = message.Parts[0].Text;
-        }
-        else
-        {
-            var builder = new StringBuilder();
-            foreach (var part in message.Parts)
-            {
-                builder.Append($"{part.Text}");
-            }
-
-            messageStr = builder.ToString();
-        }
-        APConsole.Instance.Log(messageStr);
+        state.QueueNetworkEvent(() => state.OnMessageReceived(message));
     }
 
     private void OnError(Exception ex, string message)
     {
-        APConsole.Instance.Log($"Socket error: {message} - {ex.Message}");
+        Logger.Log($"Socket error: {message} - {ex.Message}");
     }
 
     private void OnSocketClosed(string reason)
     {
-        Plugin.RunOnMainThread(() => state.onDisconnect($"Socket Closed: {reason}"));
+        state.QueueNetworkEvent(() => state.OnDisconnect($"Socket Closed: {reason}"));
 
     }
 
     private void OnHint(Hint[] hints)
     {
-        Plugin.RunOnMainThread(() =>
-        {
-            foreach (Hint hint in hints)
-            {
-                if (hint.FindingPlayer == Session.ConnectionInfo.Slot && hint.Status == HintStatus.Priority)
-                {
-                    Plugin.SaveHandler.GetAchievementHandler().SetHinted(hint.LocationId);
-                }
-            }
-        });
+        state.QueueNetworkEvent(() => state.OnHints(hints));
+    }
+
+    public int GetMyPlayerSlot()
+    {
+        return Session.Players.ActivePlayer.Slot;
+    }
+
+    public string GetMyPlayerName()
+    {
+        return Session.Players.ActivePlayer.Name;
+    }
+
+    public string GetSeed()
+    {
+        return Session.RoomState.Seed;
     }
 
     void OnDestroy()

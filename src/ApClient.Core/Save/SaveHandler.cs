@@ -1,13 +1,9 @@
 ﻿using ApClient.Archipelago;
-using ApClient.data;
 using ApClient.mapping;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
-using System.Text;
-using UnityEngine;
 
 namespace ApClient.Core.Save;
 
@@ -72,7 +68,7 @@ public class SaveHandler
         }
         if (achievementHandler == null)
         {
-            achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+            achievementHandler = new AchievementHandler(Plugin.ArchipelagoState.SlotData.GetAchievementDefinitions(), saveData);
         }
         return saveData;
     }
@@ -81,7 +77,7 @@ public class SaveHandler
     {
         if (achievementHandler == null)
         {
-            achievementHandler = new AchievementHandler(Plugin.ArchipelagoHandler.slotData.GetAchievementDefinitions(), saveData);
+            achievementHandler = new AchievementHandler(Plugin.ArchipelagoState.SlotData.GetAchievementDefinitions(), saveData);
         }
         return achievementHandler;
     }

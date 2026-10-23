@@ -19,6 +19,15 @@
   <Import Project="$(MSBuildThisFileDirectory)\ProjectSettings.props" />
 
   <ItemGroup>
+    <Compile Remove="src\**" />
+    <Compile Remove="tests\**" />
+    <EmbeddedResource Remove="src\**" />
+    <EmbeddedResource Remove="tests\**" />
+    <None Remove="src\**" />
+    <None Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
@@ -57,10 +66,6 @@
     <Reference Include="Unity.InputSystem">
       <HintPath>$(GamePath)\Card Shop Simulator_Data\Managed\Unity.InputSystem.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="assets\color-icon.png" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

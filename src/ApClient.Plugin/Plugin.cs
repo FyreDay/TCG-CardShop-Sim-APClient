@@ -1,26 +1,17 @@
-﻿using ApClient.Archipelago;
-using ApClient.Archipelago.Mapping;
+﻿
 using ApClient.assets;
-using ApClient.Core.Archipelago;
-using ApClient.Core.Save;
-using ApClient.mapping;
-using ApClient.Patches.Functionality;
 using ApClient.UI;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using I2.Loc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Profiling.Memory.Experimental;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace ApClient;
 
@@ -28,13 +19,8 @@ namespace ApClient;
 public class Plugin : BaseUnityPlugin
 {
     public static new ManualLogSource Logger;
-    public static ArchipelagoState ArchipelagoState;
-    
-    public static SaveHandler SaveHandler
-    {
-        get;
-        private set;
-    }
+    public static CoreBridge Bridge;
+   
 
     private static readonly Queue<Action> _mainThreadQueue = new Queue<Action>();
 
@@ -65,7 +51,7 @@ public class Plugin : BaseUnityPlugin
         
         SceneManager.sceneLoaded += this.OnSceneLoad;
         bindConfig();
-        ArchipelagoState = gameObject.AddComponent<ArchipelagoState>();
+        Bridge = gameObject.AddComponent<CoreBridge>();
 
         Logger = base.Logger;
         Application.logMessageReceived += HandleUnityLog;

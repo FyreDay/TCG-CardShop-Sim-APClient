@@ -58,39 +58,6 @@ public class APLogicUtil
         return remaining > 0 ? remaining : 0; // return 0 if none remaining
     }
 
-    public static void TriggerDeathlinkLogic()
-    {
-        Util.RunOnMainThread(() =>
-        {
-            
-            PopupTextPatches.ShowCustomText("Deathlink Has Caused Customers to Leave!");
-            foreach (Customer c in CSingleton<CustomerManager>.Instance.m_CustomerList)
-            {
-                if (!(UnityEngine.Random.Range(0, 1f) < Constants.SHOPLIFT_CHANCE))
-                {
-                    continue;
-                }
-                if (c.m_IsAtPayingPosition)
-                    continue;
-                List<string> list = new List<string>();
-                if (c.m_ItemInBagList.Count > 0 || c.m_CardInBagList.Count > 0)
-                {
-                    list.Add(LocalizationManager.GetTranslation("Im Going to Shoplift"));
-                }
-                else
-                {
-                    list.Add(LocalizationManager.GetTranslation("Im leaving"));
-                }
-                c.PopupText(list, 100);
-                c.m_CustomerTournamentData.m_IsTournamentCustomer = false;
-                c.m_ItemInBagList.Clear();
-                c.m_CardInBagList.Clear();
-                c.ExitShop();
-
-            }
-        });
-    }
-
     public static bool hasAllCardPacks()
     {
         return ((Plugin.ArchipelagoHandler.GetItemCount(190) > 0 || Plugin.ArchipelagoHandler.GetItemCount(1) > 0) &&
