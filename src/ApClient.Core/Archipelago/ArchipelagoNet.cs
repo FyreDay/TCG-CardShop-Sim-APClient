@@ -74,7 +74,7 @@ public class ArchipelagoNet
 
             state.QueueNetworkEvent(() => state.OnConnect(slotData));
         }
-
+        state.QueueNetworkEvent(() => state.OnDisconnect($"Connection Failed"));
         return;
     }
 
