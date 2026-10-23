@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApClient.Patches.Functionality;
 
-public class PLayerCardUICatches
+public class PlayerCardUIPatches
 {
 
     [HarmonyPatch(typeof(PlayCardSetUI))]

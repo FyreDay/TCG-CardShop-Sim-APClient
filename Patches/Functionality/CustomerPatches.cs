@@ -21,6 +21,13 @@ public class CustomerPatches
         [HarmonyPostfix]
         public static void Postfix(Customer __instance)
         {
+            if (!Plugin.IsGameReady() ||
+                !Plugin.ItemHandler.cashOnly ||
+                __instance.m_ItemScannedCount < __instance.m_ItemInBagList.Count + __instance.m_CardInBagList.Count ||
+                __instance.m_CurrentQueueCashierCounter == null)
+            {
+                return;
+            }
             if (Plugin.ItemHandler.cashOnly)
             {
                 __instance.m_CustomerCash.SetIsCard(false);

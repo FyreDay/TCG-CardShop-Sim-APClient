@@ -1,4 +1,4 @@
-﻿using ApClient.data;
+﻿using ApClient.Core.Archipelago;
 using ApClient.Patches.Functionality;
 using I2.Loc;
 using System;

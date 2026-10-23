@@ -1,6 +1,8 @@
 ﻿using ApClient.Archipelago;
 using ApClient.Archipelago.Mapping;
 using ApClient.assets;
+using ApClient.Core.Archipelago;
+using ApClient.Core.Save;
 using ApClient.mapping;
 using ApClient.Patches.Functionality;
 using ApClient.UI;
@@ -26,30 +28,25 @@ namespace ApClient;
 public class Plugin : BaseUnityPlugin
 {
     public static new ManualLogSource Logger;
-    public static ArchipelagoHandler ArchipelagoHandler;
+    public static ArchipelagoState ArchipelagoState;
     
     public static SaveHandler SaveHandler
     {
         get;
         private set;
     }
-    public static ItemHandler ItemHandler;
 
-    private static ConfigFile ConfigRef;
+    private static readonly Queue<Action> _mainThreadQueue = new Queue<Action>();
 
-    public static ConfigEntry<float> MessageInTime;
-    public static ConfigEntry<bool> FilterLog;
-    public static ConfigEntry<float> MessageHoldTime;
-    public static ConfigEntry<float> MessageOutTime;
-    public static ConfigEntry<bool> EnableDebugLogging;
-    public static ConfigEntry<KeyCode> ConnectionHotKey;
-    public static ConfigEntry<KeyCode> LogToggleKey;
-    public static ConfigEntry<KeyCode> HistoryToggleKey;
-    //public static ConfigEntry<KeyCode> ConsoleHotkey;
-    public static ConfigEntry<bool> doDeathlink;
-    public static ConfigEntry<string> LastUsedIP;
-    public static ConfigEntry<string> LastUsedPassword;
-    public static ConfigEntry<string> LastUsedSlot;
+    public static void RunOnMainThread(Action action)
+    {
+        lock (_mainThreadQueue)
+        {
+            _mainThreadQueue.Enqueue(action);
+        }
+    }
+
+    
 
     private readonly Harmony Harmony = new(MyPluginInfo.PLUGIN_GUID);
 
@@ -62,15 +59,18 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         // Plugin startup logic
-        Logger = base.Logger;
-        Application.logMessageReceived += HandleUnityLog;
+        
         Harmony.PatchAll();
         DontDestroyOnLoad(gameObject);
-        Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+        
         SceneManager.sceneLoaded += this.OnSceneLoad;
         bindConfig();
-        ArchipelagoHandler = gameObject.AddComponent<ArchipelagoHandler>();
-        ItemHandler = gameObject.AddComponent<ItemHandler>();
+        ArchipelagoState = gameObject.AddComponent<ArchipelagoState>();
+
+        Logger = base.Logger;
+        Application.logMessageReceived += HandleUnityLog;
+
+        Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
     }
 
     void Start()
@@ -85,7 +85,7 @@ public class Plugin : BaseUnityPlugin
         BundleMetadata metadata = JsonConvert.DeserializeObject<BundleMetadata>( metadataText.text);
 
         var modversionSplit = metadata.bundleVersion.Split(".");
-        var pluginVersionSplit = ("1.0.0").Split(".");//MyPluginInfo.PLUGIN_VERSION.Split(".");
+        var pluginVersionSplit = MyPluginInfo.PLUGIN_VERSION.Split(".");
         if (modversionSplit[0] != pluginVersionSplit[0] || modversionSplit[1] != pluginVersionSplit[1])
         {
             ConnectionMenu.SetState($"Wrong asset version. Needs {modversionSplit[0]}.{modversionSplit[1]}.X", false);
@@ -155,23 +155,15 @@ public class Plugin : BaseUnityPlugin
         }
 
     }
-
-    public static bool IsGameReady()
-    {
-        return ArchipelagoHandler.IsConnected && SceneLoaded;
-    }
-
-    public static bool EnabledDeathLink()
-    {
-        return ArchipelagoHandler.IsConnected && IsGameReady() && ArchipelagoHandler.slotData.Deathlink && doDeathlink.Value;
-    }
-
     private void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.F7))
-        //{
-        //    APLogicUtil.TriggerDeathlinkLogic();
-        //}
+        lock (_mainThreadQueue)
+        {
+            while (_mainThreadQueue.Count > 0)
+            {
+                _mainThreadQueue.Dequeue().Invoke();
+            }
+        }
 
         if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && IsGameReady())
         {
@@ -179,7 +171,48 @@ public class Plugin : BaseUnityPlugin
 
         }
     }
+    
+    public static void UpdateSavedConnection(string ip, string password, string slot)
+    {
+        LastUsedIP.Value = ip;
+        LastUsedPassword.Value = password;
+        LastUsedSlot.Value = slot;
+        ConfigRef.Save();
+    }
 
+    void HandleUnityLog(string condition, string stackTrace, LogType type)
+    {
+        if (type == LogType.Warning &&
+            condition.Contains("Parent of RectTransform is being set with parent property"))
+        {
+            return;
+        }
+
+        Debug.unityLogger.Log(type, condition);
+    }
+
+    private void OnDestroy()
+    {
+        Plugin.Logger.LogInfo("Unloading AP Mod");
+        //_ = ArchipelagoHandler.DisconnectAsync();
+        this.Harmony.UnpatchSelf();
+    }
+
+    private static ConfigFile ConfigRef;
+
+    public static ConfigEntry<float> MessageInTime;
+    public static ConfigEntry<bool> FilterLog;
+    public static ConfigEntry<float> MessageHoldTime;
+    public static ConfigEntry<float> MessageOutTime;
+    public static ConfigEntry<bool> EnableDebugLogging;
+    public static ConfigEntry<KeyCode> ConnectionHotKey;
+    public static ConfigEntry<KeyCode> LogToggleKey;
+    public static ConfigEntry<KeyCode> HistoryToggleKey;
+    //public static ConfigEntry<KeyCode> ConsoleHotkey;
+    public static ConfigEntry<bool> doDeathlink;
+    public static ConfigEntry<string> LastUsedIP;
+    public static ConfigEntry<string> LastUsedPassword;
+    public static ConfigEntry<string> LastUsedSlot;
     private void bindConfig()
     {
         ConfigRef = Config;
@@ -245,75 +278,5 @@ public class Plugin : BaseUnityPlugin
         LastUsedIP = Config.Bind("Connection", "LastUsedIP", "", "The last server IP entered.");
         LastUsedPassword = Config.Bind("Connection", "LastUsedPassword", "", "The last server password entered.");
         LastUsedSlot = Config.Bind("Connection", "LastUsedSlot", "", "The last player slot name entered.");
-    }
-
-    public static async Task<bool> ConnectAsync(string ip, string password, string slot)
-    {
-        LastUsedIP.Value = ip;
-        LastUsedPassword.Value = password;
-        LastUsedSlot.Value = slot;
-        SaveHandler = await ArchipelagoHandler.ConnectAsync(ip, password, slot);
-        if (SaveHandler != null)
-        {
-            Util.RunTitleInteractableSaveLogic();
-            ConfigRef.Save();
-            return true;
-        }
-        ConfigRef.Save();
-        return false;
-    }
-
-    public static async Task Disconnect()
-    {
-
-        Cleanup();
-
-        if (ArchipelagoHandler != null)
-        {
-            try
-            {
-                await ArchipelagoHandler.DisconnectAsync();
-            }
-            catch (Exception ex)
-            {
-                Plugin.Logger.LogWarning($"Disconnect error: {ex}");
-            }
-        }
-    }
-
-    public static void Cleanup() {
-        ConnectionMenu.setVisable(true);
-        ConnectionMenu.SetState("Not Connected", true);
-        ClearSave();
-    }
-
-    public static void ClearSave()
-    {
-        if(SaveHandler != null && IsGameReady())
-        {
-            CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
-            CSingleton<CGameManager>.Instance.SaveGameData(0);
-        }
-        SaveHandler = null;
-    }
-
-
-    void HandleUnityLog(string condition, string stackTrace, LogType type)
-    {
-        if (type == LogType.Warning &&
-            condition.Contains("Parent of RectTransform is being set with parent property"))
-        {
-            return; // swallow it
-        }
-
-        // otherwise log normally if you want
-        Debug.unityLogger.Log(type, condition);
-    }
-
-    private void OnDestroy()
-    {
-        Plugin.Logger.LogInfo("Unloading AP Mod");
-        //_ = ArchipelagoHandler.DisconnectAsync();
-        this.Harmony.UnpatchSelf();
     }
 }

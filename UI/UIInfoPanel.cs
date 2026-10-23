@@ -1,6 +1,7 @@
 ﻿using ApClient;
 using ApClient.Archipelago;
 using ApClient.Archipelago.Mapping;
+using ApClient.Core.Save;
 using ApClient.mapping;
 using System;
 using System.Collections;

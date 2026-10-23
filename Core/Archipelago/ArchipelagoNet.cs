@@ -1,4 +1,5 @@
-﻿using ApClient.data;
+﻿using ApClient.Archipelago;
+using ApClient.Core.Save;
 using ApClient.mapping;
 using ApClient.ui;
 using ApClient.UI;
@@ -16,21 +17,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using static System.Collections.Specialized.BitVector32;
 
-namespace ApClient.Archipelago;
+namespace ApClient.Core.Archipelago;
 
-public class ArchipelagoHandler : MonoBehaviour
+public class ArchipelagoNet : MonoBehaviour
 {
-    public SlotData slotData;
-    private ArchipelagoSession Session { get; set; }
-    DeathLinkService deathLinkService = null;
+    private ArchipelagoState state;
 
-    public bool disconnecting = false;
-
-    public bool IsConnected => Session?.Socket.Connected ?? false;
-    public async Task<SaveHandler> ConnectAsync(string ip, string password, string slot)
+    public ArchipelagoNet(ArchipelagoState state)
     {
+        this.state = state;
+    }
+    private ArchipelagoSession Session { get; set; }
+    private DeathLinkService deathLinkService = null;
+
+    public async Task Connect(string ip, string password, string slot)
+    {
+        if (Session != null)
+        {
+            await DisconnectAsync();
+        }
         Session = ArchipelagoSessionFactory.CreateSession(ip);
         Session.MessageLog.OnMessageReceived += OnMessageReceived;
         Session.Socket.ErrorReceived += OnError;
@@ -45,7 +51,8 @@ public class ArchipelagoHandler : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ConnectionMenu.SetState("Connnection Failed", true);
+            Plugin.RunOnMainThread(() => state.onDisconnect("Failed to Connect"));
+            return;
         }
 
         if (result.Successful)
@@ -59,12 +66,11 @@ public class ArchipelagoHandler : MonoBehaviour
             {
                 Plugin.Logger.LogError($"AP world version {modversion} is not compatible with plugin version {MyPluginInfo.PLUGIN_VERSION}");
                 await Session.Socket.DisconnectAsync();
-                ConnectionMenu.SetState($"AP Requires Mod v{modversion}", false);
-
-                return null;
+                Plugin.RunOnMainThread(() => state.onDisconnect($"AP Requires Mod v{modversion}"));
+                return;
             }
 
-            slotData = new SlotData(loginSuccess.SlotData);
+            SlotData slotData = new SlotData(loginSuccess.SlotData);
 
             if (slotData.Deathlink)
             {
@@ -72,48 +78,53 @@ public class ArchipelagoHandler : MonoBehaviour
                 deathLinkService.EnableDeathLink();
                 deathLinkService.OnDeathLinkReceived += (deathLinkObject) =>
                 {
-
-                    if (Plugin.EnabledDeathLink())
+                    Plugin.RunOnMainThread(() =>
                     {
-                        APLogicUtil.TriggerDeathlinkLogic();
-                    }
+                        state.doDeathlink();
+                    });
                 };
             }
 
-            return new SaveHandler(Session.RoomState.Seed, slot);
+            state.onConnect(slotData);
         }
 
-        return null;
+        return;
     }
-
-
 
     public async Task DisconnectAsync()
     {
-        if (Session == null || !disconnecting)
+        if (Session == null)
             return;
-        disconnecting = false;
         await Session.Socket.DisconnectAsync();
         Session = null;
         deathLinkService = null;
-        slotData = null;
         APConsole.Instance.Log("Disconnected from Archipelago");
     }
 
-
-    public ScoutedItemInfo TryScoutLocation(long locationId)
+    public ILocationCheckHelper GetLocationHelper()
     {
-        Plugin.Logger.LogInfo($"Trying to scout location {locationId}");
-        return Session?.Locations.ScoutLocationsAsync(locationId)?.Result?.Values.First();
+        if (Session == null)
+            throw new InvalidOperationException("Not connected to Archipelago");
+        return Session?.Locations;
     }
 
-    public void sendDeath()
+    public IReceivedItemsHelper GetItemHelper()
     {
-        if (Plugin.EnabledDeathLink())
-        {
-            Plugin.Logger.LogInfo("Sent Death!");
-            deathLinkService.SendDeathLink(new DeathLink(Plugin.LastUsedSlot.Value, Plugin.LastUsedSlot.Value + " Stunk up the place!"));
-        }
+        if (Session == null)
+            throw new InvalidOperationException("Not connected to Archipelago");
+        return Session?.Items;
+    }
+
+    public async Task<Dictionary<long, ScoutedItemInfo>> TryScoutLocation(long locationId)
+    {
+        if (Session == null)
+            throw new InvalidOperationException("Not connected to Archipelago");
+        return await Session.Locations.ScoutLocationsAsync(locationId);
+    }
+
+    public void SendDeath()
+    {
+        deathLinkService.SendDeathLink(new DeathLink(Plugin.LastUsedSlot.Value, Plugin.LastUsedSlot.Value + " Stunk up the place!"));
     }
     public void Release()
     {
@@ -121,16 +132,7 @@ public class ArchipelagoHandler : MonoBehaviour
         Session?.SetClientState(ArchipelagoClientState.ClientGoal);
     }
 
-    public int GetItemCount(long id)
-    {
-        return Session.Items.AllItemsReceived.Where(i => i.ItemId == id).Count();
-
-    }
-
-    public void CompleteLocationChecks(params long[] ids)
-    {
-        Session.Locations.CompleteLocationChecks(ids);
-    }
+    
     private void ItemReceived(ReceivedItemsHelper helper)
     {
         try
@@ -139,7 +141,7 @@ public class ArchipelagoHandler : MonoBehaviour
             {
                 var itemIndex = helper.Index;
                 var item = helper.DequeueItem();
-                Plugin.ItemHandler.HandleItem(itemIndex, item);
+                Plugin.RunOnMainThread(() => state.QueueItem(itemIndex, item));
             }
         }
         catch (Exception ex)
@@ -181,29 +183,22 @@ public class ArchipelagoHandler : MonoBehaviour
 
     private void OnSocketClosed(string reason)
     {
-        //todo:go to main menu
-        APConsole.Instance.Log($"Socket closed: {reason}");
-        CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
-        CSingleton<CGameManager>.Instance.SaveGameData(0);
-        Plugin.ClearSave();
-        CSingleton<CGameManager>.Instance.LoadMainLevelAsync("Title");
-        
+        Plugin.RunOnMainThread(() => state.onDisconnect($"Socket Closed: {reason}"));
+
     }
 
     private void OnHint(Hint[] hints)
     {
-        foreach (Hint hint in hints)
+        Plugin.RunOnMainThread(() =>
         {
-            if (hint.FindingPlayer == Session.ConnectionInfo.Slot && hint.Status == HintStatus.Priority)
+            foreach (Hint hint in hints)
             {
-                Plugin.SaveHandler.GetAchievementHandler().SetHinted(hint.LocationId);
+                if (hint.FindingPlayer == Session.ConnectionInfo.Slot && hint.Status == HintStatus.Priority)
+                {
+                    Plugin.SaveHandler.GetAchievementHandler().SetHinted(hint.LocationId);
+                }
             }
-        }
-    }
-
-    public HashSet<long> GetCheckedLocations()
-    {
-        return Session.Locations.AllLocationsChecked.ToHashSet();
+        });
     }
 
     void OnDestroy()

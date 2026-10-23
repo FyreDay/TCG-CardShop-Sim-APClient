@@ -8,7 +8,7 @@ using System.Text;
 using UnityEngine;
 using static ApClient.data.CardDataExtensions;
 
-namespace ApClient.Archipelago;
+namespace ApClient.Core.Save;
 
 
 [Serializable]
@@ -66,7 +66,7 @@ public class CompiledAchievement
         {
             foreach (var e in expansions)
             {
-                int index = (r - 1) + (4 * e);
+                int index = r - 1 + 4 * e;
                 itemMask |= 1UL << index;
             }
         }

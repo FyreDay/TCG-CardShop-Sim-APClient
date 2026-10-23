@@ -1,4 +1,5 @@
-﻿using ApClient.Archipelago.Mapping;
+﻿using ApClient.Archipelago;
+using ApClient.Archipelago.Mapping;
 using ApClient.mapping;
 using ApClient.Patches.Functionality;
 using ApClient.ui;
@@ -7,115 +8,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Device;
 
-namespace ApClient.Archipelago;
+namespace ApClient.Core.Archipelago;
 
-public class ItemWrapper
-{
-    public int Index;
-    public ItemInfo Info;
-
-    public ItemWrapper(int index, ItemInfo info)
-    {
-        Index = index;
-        Info = info;
-    }
-}
 public class ItemHandler : MonoBehaviour
 {
-    private Queue<ItemWrapper> cachedItems = new Queue<ItemWrapper>();
 
+    private ArchipelagoState state;
 
-    private volatile bool saveDirty;
-    private float nextSaveTime;
-
-    private void MarkSaveDirty()
+    public ItemHandler(ArchipelagoState state)
     {
-        saveDirty = true;
-        nextSaveTime = Time.realtimeSinceStartup + 120f;
+        this.state = state;
     }
-
-    private void Update()
-    {
-        if (saveDirty && Time.realtimeSinceStartup >= nextSaveTime)
-        {
-            
-
-            try
-            {
-                CSingleton<ShelfManager>.Instance.SaveInteractableObjectData();
-                CSingleton<CGameManager>.Instance.SaveGameData(0);
-                saveDirty = false;
-            }
-            catch (Exception ex)
-            {
-                Plugin.Logger.LogError(ex.ToString());
-            }
-        }
-    }
-    public void HandleItem(int index, ItemInfo item, bool save = true)
-    {
-        if (!Plugin.IsGameReady())
-        {
-            APConsole.Instance.DebugLog($"Game not ready, caching item: {item.ItemName} (index {index})");
-            cachedItems.Enqueue(new ItemWrapper(index, item));
-            return;
-        }
-        Util.RunOnMainThread(() =>
-        {
-            try
-            {
-                if (cachedItems.Count > 0)
-                {
-                    APConsole.Instance.DebugLog($"Processing {cachedItems.Count} cached items...");
-                    FlushQueue();
-                }
-
-                ProcessItem(index, item);
-
-                MarkSaveDirty();
-            }
-            catch (Exception ex)
-            {
-                APConsole.Instance.DebugLog($"HandleItem Error: {ex}");
-            }
-        });
-    }
-
-    public void FlushQueue()
-    {
-        if (!Plugin.IsGameReady())
-        {
-            return;
-        }
-
-        int processedCount = 0;
-        while (cachedItems.Count > 0)
-        {
-            var itemWrapper = cachedItems.Dequeue();
-            ProcessItem(itemWrapper.Index, itemWrapper.Info);
-
-            processedCount++;
-        }
-
-        APConsole.Instance.DebugLog($"Flushed {processedCount} cached items");
-        if (processedCount > 0)
-            MarkSaveDirty();
-    }
-
-    
-    private void ProcessItem(int index, ItemInfo item)
+    public void ProcessItem(int index, ItemInfo item)
     {
         if (index < Plugin.SaveHandler.GetSaveData().NextExpectedIndex)
         {
             APConsole.Instance.DebugLog($"Item {index} already processed (current: {Plugin.SaveHandler.GetSaveData().NextExpectedIndex})");
             return;
         }
-        
+
         Plugin.SaveHandler.GetSaveData().NextExpectedIndex++;
 
         switch (item.ItemId)
@@ -130,13 +44,13 @@ public class ItemHandler : MonoBehaviour
                 CEventManager.QueueEvent(new CEventPlayer_AddCoin(40 * Math.Min(CPlayerData.m_ShopLevel + 1, 25)));
                 return;
             case GenericItemMapping.SMALL_XP:
-                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 400))));
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.1), CPlayerData.m_ShopLevel + 1 > 20 ? (int)(300 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 400)));
                 return;
             case GenericItemMapping.MEDIUM_XP:
-                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 800))));
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * .17), CPlayerData.m_ShopLevel + 1 > 20 ? (int)(600 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 800)));
                 return;
             case GenericItemMapping.LARGE_XP:
-                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), ((CPlayerData.m_ShopLevel + 1) > 20 ? (int)(1000 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 1500))));
+                CEventManager.QueueEvent(new CEventPlayer_AddShopExp(Math.Min((int)(CPlayerData.GetExpRequiredToLevelUp() * 0.25), CPlayerData.m_ShopLevel + 1 > 20 ? (int)(1000 * (CPlayerData.m_ShopLevel + 1) * 0.2) : 1500)));
                 return;
             case GenericItemMapping.RANDOM_CARD:
                 CPlayerData.AddCard(Plugin.SaveHandler.NewRandomCard(), 1);
@@ -170,18 +84,18 @@ public class ItemHandler : MonoBehaviour
                 }
                 return;
             case GenericItemMapping.LIGHT_TRAP:
-                Util.Instance.StartCoroutine(ToggleLightMultipleTimes());
+                StartCoroutine(ToggleLightMultipleTimes());
                 return;
             case GenericItemMapping.CREDIT_CARD_FAILURE_TRAP:
                 remainingTime += 60f;
 
                 if (!timerRunning)
                 {
-                    cashOnlyCoroutine = Util.Instance.StartCoroutine(CashOnlyTimerCoroutine());
+                    cashOnlyCoroutine = StartCoroutine(CashOnlyTimerCoroutine());
                 }
                 return;
             case GenericItemMapping.SHOP_EXPANSION_A:
-                if (Plugin.ArchipelagoHandler.slotData.AutoRenovate)
+                if (state.slotdata.AutoRenovate)
                 {
                     CSingleton<UnlockRoomManager>.Instance.StartUnlockNextRoom();
                 }
@@ -194,7 +108,7 @@ public class ItemHandler : MonoBehaviour
                     SoundManager.PlayAudio("SFX_CustomerBuy", 0.6f);
                     return;
                 }
-                if (Plugin.ArchipelagoHandler.slotData.AutoRenovate)
+                if (state.slotdata.AutoRenovate)
                 {
                     CSingleton<UnlockRoomManager>.Instance.StartUnlockNextWarehouseRoom();
 
@@ -224,7 +138,7 @@ public class ItemHandler : MonoBehaviour
                     screen.UpdateTotalCostAndBoxCount();
                     screen.m_UnlockScreenAnim.Play();
                 }
-                
+
                 CEventManager.QueueEvent(new CEventPlayer_ScannerRestockUnlocked());
                 return;
             case GenericItemMapping.FIVE_GHOST_CARD:
@@ -244,7 +158,7 @@ public class ItemHandler : MonoBehaviour
                 return;
         }
 
-        if((int)PlayTableMapping.GetFormatFromInt((int)item.ItemId) != -1)
+        if ((int)PlayTableMapping.GetFormatFromInt((int)item.ItemId) != -1)
         {
             UIInfoPanel.getInstance().UpdateFormatAvailability(PlayTableMapping.GetFormatFromInt((int)item.ItemId));
         }
@@ -253,7 +167,7 @@ public class ItemHandler : MonoBehaviour
         if (item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID || item.ItemId < (int)EItemType.Max)
         {
             EItemType type = item.ItemId == LicenseMapping.BASIC_CARD_PACK_ID ? EItemType.BasicCardPack : (EItemType)item.ItemId;
-            int num = Plugin.ArchipelagoHandler.GetItemCount(item.ItemId);
+            int num = state.GetItemCount(item.ItemId);
             var list = InventoryBase.GetRestockDataUsingItemType(type);
             var indexList = InventoryBase.GetRestockDataIndexList(type);
             if (num == 1 && list.First().licenseShopLevelRequired <= CPlayerData.m_ShopLevel + 1)
@@ -263,7 +177,8 @@ public class ItemHandler : MonoBehaviour
             }
             else if (num > 1 && indexList.Count > 1)
             {
-                if (CPlayerData.GetIsItemLicenseUnlocked(indexList[0])){
+                if (CPlayerData.GetIsItemLicenseUnlocked(indexList[0]))
+                {
                     CPlayerData.SetUnlockItemLicense(indexList[1]);
                 }
             }
@@ -282,7 +197,7 @@ public class ItemHandler : MonoBehaviour
 
             }
 
-            if (Plugin.ArchipelagoHandler.slotData.Goal == 1)
+            if (state.slotdata.Goal == 1)
             {
                 Plugin.SaveHandler.CheckForCardCollectionGoal();
             }
@@ -317,13 +232,13 @@ public class ItemHandler : MonoBehaviour
 
         if (FurnatureMapping.Furnature.Where(f => f.id == item.ItemId).Any())
         {
-            var screen = UnityEngine.Object.FindObjectOfType<FurnitureShopUIScreen>();
+            var screen = FindObjectOfType<FurnitureShopUIScreen>();
             if (screen != null)
             {
                 screen.Init();
 
             }
-                
+
             if (FurnatureMapping.getIdFromType(EObjectType.CardShelf) == item.ItemId)
             {
                 Plugin.SaveHandler.GetAchievementHandler().UpdateAvailability(APLogicUtil.GetAllAvailablePacks());
@@ -375,7 +290,7 @@ public class ItemHandler : MonoBehaviour
         timerRunning = false;
     }
 
-    private IEnumerator ToggleLightMultipleTimes()
+    private static IEnumerator ToggleLightMultipleTimes()
     {
         int repeats = UnityEngine.Random.Range(1, 6) * 2 - 1;
         for (int i = 0; i < repeats; i++)
@@ -386,6 +301,4 @@ public class ItemHandler : MonoBehaviour
             yield return new WaitForSeconds(delay);
         }
     }
-
-   
 }

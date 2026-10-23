@@ -1,4 +1,4 @@
-﻿using ApClient.Archipelago;
+﻿using ApClient.Core.Save;
 using ApClient.ui;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Newtonsoft.Json;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using static System.Collections.Specialized.BitVector32;
 
-namespace ApClient.data;
+namespace ApClient.Core.Archipelago;
 
 public class SlotData
 {

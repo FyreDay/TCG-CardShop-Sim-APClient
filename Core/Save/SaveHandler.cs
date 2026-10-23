@@ -1,4 +1,4 @@
-﻿
+﻿using ApClient.Archipelago;
 using ApClient.data;
 using ApClient.mapping;
 using Newtonsoft.Json;
@@ -9,7 +9,7 @@ using System.Numerics;
 using System.Text;
 using UnityEngine;
 
-namespace ApClient.Archipelago;
+namespace ApClient.Core.Save;
 
 public class CombinedSaveWrapper
 {
@@ -21,8 +21,8 @@ public class CombinedSaveWrapper
 [Serializable]
 public class FoundCards
 {
-    public Dictionary<ECollectionPackType, List<int>> foundByPackType = new();
-    public List<int> notfound = new();
+    public Dictionary<ECollectionPackType, List<long>> foundByPackType = new();
+    public List<long> notfound = new();
     public Dictionary<ECollectionPackType, int> sanityCount = new();
 }
 
@@ -112,7 +112,7 @@ public class SaveHandler
 
         foreach (ECardExpansionType t in new[] { ECardExpansionType.Tetramon, ECardExpansionType.Destiny })
         {
-            for (int monster = 0; (EMonsterType)monster < EMonsterType.MAX; monster++)
+            for (int monster = 1; (EMonsterType)monster < EMonsterType.MAX; monster++)
             {
                 for (int border = 0; (ECardBorderType)border <= ECardBorderType.FullArt; border++)
                 {
@@ -231,7 +231,7 @@ public class SaveHandler
         {
             countCollected += pair.Value.Count;
         }
-        decimal percentCollected = countCollected / (decimal)(countCollected + saveData.foundCards.notfound.Count);
+        decimal percentCollected = countCollected / (countCollected + saveData.foundCards.notfound.Count);
         UIInfoPanel.getInstance().setPercentGoalCollected(percentCollected * 100);
         if (percentCollected >= Plugin.ArchipelagoHandler.slotData.CollectionGoalPercent / (decimal)100
             && APLogicUtil.hasAllCardPacks())
@@ -253,10 +253,10 @@ public class SaveHandler
         {
             var cardData = new CardData();
 
-            cardData.expansionType = (ECardExpansionType)(1);
-            cardData.borderType = (ECardBorderType)(1);
+            cardData.expansionType = (ECardExpansionType)1;
+            cardData.borderType = (ECardBorderType)1;
             cardData.isFoil = true;
-            cardData.monsterType = (EMonsterType)(1);
+            cardData.monsterType = (EMonsterType)1;
             cardData.cardGrade = 0;
             Plugin.Logger.LogInfo("Finished default card");
             return cardData;
@@ -281,12 +281,12 @@ public class SaveHandler
 
     private string getJsonSavePath()
     {
-        return $"{this.GetBaseDirectory()}/APSaves/{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
+        return $"{GetBaseDirectory()}/APSaves/{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
     }
 
     private string getJsonBackupSavePath()
     {
-        return $"{this.GetBaseDirectory()}/APSaves/backup_{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
+        return $"{GetBaseDirectory()}/APSaves/backup_{MyPluginInfo.PLUGIN_GUID}_{slot}_{seed}.json";
     }
     public bool doesSaveExist() { return File.Exists(getJsonSavePath()) || File.Exists(getJsonBackupSavePath()); }
 
@@ -322,7 +322,7 @@ public class SaveHandler
     private int m_ValidateSaveCount = 0;
     public void Save(int saveSlotIndex)
     {
-        System.IO.Directory.CreateDirectory($"{this.GetBaseDirectory()}/APSaves/");
+        Directory.CreateDirectory($"{GetBaseDirectory()}/APSaves/");
         CSaveLoad.m_SavedGame = CGameData.instance;
         string finalPath = getJsonSavePath();
         string backupPath = getJsonBackupSavePath();

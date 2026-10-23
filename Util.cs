@@ -8,45 +8,9 @@ using UnityEngine;
 
 namespace ApClient;
 
-public class Util : MonoBehaviour
+public class Util
 {
-    private static readonly Queue<Action> _mainThreadQueue = new Queue<Action>();
-
-    private static Util _instance;
-
-    public static Util Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                var go = new GameObject("CoroutineRunner");
-                DontDestroyOnLoad(go);
-                _instance = go.AddComponent<Util>();
-            }
-            return _instance;
-        }
-    }
-
-    public static void RunOnMainThread(Action action)
-    {
-        var _ = Instance;
-        lock (_mainThreadQueue)
-        {
-            _mainThreadQueue.Enqueue(action);
-        }
-    }
-
-    private void Update()
-    {
-        lock (_mainThreadQueue)
-        {
-            while (_mainThreadQueue.Count > 0)
-            {
-                _mainThreadQueue.Dequeue().Invoke();
-            }
-        }
-    }
+    
 
     public static CardData CardRoller(ECollectionPackType collectionPackType)
     {
