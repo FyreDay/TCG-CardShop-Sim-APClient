@@ -1,0 +1,54 @@
+name: Unit Tests And Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python ModuleUpdate.py --yes --force --append "WebHostLib/requirements.txt"
+          python -m pip install typing_extensions==4.15.0
+
+      - uses: Eijebong/ap-actions/ap-tests@main
+        with:
+          apworld-path: worlds/tcg_card_shop_simulator
+          ap-version: '0.6.7'
+          python-version: '3.12'
+
+      - name: Build APWorld
+        run: |
+          python -m pip install typing_extensions==4.15.0
+          python Launcher.py "Build APWorlds"
+
+      - name: Generate Template
+        run: |
+          python Launcher.py "Generate Template Options"
+
+      - name: Fix template AP version
+        run: |
+          sed -i '0,/version: 0\.6\.8/s//version: 0.6.7/' \
+            "Players/Templates/TCG Card Shop Simulator.yaml"
+
+      - name: Upload APWorld
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg_card_shop_simulator-apworld
+          path: build/apworlds/tcg_card_shop_simulator.apworld
+
+      - name: Upload Template
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcg_card_shop_simulator-template
+          path: Players/Templates/TCG Card Shop Simulator.yaml

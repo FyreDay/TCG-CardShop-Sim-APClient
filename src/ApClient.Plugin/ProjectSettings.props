@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <!-- Each dev can change this path locally, or use an environment variable -->
+    <GamePath Condition="'$(GamePath)' == ''">E:\Applications\Steam\steamapps\common\TCG Card Shop Simulator</GamePath>
+  </PropertyGroup>
+</Project>
